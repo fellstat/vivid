@@ -11,3 +11,4 @@ Imports: shiny, parallel, shinyFiles, ipc, shinyjs
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1
+Suggests: testthat

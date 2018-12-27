@@ -25,7 +25,9 @@ vivid_server <- function(){
     register_gizmo(input, output, session, "menu_insert_markdown_block","markdown")
 
     make_menu()
+
     did <- add_new_document("Untitled")
+
     set_active_document(did)
   }
   server

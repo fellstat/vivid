@@ -19,7 +19,6 @@ test_gizmo_restore_state <- function(input, output, session, state){
   updateTextInput(session, "helloworld", value=state$helloworld)
 }
 
-
 .globals$gizmos$helloworld <- list(
   ui=test_gizmo_ui,
   server=test_gizmo_server,
