@@ -49,6 +49,10 @@ make_menu <- function(){
                 "Gizmo Test",
                 "vivid_menu_analysis")
 
+  add_menu_item("gizdata",
+                "Load Data From Package",
+                "vivid_menu_data")
+
   add_menu_item("new_doc",
                 "New Document",
                 "vivid_menu_session")

@@ -1,12 +1,4 @@
 
-.globals <- new.env(parent = emptyenv())
-
-.globals$remote_r <- NULL
-
-.globals$server_r <- NULL
-
-.globals$gizmos <- list()
-
 start_server_r <- function(millis=250){
   .globals$server_r <- RemoteR$new()
   .globals$server_r$start_monitor(millis = millis)
@@ -157,7 +149,9 @@ QueueLinkedR <- R6::R6Class(
 
     exec_queue = NULL,
 
-    server_queue = NULL
+    server_queue = NULL,
+
+    session = NULL
 
   ),
   public = list(
@@ -166,6 +160,11 @@ QueueLinkedR <- R6::R6Class(
       private$exec_queue <- exec_queue
       private$server_queue <- server_queue
       ind <- server_queue$consumer$addHandler(function(signal, obj, env){
+
+        # work around for session getting erased during callback execution
+        if(is.null(shiny::getDefaultReactiveDomain()))
+          assign("domain", private$session, envir=shiny:::.globals)
+
         fun <- private$callbacks[[obj[[2]]]]
         value <- obj[[1]]
         private$callbacks[[obj[[2]]]] <- NULL
@@ -209,49 +208,15 @@ QueueLinkedR <- R6::R6Class(
       invisible()
     },
 
-    start_monitor = function(millis=250){
-      if(private$monitor_running)
-        return(FALSE)
-      private$monitor_running <- TRUE
-      private$stop_monitor_flag <- FALSE
-      callback <- function(){
-        if (private$stop_monitor_flag){
-          private$monitor_running <- FALSE
-          return()
-        }
-        tryCatch({
-          while(self$results_ready()){
-            ret <- parallel:::recvResult(private$cluster[[1]])
-            private$n_active_jobs <- private$n_active_jobs - 1
-            fun <- private$callbacks[[ret[[2]]]]
-            value <- ret[[1]]
-            private$callbacks[[ret[[2]]]] <- NULL
-            if(!is.null(fun))
-              (function(x){
-                force(x)
-                fun(x)
-              })(value)
-          }
-        })
-        private$monitor_later_handle <- later::later(callback, millis / 1000)
-      }
-      callback()
-      TRUE
-    },
-
-    stop_monitor = function(){
-      private$stop_monitor_flag <- TRUE
-      if(!is.null(private$monitor_later_handle))
-        private$monitor_later_handle()
-    },
-
     interrupt = function(){
       try({
-        if(private$n_active_jobs > 0){
-          system(paste("kill -INT", private$pid,"&"))
-        }
+        system(paste("kill -INT", private$pid,"&"))
       })
       #private$n_active_jobs <- max(private$n_active_jobs - 1, 0)
+    },
+
+    set_session = function(session){
+      private$session <- session
     },
 
     finalize = function() {

@@ -1,5 +1,4 @@
 
-.globals$vivid_server <- list()
 
 launch_vivid_child_server <- function(launch.browser = getOption("shiny.launch.browser", interactive()), millis=205){
   if(!is.null(.globals$vivid_server$remote_r)){

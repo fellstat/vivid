@@ -6,6 +6,7 @@ vivid_server <- function(){
   server <- function(input, output, session) {
 
     .globals$vivid_server$child_queue$consumer$start()
+    .globals$remote_r$set_session(session)
 
     session$userData$docs <- list()
 
@@ -23,6 +24,8 @@ vivid_server <- function(){
     })
 
     register_gizmo(input, output, session, "gizmo_test","helloworld")
+
+    register_gizmo(input, output, session, "gizdata","gizdata")
 
     register_gizmo(input, output, session, "menu_insert_markdown_block","markdown")
 
