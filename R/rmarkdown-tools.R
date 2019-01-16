@@ -3,7 +3,7 @@
 run_chunk <- function(chunk, envir=parent.env()){
   if(is.null(knitr::opts_knit$get("output.dir")))
     knitr::opts_knit$set(output.dir = getwd())
-  rmd <- knitr::knit(text=chunk, envir=envir)
+  rmd <- knitr::knit(text=chunk, envir=envir, quite=TRUE)
   markdown::markdownToHTML(text=rmd, fragment.only=TRUE)
 }
 
