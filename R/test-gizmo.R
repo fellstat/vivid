@@ -5,7 +5,7 @@ test_gizmo_ui <- function(ns){
 
 test_gizmo_server <- function(input, output, session, set_rmarkdown_reactive){
   txt_react <- reactive({
-    txt <- paste0("## ", input[["helloworld"]],"\n```{r}\na <- if(!exists('a')) 1 else a+1\nprint(a)\ndata(mtcars)\nmtcars\n```\nThe above is a test")
+    txt <- paste0("## ", input[["helloworld"]],"\n```{r}\ntest_var <- if(!exists('test_var')) 1 else test_var+1\nprint(test_var)\ndata(mtcars)\nmtcars\n```\nThe above is a test")
     txt
   })
   set_rmarkdown_reactive(txt_react)

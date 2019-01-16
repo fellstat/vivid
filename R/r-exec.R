@@ -1,20 +1,11 @@
 
-.globals <- new.env(parent = emptyenv())
-
-.globals$remote_r <- NULL
-
-.globals$gizmos <- list()
-
-start_r <- function(millis=250){
-  .globals$remote_r <- RemoteR$new()
-  .globals$remote_r$start_monitor(millis = millis)
+start_server_r <- function(millis=250){
+  .globals$server_r <- RemoteR$new()
+  .globals$server_r$start_monitor(millis = millis)
 }
 
 
 remote_eval <- function(expr, callback=NULL, envir=NULL, substitute=TRUE){
-  if(is.null(.globals$remote_r)){
-    start_r()
-  }
   if(substitute)
     expr <- substitute(expr)
   .globals$remote_r$eval(expr, callback, envir, FALSE)
@@ -136,3 +127,102 @@ RemoteR <- R6::R6Class(
 
   )
 )
+
+
+vivid_queue <- function(...){
+  q <- ipc::queue(...)
+
+}
+
+
+QueueLinkedR <- R6::R6Class(
+  "QueueLinkedR",
+  private = list(
+
+    is_running = FALSE,
+
+    callbacks = list(),
+
+    pid = NULL,
+
+    n_active_jobs = 0,
+
+    exec_queue = NULL,
+
+    server_queue = NULL,
+
+    session = NULL
+
+  ),
+  public = list(
+
+    initialize = function(exec_queue, server_queue){
+      private$exec_queue <- exec_queue
+      private$server_queue <- server_queue
+      ind <- server_queue$consumer$addHandler(function(signal, obj, env){
+
+        # work around for session getting erased during callback execution
+        if(is.null(shiny::getDefaultReactiveDomain()))
+          assign("domain", private$session, envir=shiny:::.globals)
+
+        fun <- private$callbacks[[obj[[2]]]]
+        value <- obj[[1]]
+        private$callbacks[[obj[[2]]]] <- NULL
+        if(!is.null(fun))
+          (function(x){
+            force(x)
+            fun(x)
+          })(value)
+      }, "callback_exec")
+      for(i in seq_len(ind-1))
+        private$server_queue$consumer$removeHandler("callback_exec", 1)
+      self$eval(Sys.getpid(), function(pid) {
+        print(pid)
+        private$pid <- pid
+      })
+    },
+
+    start = function(){
+      if(!private$is_running){
+        private$is_running <- TRUE
+      }
+    },
+
+    stop = function(){
+      if(private$is_running){
+        private$is_running <- FALSE
+        private$n_active_jobs <- 0
+        private$callbacks <- list()
+      }
+    },
+
+    eval = function(expr, callback=NULL, envir=NULL, substitute=TRUE){
+      if(substitute)
+        expr <- substitute(expr)
+      if(!is.null(envir))
+        expr <- do.call('substitute', list(as.call(expr), env=envir))
+      uuid <- gen_uuid()
+      private$callbacks[[uuid]] <- callback
+      private$exec_queue$producer$fireCall("gevalQ", uuid=uuid, expr=expr, queue=private$server_queue)
+      private$n_active_jobs <- private$n_active_jobs + 1
+      invisible()
+    },
+
+    interrupt = function(){
+      try({
+        system(paste("kill -INT", private$pid,"&"))
+      })
+      #private$n_active_jobs <- max(private$n_active_jobs - 1, 0)
+    },
+
+    set_session = function(session){
+      private$session <- session
+    },
+
+    finalize = function() {
+      self$stop()
+    }
+
+  )
+)
+

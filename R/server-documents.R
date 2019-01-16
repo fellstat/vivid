@@ -39,6 +39,7 @@ save_document <- function(document_id, input, session, file, name=NULL, with_wor
         save(list=ls(all.names = TRUE), file=file, envir=parent.frame())
       },
       function(result){
+        browser()
         doc_attr(document_id, "path", file)
         doc_attr(document_id, "name", name)
         if(!is.null(name))

@@ -5,6 +5,9 @@ vivid_server <- function(){
 
   server <- function(input, output, session) {
 
+    .globals$vivid_server$child_queue$consumer$start()
+    .globals$remote_r$set_session(session)
+
     session$userData$docs <- list()
 
     session$userData$r_markdown <- list()
@@ -22,6 +25,8 @@ vivid_server <- function(){
 
     register_gizmo(input, output, session, "gizmo_test","helloworld")
 
+    register_gizmo(input, output, session, "gizdata","gizdata")
+
     register_gizmo(input, output, session, "menu_insert_markdown_block","markdown")
 
     make_menu()
@@ -36,12 +41,20 @@ vivid_server <- function(){
 vivid <- function(child_process=TRUE, ...){
   if(child_process)
     return(launch_vivid_child_server(...))
+
+  .globals$vivid_server$parent_queue <- ipc::queue()
+  .globals$vivid_server$child_queue <- ipc::queue()
+  .globals$remote_r <- QueueLinkedR$new(parent_queue(), child_queue())
+  .globals$vivid_server$parent_queue$consumer$start(env=.GlobalEnv)
+  launch_vivid(...)
+}
+
+
+launch_vivid <- function(...){
   ui <- vivid_ui()
   server <- vivid_server()
   runApp(shinyApp(ui, server), ...)
 }
-
-
 
 
 confirmDialog <- function(..., title="Message", callback=NULL, button_labels=c("Cancel","OK"), session = getDefaultReactiveDomain()){
