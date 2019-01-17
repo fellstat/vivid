@@ -36,14 +36,19 @@ save_document <- function(document_id, input, session, file, name=NULL, with_wor
     remote_eval(
       {
         ..vivid_document.. <- doc
-        save(list=ls(all.names = TRUE), file=file, envir=parent.frame())
+        save(list=ls(all.names = TRUE), file=file)
       },
       function(result){
-        browser()
         doc_attr(document_id, "path", file)
         doc_attr(document_id, "name", name)
         if(!is.null(name))
-          shinyjs::runjs(paste0("$('#", document_id, "-a').replaceWith('", name, "')"))
+          shinyjs::runjs(paste0(
+            "$('#", document_id,
+            "-a').html(\"<button class='close closeTab' type='button'>x</button>",
+            name,
+            "\")"
+            )
+          )
       },
       envir = list(doc = doc, file=file)
     )
@@ -151,7 +156,8 @@ close_document <- function(doc_id,  session = getDefaultReactiveDomain()){
 server_documents <- function(input, output, session = getDefaultReactiveDomain()){
   observeEvent(input$active_doc,{
     did <- substring(input$active_doc,2)
-    set_active_document(did, session)
+    if(did %in% names(session$userData$docs))
+      set_active_document(did, session)
   })
 
   observeEvent(input$close_doc,{
@@ -208,6 +214,7 @@ server_documents <- function(input, output, session = getDefaultReactiveDomain()
   observeEvent(input$new_doc, {
     did <- add_new_document("Untitled")
     set_active_document(did)
+
   })
 
   observeEvent(input$load_doc, {

@@ -10,7 +10,7 @@ launch_vivid_child_server <- function(launch.browser = getOption("shiny.launch.b
   .globals$vivid_server$child_queue <- ipc::queue()
   .globals$remote_r <- QueueLinkedR$new(parent_queue(), child_queue())
   .globals$server_r <- RemoteR$new()
-  .globals$vivid_server$parent_queue$consumer$start(env=.GlobalEnv)
+  .globals$vivid_server$parent_queue$consumer$start(env = .GlobalEnv)
 
   start_server_r()
 
@@ -31,13 +31,11 @@ launch_vivid_child_server <- function(launch.browser = getOption("shiny.launch.b
       child_queue(cq)
       remote_r(QueueLinkedR$new(parent_queue(), child_queue()))
 
-      cq$consumer$start()
+      #cq$consumer$start()
 
       parent_browser <- function(url){
         pq$producer$fireEval(
           {
-            print(launch.browser)
-            print(url)
             launch.browser(url)
           },
           env=list(
