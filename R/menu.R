@@ -70,6 +70,6 @@ make_menu <- function(){
                 "vivid_menu_session")
 
   add_menu_item("doc_to_r_script",
-                "Conver to R script",
+                "Convert to R script",
                 "vivid_menu_session")
 }
