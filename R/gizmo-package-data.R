@@ -4,7 +4,7 @@ test_gizmo_data_ui <- function(ns){
               column(4,
                      selectInput(ns("selectpkg"),
                                  "package:",
-                                 as.vector(unique(as.data.frame(data(package=.packages(all.available=TRUE))$results)$Package))
+                                 unique(as.data.frame(data(package=.packages(all.available=TRUE))$results)$Package)
                      )
               ),
               column(4,
@@ -23,17 +23,10 @@ test_gizmo_data_ui <- function(ns){
 
 test_gizmo_data_server <- function(input, output, session, set_rmarkdown_reactive){
   observeEvent(input[["selectpkg"]], {
-  print("k1")
-  print(input[["selectpkg"]])
-  print(input[["selectdat"]])
     updateSelectInput(session,"selectdat","data:",
                       choices = as.vector(data(package = input[["selectpkg"]])$results[, "Item"]),
                       selected = input[["selectdat"]]
     )
-  print(input[["selectpkg"]])
-  print(input[["selectdat"]])
-  print(if(exists('loading', where=session)){session[["loading"]]})
-	print("k2")
   })
   observeEvent(input[["selectdat"]],{
     updateTextInput(session,"renameas","rename as:",
@@ -65,26 +58,17 @@ test_gizmo_data_get_state <- function(input, output, session){
 
 test_gizmo_data_restore_state <- function(input, output, session, state){
   print(state)
-  session[["loading"]]=TRUE
   c(
-
-    print("a1"),
-	print(as.vector(data(package = state$selectpkg)$results[, "Item"])),
-	print(state$selectdat),
-    updateSelectInput(session,"selectdat","data1:",choices = as.vector(data(package = state$selectpkg)$results[, "Item"]),selected = state$selectdat),
     updateSelectInput(
       session,
       "selectpkg",
       "package:",
-      choices = as.vector(unique(as.data.frame(data(package=.packages(all.available=TRUE))$results)$Package)),
-      selected = state$selectpkg),    
-	
-	print("a2"),
-	updateTextInput(session, "renameas", value=state$renameas)
-	
-	
+      choices = unique(as.data.frame(data(package=.packages(all.available=TRUE))$results)$Package),
+      selected = state$selectpkg),
+
+    updateSelectInput(session,"selectdat","data1:",choices = as.vector(data(package = state$selectpkg)$results[, "Item"]),selected = state$selectdat),
+    updateTextInput(session, "renameas", value=state$renameas)
   )
-  session[["loading"]]=FALSE
 }
 
 

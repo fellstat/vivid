@@ -4,28 +4,6 @@ vivid_panel <- function(ns, gizmo){
   tags$div(
     id=ns("vivid-panel"),
     class="panel panel-default",
-    htmlOutput(
-      ns("__ctrl_number"), inline = TRUE
-    ),
-    actionButton(
-      ns("__ctrl_up"),
-      "UP"
-    ),
-    actionButton(
-      ns("__ctrl_down"),
-      "DOWN"
-    ),
-    actionButton(
-      ns("__ctrl_clone"),
-      "CLONE"
-    ),
-    actionButton(
-      ns("__ctrl_close"),
-      "CLOSE"
-    ),
-    htmlOutput(
-      ns("__ctrl_status"), inline = TRUE
-    ),
     tags$div(
       id=ns("::panel_accordion"),
       #role="tablist",
