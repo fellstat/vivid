@@ -1,7 +1,7 @@
 
 doc_data <- function(doc_id, value, session=getDefaultReactiveDomain()){
   if(missing(value)){
-  return(session$userData$docs[[doc_id]])
+    return(session$userData$docs[[doc_id]])
   }else
     session$userData$docs[[doc_id]] <- value
 }
@@ -47,7 +47,7 @@ save_document <- function(document_id, input, session, file, name=NULL, with_wor
             "-a').html(\"<button class='close closeTab' type='button'>x</button>",
             name,
             "\")"
-            )
+          )
           )
       },
       envir = list(doc = doc, file=file)

@@ -1,4 +1,4 @@
-exportPattern("^[[:alpha:]]+")
+exportPattern(".")
 import(shiny)
 import(parallel)
 
