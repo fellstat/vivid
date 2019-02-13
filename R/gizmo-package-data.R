@@ -4,18 +4,19 @@ test_gizmo_data_ui <- function(ns){
               column(4,
                      selectInput(ns("selectpkg"),
                                  "package:",
-                                 unique(as.data.frame(data(package=.packages(all.available=TRUE))$results)$Package)
+                                 unique(as.data.frame(data(package=.packages(all.available=TRUE))$results)$Package),
+                                 selected = "datasets"
                      )
               ),
               column(4,
                      selectInput(ns("selectdat"),
                                  "data:",
-                                 c('NA'))
+                                 as.character(as.vector(data(package = "datasets")$results[, "Item"])))
               ),
               column(4,
                      textInput(ns("renameas"),
                                "rename as:",
-                               'NA')
+                               '')
               )
             )
   )
@@ -23,11 +24,12 @@ test_gizmo_data_ui <- function(ns){
 
 test_gizmo_data_server <- function(input, output, session, set_rmarkdown_reactive){
   observeEvent(input[["selectpkg"]], {
+    sel <- if(is.null(input[["selectdat"]]) || is.na(input[["selectdat"]]) || input[["selectdat"]] == "") NULL else input[["selectdat"]]
     updateSelectInput(session,"selectdat","data:",
                       choices = as.vector(data(package = input[["selectpkg"]])$results[, "Item"]),
-                      selected = input[["selectdat"]]
+                      selected = sel
     )
-  })
+  }, ignoreInit = T, ignoreNULL = T)
   observeEvent(input[["selectdat"]],{
     updateTextInput(session,"renameas","rename as:",
                     input[["selectdat"]]
@@ -57,18 +59,25 @@ test_gizmo_data_get_state <- function(input, output, session){
 }
 
 test_gizmo_data_restore_state <- function(input, output, session, state){
-  print(state)
-  c(
+  packages <- unique(c(
+    as.character(as.data.frame(data(package=.packages(all.available=TRUE))$results)$Package)),
+    state$selectpkg
+  )
+  ds <- as.character(as.vector(data(package = state$selectpkg)$results[, "Item"]))
+  ds <- unique(c(ds, state$selectdat))
+  updateSelectInput(session,
+                    "selectdat",
+                    choices = ds,
+                    selected = state$selectdat)
     updateSelectInput(
       session,
       "selectpkg",
       "package:",
-      choices = unique(as.data.frame(data(package=.packages(all.available=TRUE))$results)$Package),
-      selected = state$selectpkg),
+      choices = packages,
+      selected = state$selectpkg)
 
-    updateSelectInput(session,"selectdat","data1:",choices = as.vector(data(package = state$selectpkg)$results[, "Item"]),selected = state$selectdat),
     updateTextInput(session, "renameas", value=state$renameas)
-  )
+
 }
 
 
@@ -80,3 +89,5 @@ test_gizmo_data_restore_state <- function(input, output, session, state){
   restore_state=test_gizmo_data_restore_state,
   opts=list()
 )
+
+runPackageData <- function() runStandalone("gizdata")

@@ -7,6 +7,20 @@ NULL
 
 
 
-.onLoad <- function(...) {
+.onLoad <- function(libname, pkgname) {
   addResourcePath("vivid", system.file("www", package = "vivid"))
+}
+
+
+.onDetach <- function(libpath){
+  if(!is.null(.globals$server_r)){
+    .globals$server_r$stop()
+    .globals$server_r$stop_monitor()
+    globals$server_r <- NULL
+  }
+  if(!is.null(.globals$standalone_server_r)){
+    .globals$standalone_server_r$stop()
+    .globals$standalone_server_r$stop_monitor()
+    globals$standalone_server_r <- NULL
+  }
 }

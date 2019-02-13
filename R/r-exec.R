@@ -1,11 +1,93 @@
 
 start_server_r <- function(millis=250){
-  .globals$server_r <- RemoteR$new()
-  .globals$server_r$start_monitor(millis = millis)
+  if(is.null(.globals$server_r)){
+    .globals$server_r <- RemoteR$new()
+    .globals$server_r$start_monitor(millis = millis)
+
+    .globals$vivid_server$parent_queue <- ipc::queue()
+    .globals$vivid_server$child_queue <- ipc::queue()
+    .globals$remote_r <- QueueLinkedR$new(parent_queue(), child_queue())
+    .globals$vivid_server$parent_queue$consumer$start(env = .GlobalEnv)
+    .globals$server_r$eval(
+      {
+        unlink("server.log")
+        con <- file("server.log")
+        sink(con, append=TRUE)
+        sink(con, append=TRUE, type="message")
+        library(vivid)
+        library(ipc)
+        library(shiny)
+        vivid_globals <- vivid:::.globals
+        vivid_globals$is_execution_process <- FALSE
+        #cq <- ipc::queue()
+        #child_queue(cq)
+        #child_queue()$start()
+        parent_queue(pq)
+        child_queue(cq)
+        remote_r(QueueLinkedR$new(parent_queue(), child_queue()))
+      },
+      function(result){
+        #print(result)
+        message("Vivid Remote R Started")
+      },
+      envir=list(
+        pq=.globals$vivid_server$parent_queue,
+        cq=.globals$vivid_server$child_queue
+      )
+    )
+  }
+}
+
+
+start_standalone_server_r <- function(millis=250){
+  if(is.null(.globals$standalone_server_r)){
+    .globals$standalone_server_r <- RemoteR$new()
+    .globals$standalone_server_r$start_monitor(millis = millis)
+
+    .globals$vivid_standalone_server$parent_queue <- ipc::queue()
+    .globals$vivid_standalone_server$child_queue <- ipc::queue()
+    .globals$standalone_remote_r <- QueueLinkedR$new(
+      .globals$vivid_standalone_server$parent_queue,
+      .globals$vivid_standalone_server$child_queue
+    )
+    .globals$vivid_standalone_server$parent_queue$consumer$start(env = .GlobalEnv)
+    .globals$standalone_server_r$eval(
+      {
+        unlink("standalone.log")
+        con <- file("standalone.log")
+        sink(con, append=TRUE)
+        sink(con, append=TRUE, type="message")
+        library(vivid)
+        library(ipc)
+        library(shiny)
+        vivid_globals <- vivid:::.globals
+        vivid_globals$is_execution_process <- FALSE
+        parent_queue(pq)
+        child_queue(cq)
+        remote_r(QueueLinkedR$new(parent_queue(), child_queue()))
+      },
+      function(result){
+        #print(result)
+        message("Vivid Remote R Started")
+      },
+      envir=list(
+        pq=.globals$vivid_standalone_server$parent_queue,
+        cq=.globals$vivid_standalone_server$child_queue
+      )
+    )
+  }
 }
 
 
 remote_eval <- function(expr, callback=NULL, envir=NULL, substitute=TRUE){
+  if(.globals$is_execution_process){
+    if(substitute)
+      expr <- substitute(expr)
+    res <- eval(expr, envir=envir, enclos=.GlobalEnv)
+    if(!is.null(callback))
+      callback(res)
+    return(invisible())
+  }
   if(substitute)
     expr <- substitute(expr)
   .globals$remote_r$eval(expr, callback, envir, FALSE)
@@ -39,6 +121,7 @@ RemoteR <- R6::R6Class(
   public = list(
 
     initialize = function(source){
+      print("creating")
       self$start()
     },
 
@@ -53,6 +136,7 @@ RemoteR <- R6::R6Class(
 
     stop = function(){
       if(private$is_running){
+        self$interrupt()
         parallel::stopCluster(private$cluster)
         private$is_running <- FALSE
         private$n_active_jobs <- 0
@@ -114,15 +198,24 @@ RemoteR <- R6::R6Class(
     },
 
     interrupt = function(){
-      for(i in 1:private$n_active_jobs)
+      for(i in seq_len(private$n_active_jobs)){
         system(paste("kill -INT", private$pid,"&"))
+        if(i < private$n_active_jobs)
+          Sys.sleep(.01)
+      }
       private$n_active_jobs <- 0
       private$callbacks <- list()
     },
 
     finalize = function() {
       self$stop_monitor()
-      self$stop()
+      tryCatch(
+        self$stop(),
+        error=function(err){
+          if(err$message != "invalid connection")
+            stop(err)
+        }
+      )
     }
 
   )

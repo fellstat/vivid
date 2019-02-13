@@ -1,0 +1,9 @@
+Name: Hello World Dialog
+Description: A Simple Vivid Gizmo
+Binding: runHelloWorld
+Interactive: false
+
+Name: Load Data From Package
+Description: Load Data From A Package
+Binding: runPackageData
+Interactive: false
