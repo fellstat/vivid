@@ -84,7 +84,9 @@ launch_gizmo_local <- function(gizmo,
     }
     gizmo$server(input, output, session, set_rmarkdown_reactive)
     if(!is.null(state)){
-      gizmo$restore_state(input, ouput, session, state)
+      later::later(function(){
+        gizmo$restore_state(input, ouput, session, state)
+      }, 1)
     }
   }
 
@@ -121,7 +123,7 @@ launch_gizmo_remote <- function(gizmo,
   )
 }
 
-runStandalone <- function(gizmo_name){
+run_standalone <- function(gizmo_name){
   launch_gizmo_remote(
     .globals$gizmos[[gizmo_name]],
     gizmo_name,

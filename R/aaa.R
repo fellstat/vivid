@@ -15,3 +15,6 @@
 .globals$standalone_states <- list()
 
 .globals$is_execution_process <- TRUE
+
+
+vivid_globals <- function() .globals

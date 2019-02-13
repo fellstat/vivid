@@ -30,4 +30,4 @@ test_gizmo_restore_state <- function(input, output, session, state){
 )
 
 
-runHelloWorld <- function() runStandalone("helloworld")
+runHelloWorld <- function() run_standalone("helloworld")

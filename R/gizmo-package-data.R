@@ -29,7 +29,7 @@ test_gizmo_data_server <- function(input, output, session, set_rmarkdown_reactiv
                       choices = as.vector(data(package = input[["selectpkg"]])$results[, "Item"]),
                       selected = sel
     )
-  }, ignoreInit = T, ignoreNULL = T)
+  })
   observeEvent(input[["selectdat"]],{
     updateTextInput(session,"renameas","rename as:",
                     input[["selectdat"]]
@@ -90,4 +90,4 @@ test_gizmo_data_restore_state <- function(input, output, session, state){
   opts=list()
 )
 
-runPackageData <- function() runStandalone("gizdata")
+runPackageData <- function() run_standalone("gizdata")

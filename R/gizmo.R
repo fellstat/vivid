@@ -37,8 +37,10 @@ create_gizmo <- function(input, output, session, gizmo_name, doc_id=session$user
   }
   callModule(server, id, set_rmarkdown_reactive=set_rmarkdown_reactive, session=session)
   if(!is.null(state)){
-    callModule(restore_state, id, state=state$state$gizmo, session=session)
-    output[[ns("__r_output")]] <- renderText(state$state$r_output)
+    later::later(function(){
+      callModule(restore_state, id, state=state$state$gizmo, session=session)
+      output[[ns("__r_output")]] <- renderText(state$state$r_output)
+    }, 1)
   }
   n <- length(session$userData$docs[[doc_id]])
   if(is.null(session$userData$docs[[doc_id]])){
@@ -51,7 +53,18 @@ create_gizmo <- function(input, output, session, gizmo_name, doc_id=session$user
   )
 }
 
-register_gizmo <- function(input, output, session, menu_id, gizmo_name=menu_id){
+register_gizmo <- function(gizmo_name, ui, server, lib, get_state, restore_state, opts){
+  .globals$gizmos[[gizmo_name]] <- list(
+    ui=ui,
+    server=server,
+    library=lib,
+    get_state=get_state,
+    restore_state=restore_state,
+    opts=opts
+  )
+}
+
+add_gizmo_server_hook <- function(input, output, session, menu_id, gizmo_name=menu_id){
   observeEvent(input[[menu_id]], {
     create_gizmo(input, output, session, gizmo_name)
   })

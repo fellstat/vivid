@@ -23,11 +23,11 @@ vivid_server <- function(){
       interrupt_r()
     })
 
-    register_gizmo(input, output, session, "gizmo_test","helloworld")
+    add_gizmo_server_hook(input, output, session, "gizmo_test","helloworld")
 
-    register_gizmo(input, output, session, "gizdata","gizdata")
+    add_gizmo_server_hook(input, output, session, "gizdata","gizdata")
 
-    register_gizmo(input, output, session, "menu_insert_markdown_block","markdown")
+    add_gizmo_server_hook(input, output, session, "menu_insert_markdown_block","markdown")
 
     make_menu()
     did <- add_new_document("Untitled")
