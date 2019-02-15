@@ -24,9 +24,10 @@ save_document <- function(document_id, input, session, file, name=NULL, with_wor
     gizmo <- doc[[i]]
     ns <- NS(gizmo$id)
     childScope <- session$makeScope(gizmo$id)
-    gizmo_state <- withReactiveDomain(childScope, {
-      gizmo$gizmo$get_state(childScope$input, childScope$output, childScope)
-    })
+    gizmo_state <- gizmo$gizmo$get_state()
+    #gizmo_state <- withReactiveDomain(childScope, {
+    #  gizmo$gizmo$get_state(childScope$input, childScope$output, childScope)
+    #})
     doc[[i]]$state <- list()
     doc[[i]]$state$gizmo <- gizmo_state
     doc[[i]]$state$rmarkdown <- input[[ns("rmarkdown")]]
@@ -83,8 +84,9 @@ load_document <- function(doc, input, output, session, file){
     },
     function(result){
       for(i in seq_along(result)){
+        print(result[[i]]$state$gizmo)
         id <- gen_uuid()
-        create_gizmo(session$input, session$output, session, gizmo_name=result[[i]]$gizmo_name, id=id, state=result[[i]])
+        create_gizmo(session$input, session$output, session, gizmo_name=result[[i]]$gizmo_name, id=id, state=result[[i]]$state$gizmo)
       }
       session$userData$docs[[doc]]
     },

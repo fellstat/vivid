@@ -1,11 +1,11 @@
 Name: Hello World Dialog
 Description: A Simple Vivid Gizmo
-Binding: runHelloWorld
+Binding: run_hello_world
 Interactive: false
 
 Name: Load Data From Package
 Description: Load Data From A Package
-Binding: runPackageData
+Binding: run_package_data
 Interactive: false
 
 Name: Wrangle Data

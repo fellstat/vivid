@@ -11,20 +11,28 @@ markdown_gizmo_ui <- function(ns){
           )
 }
 
-markdown_gizmo_server <- function(input, output, session, set_rmarkdown_reactive){
+markdown_gizmo_server <- function(input, output, session, state=NULL){
   txt_react <- reactive({
     txt <- input[["markdown"]]
     txt
   })
-  set_rmarkdown_reactive(txt_react)
-}
 
-markdown_gizmo_get_state <- function(input, output, session){
-  list(markdown=input[["markdown"]])
-}
+  if (!is.null(state)) {
+    session$onFlushed(function() {
+      updateTextAreaInput(session, "markdown", value=state$markdown)
+    })
+  }
 
-markdown_gizmo_restore_state <- function(input, output, session, state){
-  updateTextAreaInput(session, "markdown", value=state$markdown)
+  get_state <- function(){
+    list(
+      markdown=input[["markdown"]],
+      `__version__`="0.1"
+      )
+  }
+  list(
+    code=txt_react,
+    get_state=get_state
+  )
 }
 
 
@@ -32,7 +40,5 @@ markdown_gizmo_restore_state <- function(input, output, session, state){
   ui=markdown_gizmo_ui,
   server=markdown_gizmo_server,
   library="vivid",
-  get_state=markdown_gizmo_get_state,
-  restore_state=markdown_gizmo_restore_state,
   opts=list()
 )

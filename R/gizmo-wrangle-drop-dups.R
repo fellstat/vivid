@@ -20,15 +20,14 @@ drop_dups_server <- function(input, ouput, session, data, variables, state=NULL)
     paste0("distinct(", format_vars(vars), ")")
   })
 
-  output_variables <- reactiveVal()
+  output_variables <- variables
   set_input_variables <- function(v){
     observe({
       updatePickerInput(session, "dup_vars", choices = v()$objects)
     })
-    output_variables(v())
-
   }
   set_input_variables(variables)
+
 
   get_state <- function(){
     list(dup_vars = input$dup_vars)

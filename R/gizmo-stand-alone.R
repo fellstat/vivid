@@ -18,76 +18,75 @@ launch_gizmo_local <- function(gizmo,
   )
 
   server <- function(input, output, session){
-
-    set_rmarkdown_reactive <- function(txt){
-
-      observeEvent(input[[ns("__gizmo__execute")]],{
-        rmd <- txt()
-        if(!is.null(rmd) && rmd != ""){
-          remote_eval({
-              code <- parse_chunk_r_code(rmd)
-              rstudioapi::sendToConsole(code)
-            },
-            envir = list(rmd=rmd)
-          )
-        }
-      })
-
-      observeEvent(input[[ns("__gizmo__to_document")]],{
-        rmd <- txt()
-        if(!is.null(rmd) && rmd != ""){
-          remote_eval({
-            context <- rstudioapi::getSourceEditorContext()
-            if(endsWith(tolower(context$path),".r"))
-              code <- parse_chunk_r_code(rmd)
-            else
-              code <- rmd
-            rstudioapi::insertText(text=code, id=context$id)
-          },
-            envir = list(rmd=rmd)
-          )
-        }
-      })
-
-      observeEvent(input[[ns("__gizmo__cancel")]],{
+    outs <- gizmo$server(input, output, session, state)
+    gizmo$get_state <- outs$get_state
+    txt <- outs$code
+    observeEvent(input[[ns("__gizmo__execute")]],{
+      rmd <- txt()
+      if(!is.null(rmd) && rmd != ""){
         remote_eval({
-          globals <- vivid:::.globals
-          globals$standalone_states[[gizmo_name]] <- state
+            code <- parse_chunk_r_code(rmd)
+            rstudioapi::sendToConsole(code)
+          },
+          envir = list(rmd=rmd)
+        )
+      }
+    })
+
+    observeEvent(input[[ns("__gizmo__to_document")]],{
+      rmd <- txt()
+      if(!is.null(rmd) && rmd != ""){
+        remote_eval({
+          context <- rstudioapi::getSourceEditorContext()
+          if(endsWith(tolower(context$path),".r"))
+            code <- parse_chunk_r_code(rmd)
+          else
+            code <- rmd
+          rstudioapi::insertText(text=code, id=context$id)
+        },
+          envir = list(rmd=rmd)
+        )
+      }
+    })
+
+    observeEvent(input[[ns("__gizmo__cancel")]],{
+      remote_eval({
+        globals <- vivid:::.globals
+        globals$standalone_states[[gizmo_name]] <- state
+      }, envir=list(
+        state=gizmo$get_state(),
+        gizmo_name=gizmo_name
+      )
+      )
+      stopApp()
+    })
+
+    observeEvent(input[[ns("__gizmo__reset")]],{
+      if(.globals$is_execution_process){
+        remote_eval({
+          vivid::launch_gizmo_local(gizmo, gizmo_name)
         }, envir=list(
-          state=gizmo$get_state(input, ouput, session),
+          gizmo=gizmo,
           gizmo_name=gizmo_name
         )
         )
-        stopApp()
-      })
+      }else{
+        remote_eval({
+          vivid::launch_gizmo_remote(gizmo, gizmo_name)
+        }, envir=list(
+          gizmo=gizmo,
+          gizmo_name=gizmo_name
+        )
+        )
+      }
+      stopApp()
+    })
 
-      observeEvent(input[[ns("__gizmo__reset")]],{
-        if(.globals$is_execution_process){
-          remote_eval({
-            vivid::launch_gizmo_local(gizmo, gizmo_name)
-          }, envir=list(
-            gizmo=gizmo,
-            gizmo_name=gizmo_name
-          )
-          )
-        }else{
-          remote_eval({
-            vivid::launch_gizmo_remote(gizmo, gizmo_name)
-          }, envir=list(
-            gizmo=gizmo,
-            gizmo_name=gizmo_name
-          )
-          )
-        }
-        stopApp()
-      })
-    }
-    gizmo$server(input, output, session, set_rmarkdown_reactive)
-    if(!is.null(state)){
-      later::later(function(){
-        gizmo$restore_state(input, ouput, session, state)
-      }, 1)
-    }
+    #if(!is.null(state)){
+    #  later::later(function(){
+    #    gizmo$restore_state(input, ouput, session, state)
+    #  }, 1)
+    #}
   }
 
   runApp(shinyApp(ui, server), launch.browser = web_browser)
