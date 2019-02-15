@@ -86,7 +86,7 @@ load_document <- function(doc, input, output, session, file){
       for(i in seq_along(result)){
         print(result[[i]]$state$gizmo)
         id <- gen_uuid()
-        create_gizmo(session$input, session$output, session, gizmo_name=result[[i]]$gizmo_name, id=id, state=result[[i]]$state$gizmo)
+        create_gizmo(session$input, session$output, session, gizmo_name=result[[i]]$gizmo_name, id=id, state=result[[i]]$state)
       }
       session$userData$docs[[doc]]
     },

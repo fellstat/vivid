@@ -12,7 +12,7 @@ create_gizmo <- function(input, output, session, gizmo_name, doc_id=session$user
     immediate = TRUE
   )
 
-  outs <- callModule(server, id, state=state)
+  outs <- callModule(server, id, state=state$gizmo)
   txt <- outs$code
   gizmo$get_state <- outs$get_state
 
@@ -21,6 +21,7 @@ create_gizmo <- function(input, output, session, gizmo_name, doc_id=session$user
   })
 
   session$userData$r_markdown[[id]] <- txt
+  output[[ns("__r_output")]] <- renderText(state$r_output)
 
   observeEvent(input[[ns("__run_r_markdown")]],{
     rmd <- txt()
