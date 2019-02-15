@@ -39,7 +39,7 @@ make_menu <- function(){
   add_menu("vivid_menu_code","Code")
   add_menu("vivid_menu_data","Data")
   add_menu("vivid_menu_analysis","Analysis")
-  add_menu("vivid_menu_vis","Visualize")
+  add_menu("vivid_menu_plot","Plot")
 
   add_menu_item("menu_insert_markdown_block",
                 "Insert Markdown Block",
@@ -51,6 +51,10 @@ make_menu <- function(){
 
   add_menu_item("gizdata",
                 "Load Data From Package",
+                "vivid_menu_data")
+
+  add_menu_item("gizinstall",
+                "Install Package",
                 "vivid_menu_data")
 
   add_menu_item("new_doc",
@@ -72,4 +76,8 @@ make_menu <- function(){
   add_menu_item("doc_to_r_script",
                 "Convert to R script",
                 "vivid_menu_session")
+				
+  add_menu_item("gizplot3d",
+                "plot3d",
+                "vivid_menu_plot")
 }

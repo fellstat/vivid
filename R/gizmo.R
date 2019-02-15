@@ -51,7 +51,7 @@ create_gizmo <- function(input, output, session, gizmo_name, doc_id=session$user
       session$userData$docs[[doc_id]][[loc-1]]=session$userData$docs[[doc_id]][[loc]]
       session$userData$docs[[doc_id]][[loc]]=temp
       shinyjs::runjs(cmd)
-      message(cmd)
+      #message(cmd)
     }else{
       #output[[ns("__ctrl_status")]] <- renderText(paste0('  Status:', 'already first one'))
     }
@@ -71,7 +71,7 @@ create_gizmo <- function(input, output, session, gizmo_name, doc_id=session$user
 	   session$userData$docs[[doc_id]][[loc-1]]=session$userData$docs[[doc_id]][[loc]]
 	   session$userData$docs[[doc_id]][[loc]]=temp
        shinyjs::runjs(cmd)
-       message(cmd)
+       #message(cmd)
     }else{
       #output[[ns("__ctrl_status")]] <- renderText(paste0('  Status:', 'already last one'))
     }
