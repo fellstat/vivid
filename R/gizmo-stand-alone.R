@@ -123,8 +123,9 @@ launch_gizmo_remote <- function(gizmo,
   )
 }
 
-run_standalone <- function(gizmo_name){
-  launch_gizmo_remote(
+run_standalone <- function(gizmo_name, remote=TRUE){
+  launch <- if(remote) launch_gizmo_remote else launch_gizmo_local
+  launch(
     .globals$gizmos[[gizmo_name]],
     gizmo_name,
     .globals$standalone_states[[gizmo_name]])

@@ -27,6 +27,8 @@ vivid_server <- function(){
 
     add_gizmo_server_hook(input, output, session, "gizdata","gizdata")
 
+    add_gizmo_server_hook(input, output, session, "wrangle_data","wrangle_data")
+
     add_gizmo_server_hook(input, output, session, "menu_insert_markdown_block","markdown")
 
     make_menu()

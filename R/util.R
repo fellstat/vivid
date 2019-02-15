@@ -30,3 +30,33 @@ gevalQ <- local(function(expr, uuid, queue, substitute = FALSE, envir = .GlobalE
 vivid_globals <- function(){
   .globals
 }
+
+
+.get_objects <- function(filter=NULL, envir=.GlobalEnv) {
+  if(is.data.frame(envir))
+    objects <- names(envir)
+  else
+    objects <- ls(envir = envir)
+  cls <- list()
+  if (length(objects) > 0){
+    for (i in 1:length(objects)) {
+      #d <- get(objects[i], envir = envir)
+      d <- envir[[objects[i]]]
+      cls[[i]] <- class(d)
+
+    }
+  }
+  if(!is.null(filter)){
+    is_of_cls <-  unlist(lapply(cls, function(x) any(x %in% filter)))
+    objects <- objects[is_of_cls]
+    cls <- cls[is_of_cls]
+  }
+  tibble::tibble(objects=objects, classes=cls)
+}
+
+#' @export
+.get_data <- function(envir=.GlobalEnv) .get_objects("data.frame")
+
+format_vars <- function(vars){
+  paste0(vars, collapse = ", ")
+}

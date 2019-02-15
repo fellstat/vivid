@@ -7,3 +7,8 @@ Name: Load Data From Package
 Description: Load Data From A Package
 Binding: runPackageData
 Interactive: false
+
+Name: Wrangle Data
+Description: Manipulate and Transform Data Frames
+Binding: run_wrangle_data
+Interactive: false

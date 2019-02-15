@@ -9,6 +9,16 @@ NULL
 
 .onLoad <- function(libname, pkgname) {
   addResourcePath("vivid", system.file("www", package = "vivid"))
+
+  register_gizmo(
+    gizmo_name="wrangle_data",
+    ui=wrangle_ui,
+    server=wrangle_server,
+    lib="vdata",
+    get_state=wrangle_get_state,
+    restore_state=wrangle_restore_state,
+    opts=list()
+  )
 }
 
 
