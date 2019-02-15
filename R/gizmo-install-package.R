@@ -36,7 +36,7 @@ test_gizmo_install_get_state <- function(input, output, session){
 }
 
 test_gizmo_install_restore_state <- function(input, output, session, state){
-    updateTextInput(session, "selectpkg", state$selectpkg)
+    updateTextInput(session, "selectpkg", "package:", state$selectpkg)
 }
 
 
