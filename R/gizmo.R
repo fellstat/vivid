@@ -31,6 +31,7 @@ create_gizmo <- function(input, output, session, gizmo_name, doc_id=session$user
           vivid::run_chunk(chunk, envir=.GlobalEnv)
         },
         function(result){
+          #browser()
           output[[ns("__r_output")]] <- renderText(result)
           session$userData$r_output[[id]] <- result
         },
