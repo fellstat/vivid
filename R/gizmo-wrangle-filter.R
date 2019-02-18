@@ -116,7 +116,7 @@ filter_ui <- function(id=""){
 filter_server <- function(input, ouput, session, data, variables, state=NULL){
 
   if(!is.null(state)){
-    #input$filter <- state$filter
+    updateTextAreaInput(session, "filter", value = state$filter)
   }
   code <- reactive({
     vars <- input$dup_vars
