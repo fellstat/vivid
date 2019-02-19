@@ -23,11 +23,20 @@ wrangle_server <- function(input, output, session, state=NULL){
     op <- callModule(server, uuid, last_data, v, state=state, session=session)
     ops$list[[length(ops$list) + 1]] <- op
   }
-
+  #remote_eval(print("hi"), function(cc) stop("there"))
+  datasets <- reactiveVal(c())
   remote_eval(vivid:::.get_data()$objects, function(obj){
     names(obj) <- obj
+    print(obj)
+    datasets(obj)
+    session$onFlushed(function(){
     updatePickerInput(session, inputId = "input_data", choices = obj)
+    })
   })
+  observe({
+    updatePickerInput(session, inputId = "input_data", choices = datasets())
+  })
+
 
   last_data <- reactiveVal("")
   observe({
