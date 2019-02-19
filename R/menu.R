@@ -57,15 +57,15 @@ make_menu <- function(){
                 "3D Scatter Plot",
                 "vivid_menu_vis")
 
-  add_menu_item("new_doc",
+  add_menu_item("new_doc__",
                 "New Document",
                 "vivid_menu_session")
 
-  add_menu_item("save_doc",
+  add_menu_item("save_doc__",
                 "Save Document",
                 "vivid_menu_session")
 
-  add_menu_item("load_doc",
+  add_menu_item("load_doc__",
                 "Load Document",
                 "vivid_menu_session")
 

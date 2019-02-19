@@ -172,7 +172,7 @@ server_documents <- function(input, output, session = getDefaultReactiveDomain()
   shinyFiles::shinyFileSave(input, "save_file", roots = volumes, session = session, restrictions = system.file(package = "base"))
   shinyFiles::shinyFileChoose(input, "load_vvd", roots = volumes, session = session, filetypes=c('vvd'))
 
-  observeEvent(input$save_doc, {
+  observeEvent(input$save_doc__, {
     d <- modalDialog(
       title="Save Document",
       size="l",
@@ -213,13 +213,13 @@ server_documents <- function(input, output, session = getDefaultReactiveDomain()
     removeModal()
   })
 
-  observeEvent(input$new_doc, {
+  observeEvent(input$new_doc__, {
     did <- add_new_document("Untitled")
     set_active_document(did)
 
   })
 
-  observeEvent(input$load_doc, {
+  observeEvent(input$load_doc__, {
     d <- modalDialog(
       title="Load Document",
       size="l",
