@@ -53,6 +53,10 @@ make_menu <- function(){
                 "Load Data From Package",
                 "vivid_menu_data")
 
+  add_menu_item("scatter_3d",
+                "3D Scatter Plot",
+                "vivid_menu_vis")
+
   add_menu_item("new_doc",
                 "New Document",
                 "vivid_menu_session")

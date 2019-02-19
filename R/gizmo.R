@@ -31,8 +31,11 @@ create_gizmo <- function(input, output, session, gizmo_name, doc_id=session$user
           vivid::run_chunk(chunk, envir=.GlobalEnv)
         },
         function(result){
-          #browser()
-          output[[ns("__r_output")]] <- renderText(result)
+          output[[ns("__r_output")]] <- renderText(paste(
+            result,
+            "\n<script>if(typeof HTMLWidgets !== 'undefined') HTMLWidgets.staticRender();</script>\n"
+          ))
+          #shinyjs::runjs("if(HTMLWidgets != null) HTMLWidgets.staticRender();") # why needed?
           session$userData$r_output[[id]] <- result
         },
         envir = list(chunk=rmd)

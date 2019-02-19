@@ -11,14 +11,14 @@ run_chunk <- function(chunk, envir=parent.env()){
   cat(chunk, file=paste0(dir,"/input.Rmd"))
   rmarkdown::render(
     input=paste0(dir,"/input.Rmd"),
-    output_format="html_document",
+    output_format=rmarkdown::html_document(toc=FALSE,number_sections = FALSE, section_divs=FALSE,theme=NULL),
     output_file="output.html",
     output_dir=dir,
     intermediates_dir=dir,
     knit_root_dir=dir,
     clean=FALSE,
     envir=envir,
-    quiet=TRUE
+    quiet=TRUE,
   )
   result <- paste0(readLines(paste0(dir,"/output.html")), collapse="\n")
   r <- sub(".*</title>", "", result)
