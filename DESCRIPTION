@@ -7,7 +7,7 @@ Maintainer: The package maintainer <yourself@somewhere.net>
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
 License: What license is it under?
-Imports: shiny, parallel, shinyFiles, ipc, shinyjs, kableExtra, miniUI, later, bsplus, shinyWidgets, magrittr
+Imports: shiny, parallel, shinyFiles, ipc, shinyjs, kableExtra, miniUI, later, bsplus, shinyWidgets, magrittr, rmarkdown
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1
