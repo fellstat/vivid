@@ -21,7 +21,13 @@ create_gizmo <- function(input, output, session, gizmo_name, doc_id=session$user
   })
 
   session$userData$r_markdown[[id]] <- txt
-  output[[ns("__r_output")]] <- renderText(state$r_output)
+  tl <- tagList(
+    state$r_output,
+    tags$script("if(typeof HTMLWidgets !== 'undefined') HTMLWidgets.staticRender();")
+  )
+  htmltools::htmlDependencies(tl) <- htmltools::htmlDependencies(state$r_output)
+  output[[ns("__r_output")]] <- renderUI(tl)
+  #output[[ns("__r_output")]] <- renderText(state$r_output)
 
   observeEvent(input[[ns("__run_r_markdown")]],{
     rmd <- txt()
@@ -31,10 +37,16 @@ create_gizmo <- function(input, output, session, gizmo_name, doc_id=session$user
           vivid::run_chunk(chunk, envir=.GlobalEnv)
         },
         function(result){
-          output[[ns("__r_output")]] <- renderText(paste(
+          tl <- tagList(
             result,
-            "\n<script>if(typeof HTMLWidgets !== 'undefined') HTMLWidgets.staticRender();</script>\n"
-          ))
+            tags$script("if(typeof HTMLWidgets !== 'undefined') HTMLWidgets.staticRender();")
+          )
+          htmltools::htmlDependencies(tl) <- htmltools::htmlDependencies(result)
+          output[[ns("__r_output")]] <- renderUI(tl)
+          #renderUI(paste(
+          #  result,
+          #  "\n<script>if(typeof HTMLWidgets !== 'undefined') HTMLWidgets.staticRender();</script>\n"
+          #))
           #shinyjs::runjs("if(HTMLWidgets != null) HTMLWidgets.staticRender();") # why needed?
           session$userData$r_output[[id]] <- result
         },
