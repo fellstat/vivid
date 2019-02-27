@@ -4,6 +4,18 @@ vivid_panel <- function(ns, gizmo){
   tags$div(
     id=ns("vivid-panel"),
     class="panel panel-default",
+    actionLink(
+        ns("__ctrl_up"),
+        icon("arrow-circle-up")
+    ),
+    actionLink(
+        ns("__ctrl_down"),
+        icon("arrow-circle-down")
+    ),
+    actionLink(
+        ns("__ctrl_close"),
+        icon("times-circle")
+    ),
     tags$div(
       id=ns("::panel_accordion"),
       #role="tablist",

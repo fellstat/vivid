@@ -54,6 +54,48 @@ create_gizmo <- function(input, output, session, gizmo_name, doc_id=session$user
       )
     }
   })
+  
+  observeEvent({input[[ns("__ctrl_up")]]}, {
+    loc=create_gizmo_get_loc(session$userData$docs[[doc_id]], id)
+    if (loc!=1){
+      cmd = paste0('var list=document.getElementById("', doc_id, '");
+                   var node=list.getElementsByClassName("panel");
+                   list.insertBefore(node[', loc-1, '],node[', loc-2, ']);
+                   ')
+      temp=session$userData$docs[[doc_id]][[loc-1]]
+      session$userData$docs[[doc_id]][[loc-1]]=session$userData$docs[[doc_id]][[loc]]
+      session$userData$docs[[doc_id]][[loc]]=temp
+      shinyjs::runjs(cmd)
+      message(cmd)
+    }else{
+      #output[[ns("__ctrl_status")]] <- renderText(paste0('  Status:', 'already first one'))
+    }
+  })
+  observeEvent({input[[ns("__ctrl_down")]]}, {
+    loc=create_gizmo_get_loc(session$userData$docs[[doc_id]], id)
+    if (loc!=length(session$userData$docs[[doc_id]])){
+      loc=loc+1
+      cmd = paste0('var list=document.getElementById("', doc_id, '");
+                   var node=list.getElementsByClassName("panel");
+                   list.insertBefore(node[', loc-1, '],node[', loc-2, ']);
+                   ')
+	   temp=session$userData$docs[[doc_id]][[loc-1]]
+	   session$userData$docs[[doc_id]][[loc-1]]=session$userData$docs[[doc_id]][[loc]]
+	   session$userData$docs[[doc_id]][[loc]]=temp
+       shinyjs::runjs(cmd)
+       message(cmd)
+    }else{
+      #output[[ns("__ctrl_status")]] <- renderText(paste0('  Status:', 'already last one'))
+    }
+  })
+  observeEvent({input[[ns("__ctrl_close")]]}, {
+    loc=create_gizmo_get_loc(session$userData$docs[[doc_id]], id)
+    output[[ns("__ctrl_status")]] <- renderText(paste0('  Status:', 'removing'))
+    removeUI(
+      paste0("#", ns("vivid-panel"))
+    )
+    session$userData$docs[[doc_id]]=session$userData$docs[[doc_id]][-loc];
+  })
 
   #if(!is.null(state)){
   #  later::later(function(){
@@ -85,4 +127,15 @@ add_gizmo_server_hook <- function(input, output, session, menu_id, gizmo_name=me
   observeEvent(input[[menu_id]], {
     create_gizmo(input, output, session, gizmo_name)
   })
+}
+
+create_gizmo_get_loc <- function(gizmo, id){
+  result = NULL
+  for(i in seq_along(gizmo)){
+    if (gizmo[[i]]$id == id){
+      result = i
+      break
+    }
+  }
+  result
 }
