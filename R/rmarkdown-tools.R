@@ -1,23 +1,33 @@
 
 
 run_chunk <- function(chunk,  envir){
-  if(is.null(knitr::opts_knit$get("output.dir")))
-    knitr::opts_knit$set(output.dir = getwd())
-  knitr::opts_knit$set(rmarkdown.pandoc.to="html")
-  md <- knitr::knit(text=chunk, envir=envir, quiet=TRUE)
   dir <- tempfile()
   on.exit(try(unlink(dir, recursive=TRUE)))
   dir.create(dir)
+
+  od <- getwd()
+  on.exit(setwd(od))
+  setwd(dir)
+
+  knitr::opts_knit$set(rmarkdown.pandoc.to="html")
+  knitr::opts_knit$set(output.dir = dir)
+  knitr::opts_knit$set(root.dir = dir)
+  md <- knitr::knit(text=chunk, envir=envir, quiet=TRUE)
+
   cat(md, file=paste0(dir,"/input.md"))
   rmarkdown::render(
     input=paste0(dir,"/input.md"),
     output_format=rmarkdown::html_document(
       toc=FALSE,
+      output_dir=dir,
+      intermediates_dir=dir,
+      knit_root_dir=dir,
+      clean=FALSE,
       number_sections = FALSE,
       section_divs=FALSE,
       template=NULL,
       theme=NULL,
-      self_contained = FALSE
+      self_contained = TRUE
     )
   )
   result <- paste0(readLines(paste0(dir,"/input.html")), collapse="\n")
