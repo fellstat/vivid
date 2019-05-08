@@ -49,8 +49,7 @@ test_gizmo_esquisse_server <- function(input, output, session, state=NULL){
 		shinyjs::runjs(paste0('document.getElementById("',affix,'-','sw-content-',elemdrop,'").childNodes[1].childNodes[1].style.width="300px";'))
 		for (elemdrop0 in dropmenu0){
 			shinyjs::runjs(paste0('document.getElementById("',affix,'-',elemdrop,'").addEventListener("click", function() {       document.getElementById("',affix,'-','sw-content-',elemdrop0,'").classList.remove("sw-show"); });'))		
-		}
-	    message(elemdrop)
+		}	   
 	}
 	
   # quick select	
