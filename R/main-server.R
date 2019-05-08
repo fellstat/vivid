@@ -25,15 +25,15 @@ vivid_server <- function(){
 
     add_gizmo_server_hook(input, output, session, "gizmo_test","helloworld")
 
-    add_gizmo_server_hook(input, output, session, "gizinstall","gizinstall")
-
     add_gizmo_server_hook(input, output, session, "gizdata","gizdata")
 
     add_gizmo_server_hook(input, output, session, "wrangle_data","wrangle_data")
 
+    add_gizmo_server_hook(input, output, session, "scatter_3d","scatter_3d")
+
     add_gizmo_server_hook(input, output, session, "menu_insert_markdown_block","markdown")
 	
-    add_gizmo_server_hook(input, output, session, "gizplot3d","gizplot3d")
+	add_gizmo_server_hook(input, output, session, "esquisse","esquisse")
 
     make_menu()
     did <- add_new_document("Untitled")

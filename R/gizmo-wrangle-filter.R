@@ -116,27 +116,27 @@ filter_ui <- function(id=""){
 filter_server <- function(input, ouput, session, data, variables, state=NULL){
 
   if(!is.null(state)){
-    input$filter <- state$filter
+    updateTextAreaInput(session, "filter", value = state$filter)
   }
   code <- reactive({
     vars <- input$dup_vars
     paste0("dplyr::filter(", input$filter, ")")
   })
 
-  input_variables <- reactiveVal()
-  output_variables <- reactiveVal()
+  input_variables <- variables
+  output_variables <- variables
   set_input_variables <- function(v){
     observe({
       updatePickerInput(session, "num_var", choices = v()$objects)
       updatePickerInput(session, "cont_var", choices = v()$objects)
     })
-    output_variables(v())
-    input_variables(v())
   }
   set_input_variables(variables)
 
 
   observeEvent(input$num_add,{
+    if(!(input$num_var %in% input_variables()$objects))
+      return()
     txt <- input$filter
     isnum <- input_variables()[input_variables()$objects == input$num_var, "classes", drop=TRUE][1] == "numeric"
     if(isnum && input$num_comp == "=="){
@@ -153,6 +153,8 @@ filter_server <- function(input, ouput, session, data, variables, state=NULL){
   })
 
   observeEvent(input$cont_var,{
+    if(!(input$cont_var %in% input_variables()$objects))
+      return()
     if(length(input_variables()[input_variables()$objects == input$cont_var, "classes", drop=TRUE][[1]]) == 0){
       updatePickerInput(session, "cont_values", choices = as.character(c()))
     }else{
@@ -166,6 +168,8 @@ filter_server <- function(input, ouput, session, data, variables, state=NULL){
 
 
   observeEvent(input$cont_add,{
+    if(!(input$cont_var %in% input_variables()$objects))
+      return()
     txt <- input$filter
     isnum <- input_variables()[input_variables()$objects == input$cont_var, "classes", drop=TRUE][1] %in% c("numeric", "integer")
     if(!isnum)

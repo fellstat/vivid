@@ -4,27 +4,17 @@ vivid_panel <- function(ns, gizmo){
   tags$div(
     id=ns("vivid-panel"),
     class="panel panel-default",
-    tags$div(
-      id=ns("panel-ctrl"),
-      align="right",
-      htmlOutput(
-        ns("__ctrl_number"), inline = TRUE
-      ),
-      htmlOutput(
-        ns("__ctrl_status"), inline = TRUE
-      ),
-      actionLink(
+    actionLink(
         ns("__ctrl_up"),
         icon("arrow-circle-up")
-      ),
-      actionLink(
+    ),
+    actionLink(
         ns("__ctrl_down"),
         icon("arrow-circle-down")
-      ),
-      actionLink(
+    ),
+    actionLink(
         ns("__ctrl_close"),
         icon("times-circle")
-      )
     ),
     tags$div(
       id=ns("::panel_accordion"),

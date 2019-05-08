@@ -65,6 +65,7 @@ start_standalone_server_r <- function(millis=250){
         parent_queue(pq)
         child_queue(cq)
         remote_r(QueueLinkedR$new(parent_queue(), child_queue()))
+        child_queue()$consumer$start(env=.GlobalEnv)
       },
       function(result){
         #print(result)
@@ -296,6 +297,7 @@ QueueLinkedR <- R6::R6Class(
         expr <- do.call('substitute', list(as.call(expr), env=envir))
       uuid <- gen_uuid()
       private$callbacks[[uuid]] <- callback
+	  library(vivid)
       private$exec_queue$producer$fireCall("gevalQ", uuid=uuid, expr=expr, queue=private$server_queue)
       private$n_active_jobs <- private$n_active_jobs + 1
       invisible()

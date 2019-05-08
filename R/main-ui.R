@@ -10,8 +10,14 @@ vivid_navbar <- function(...){
     tags$div(
       class="container",
       tags$a(class="navbar-brand", "VIVID"),
+        tags$button('type'="button",'class'="navbar-toggle",'data-toggle'="collapse",'data-target'="#vivid-navbar-ins",
+          tags$span(class="icon-bar"),
+          tags$span(class="icon-bar"),
+          tags$span(class="icon-bar")
+        ),
       tags$div(
-        class="navbar-collapse collapse",
+	      id="vivid-navbar-ins",
+        class="collapse navbar-collapse",
         tags$ul(
           id="vivid-navbar-ul",
           class="nav navbar-nav"

@@ -1,7 +1,7 @@
 create_gizmo <- function(input, output, session, gizmo_name, doc_id=session$userData$active_doc, id=gen_uuid(), state=NULL){
-  ui <- .globals$gizmos[[gizmo_name]]$ui
-  server <- .globals$gizmos[[gizmo_name]]$server
-  restore_state <- .globals$gizmos[[gizmo_name]]$restore_state
+  gizmo <- .globals$gizmos[[gizmo_name]]
+  ui <- gizmo$ui
+  server <- gizmo$server
 
   ns <- NS(id)
   insertUI(
@@ -11,36 +11,51 @@ create_gizmo <- function(input, output, session, gizmo_name, doc_id=session$user
     session=session,
     immediate = TRUE
   )
-  #output[[ns("__ctrl_number")]] <- renderText(paste0('ID: #',id,'    '))
 
-  set_rmarkdown_reactive <- function(txt){
-    output[[ns("rmarkdown")]] <- renderText({
-      txt()
-    })
+  outs <- callModule(server, id, state=state$gizmo)
+  txt <- outs$code
+  gizmo$get_state <- outs$get_state
 
-    session$userData$r_markdown[[id]] <- txt
+  output[[ns("rmarkdown")]] <- renderText({
+    txt()
+  })
 
-    observeEvent(input[[ns("__run_r_markdown")]],{
-      rmd <- txt()
-      if(!is.null(rmd) && rmd != ""){
-        remote_eval(
-          {
-            vivid::run_chunk(chunk, envir=.GlobalEnv)
-          },
-          function(result){
-            output[[ns("__r_output")]] <- renderText(result)
-            session$userData$r_output[[id]] <- result
-          },
-          envir = list(chunk=rmd)
-        )
-      }
-    })
-  }
+  session$userData$r_markdown[[id]] <- txt
+  tl <- tagList(
+    state$r_output,
+    tags$script("if(typeof HTMLWidgets !== 'undefined') HTMLWidgets.staticRender();")
+  )
+  htmltools::htmlDependencies(tl) <- htmltools::htmlDependencies(state$r_output)
+  output[[ns("__r_output")]] <- renderUI(tl)
+  #output[[ns("__r_output")]] <- renderText(state$r_output)
 
-  observeEvent({
-    input[[ns("__ctrl_up")]]
-  },
-  {
+  observeEvent(input[[ns("__run_r_markdown")]],{
+    rmd <- txt()
+    if(!is.null(rmd) && rmd != ""){
+      remote_eval(
+        {
+          vivid::run_chunk(chunk, envir=.GlobalEnv)
+        },
+        function(result){
+          tl <- tagList(
+            result,
+            tags$script("if(typeof HTMLWidgets !== 'undefined') HTMLWidgets.staticRender();")
+          )
+          htmltools::htmlDependencies(tl) <- htmltools::htmlDependencies(result)
+          output[[ns("__r_output")]] <- renderUI(tl)
+          #renderUI(paste(
+          #  result,
+          #  "\n<script>if(typeof HTMLWidgets !== 'undefined') HTMLWidgets.staticRender();</script>\n"
+          #))
+          #shinyjs::runjs("if(HTMLWidgets != null) HTMLWidgets.staticRender();") # why needed?
+          session$userData$r_output[[id]] <- result
+        },
+        envir = list(chunk=rmd)
+      )
+    }
+  })
+  
+  observeEvent({input[[ns("__ctrl_up")]]}, {
     loc=create_gizmo_get_loc(session$userData$docs[[doc_id]], id)
     if (loc!=1){
       cmd = paste0('var list=document.getElementById("', doc_id, '");
@@ -51,15 +66,12 @@ create_gizmo <- function(input, output, session, gizmo_name, doc_id=session$user
       session$userData$docs[[doc_id]][[loc-1]]=session$userData$docs[[doc_id]][[loc]]
       session$userData$docs[[doc_id]][[loc]]=temp
       shinyjs::runjs(cmd)
-      #message(cmd)
+      message(cmd)
     }else{
       #output[[ns("__ctrl_status")]] <- renderText(paste0('  Status:', 'already first one'))
     }
   })
-  observeEvent({
-    input[[ns("__ctrl_down")]]
-  },
-  {
+  observeEvent({input[[ns("__ctrl_down")]]}, {
     loc=create_gizmo_get_loc(session$userData$docs[[doc_id]], id)
     if (loc!=length(session$userData$docs[[doc_id]])){
       loc=loc+1
@@ -71,15 +83,12 @@ create_gizmo <- function(input, output, session, gizmo_name, doc_id=session$user
 	   session$userData$docs[[doc_id]][[loc-1]]=session$userData$docs[[doc_id]][[loc]]
 	   session$userData$docs[[doc_id]][[loc]]=temp
        shinyjs::runjs(cmd)
-       #message(cmd)
+       message(cmd)
     }else{
       #output[[ns("__ctrl_status")]] <- renderText(paste0('  Status:', 'already last one'))
     }
   })
-  observeEvent({
-    input[[ns("__ctrl_close")]]
-  },
-  {
+  observeEvent({input[[ns("__ctrl_close")]]}, {
     loc=create_gizmo_get_loc(session$userData$docs[[doc_id]], id)
     output[[ns("__ctrl_status")]] <- renderText(paste0('  Status:', 'removing'))
     removeUI(
@@ -88,13 +97,12 @@ create_gizmo <- function(input, output, session, gizmo_name, doc_id=session$user
     session$userData$docs[[doc_id]]=session$userData$docs[[doc_id]][-loc];
   })
 
-  callModule(server, id, set_rmarkdown_reactive=set_rmarkdown_reactive, session=session)
-  if(!is.null(state)){
-    later::later(function(){
-      callModule(restore_state, id, state=state$state$gizmo, session=session)
-      output[[ns("__r_output")]] <- renderText(state$state$r_output)
-    }, 1)
-  }
+  #if(!is.null(state)){
+  #  later::later(function(){
+  #    callModule(restore_state, id, state=state$state$gizmo, session=session)
+  #    output[[ns("__r_output")]] <- renderText(state$state$r_output)
+  #  }, 1)
+  #}
   n <- length(session$userData$docs[[doc_id]])
   if(is.null(session$userData$docs[[doc_id]])){
     stop("Invalid Document ID")#session$userData$docs[[doc_id]] <- list()
@@ -102,17 +110,15 @@ create_gizmo <- function(input, output, session, gizmo_name, doc_id=session$user
   session$userData$docs[[doc_id]][[n + 1]] <- list(
     id=id,
     gizmo_name=gizmo_name,
-    gizmo=.globals$gizmos[[gizmo_name]]
+    gizmo=gizmo
   )
 }
 
-register_gizmo <- function(gizmo_name, ui, server, lib, get_state, restore_state, opts){
+register_gizmo <- function(gizmo_name, ui, server, lib,  opts){
   .globals$gizmos[[gizmo_name]] <- list(
     ui=ui,
     server=server,
     library=lib,
-    get_state=get_state,
-    restore_state=restore_state,
     opts=opts
   )
 }

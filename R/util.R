@@ -1,5 +1,7 @@
 gen_uuid <- function(){
-  paste(sample(c(letters[1:6],0:9),30,replace=TRUE),collapse="")
+  aa=paste(sample(c(letters[1:6]),1,replace=TRUE),collapse="")
+  bb=paste(sample(c(letters[1:6],0:9),30-1,replace=TRUE),collapse="")
+  paste0(aa,bb)
 }
 
 vid_fun <- function(uuid){

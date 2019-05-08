@@ -1,4 +1,4 @@
-#' @export
+
 wrangle_ui <- function(ns){
   tagList(
     fluidRow(
@@ -9,7 +9,7 @@ wrangle_ui <- function(ns){
                          multiple=FALSE,
                          options = list(`actions-box` = TRUE,
                                         `live-search`=TRUE,
-                                        `none-selected-text`="Choose Variable"))
+                                        `none-selected-text`="Choose Data"))
       ),
       column(4, offset = 4,
              textInput(ns("output_name"), "Output Name","")

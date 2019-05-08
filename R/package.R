@@ -15,8 +15,6 @@ NULL
     ui=wrangle_ui,
     server=wrangle_server,
     lib="vdata",
-    get_state=wrangle_get_state,
-    restore_state=wrangle_restore_state,
     opts=list()
   )
 }

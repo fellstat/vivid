@@ -1,14 +1,14 @@
 
 
 
-wrangle_server <- function(input, output, session, set_rmarkdown_reactive){
+wrangle_server <- function(input, output, session, state=NULL){
   ns <- session$ns
   variables <- reactiveVal(as.character(c()))
   ops <- new.env(parent = emptyenv())
   ops$list <- list()
-  session$userData[[session$ns("state")]] <- ops
+  #session$userData[[session$ns("state")]] <- ops
 
-  append_operation <- function(ui, server, title){
+  append_operation <- function(ui, server, title, state=NULL){
     uuid <- vivid::gen_uuid()
     appendVerticalTab(
       ns("dplyr_tabset"),
@@ -20,14 +20,23 @@ wrangle_server <- function(input, output, session, set_rmarkdown_reactive){
     v <- variables
     if(length(ops$list) > 0)
       v <- ops$list[[length(ops$list)]]$output_variables
-    op <- callModule(server, uuid, last_data, v)
+    op <- callModule(server, uuid, last_data, v, state=state, session=session)
     ops$list[[length(ops$list) + 1]] <- op
   }
-
+  #remote_eval(print("hi"), function(cc) stop("there"))
+  datasets <- reactiveVal(c())
   remote_eval(vivid:::.get_data()$objects, function(obj){
     names(obj) <- obj
+    print(obj)
+    datasets(obj)
+    session$onFlushed(function(){
     updatePickerInput(session, inputId = "input_data", choices = obj)
+    })
   })
+  observe({
+    updatePickerInput(session, inputId = "input_data", choices = datasets())
+  })
+
 
   last_data <- reactiveVal("")
   observe({
@@ -72,8 +81,36 @@ wrangle_server <- function(input, output, session, set_rmarkdown_reactive){
     code <- paste0(code,"\nhead(", od, ")\n```")
     code
   })
-  set_rmarkdown_reactive(txt)
-  txt
+
+  if(!is.null(state)){
+    for(i in seq_along(state)){
+      if(state[[i]]$name == "drop_dups"){
+        uuid <- vivid::gen_uuid()
+        append_operation(drop_dups_ui, drop_dups_server, "Drop Duplicates", state[[i]]$state)
+      }else if(state[[i]]$name == "filter"){
+        uuid <- vivid::gen_uuid()
+        append_operation(filter_ui, filter_server, "Filter", state[[i]]$state)
+      }else{
+        stop("Wrangle: Unknown Operation")
+      }
+    }
+  }
+
+  get_state <- function(){
+    state <- list()
+    elements <- ops$list#session$userData[[session$ns("state")]]$list
+    for(i in seq_along(elements)){
+      state[[i]] <- list(
+        name=elements[[i]]$name,
+        state=elements[[i]]$get_state()
+      )
+    }
+    state
+  }
+  list(
+    code=txt,
+    get_state=get_state
+  )
 }
 
 
