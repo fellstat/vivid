@@ -27,7 +27,19 @@ vivid_panel <- function(ns, gizmo){
         actionButton(
           ns("__run_r_markdown"),
           "Run"
-        )
+        ),
+		prettyToggle(
+            inputId = ns("__auto_pause"), 
+            value = TRUE,
+            label_on = NULL, #label_on = "Auto",
+            label_off = NULL, #label_off = "Pause",
+            outline = TRUE,
+            plain = TRUE,
+            bigger = TRUE, 
+            inline = TRUE,
+            icon_on = icon("play-circle-o", class = "fa-2x"),
+            icon_off = icon("pause-circle-o", class = "fa-2x")
+          )
       ),
       panel_card(
         ns("markdown_card"),
@@ -35,10 +47,10 @@ vivid_panel <- function(ns, gizmo){
         verbatimTextOutput(
           ns("rmarkdown")
         ),
-        actionButton(
-          ns("__run_r_markdown"),
-          "Run"
-        ),
+        #actionButton(
+        #  ns("__run_r_markdown"),
+        #  "Run"
+        #),
         show=FALSE
       ),
       panel_card(

@@ -62,3 +62,17 @@ vivid_globals <- function(){
 format_vars <- function(vars){
   paste0(vars, collapse = ", ")
 }
+
+# quickly clean a string
+#' @importFrom stringi stri_trans_general stri_replace_all_regex
+clean_string <- function(str) {
+  str <- stri_trans_general(str = str, id = "Latin-ASCII")
+  str <- stri_replace_all_regex(str = str, pattern = "[^a-zA-Z0-9_]+", replacement = "_")
+  return(str)
+}
+
+instr <- function(str1,str2,startpos=1,n=1){
+    aa=unlist(strsplit(substring(str1,startpos),str2))
+    if(length(aa) < n+1 ) return(0);
+    return(sum(nchar(aa[1:n])) + startpos+(n-1)*nchar(str2) )
+}

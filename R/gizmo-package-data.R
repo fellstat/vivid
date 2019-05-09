@@ -38,6 +38,7 @@ test_gizmo_data_server <- function(input, output, session, state = NULL) {
                       input[["selectdat"]])
     })
     txt_react <- reactive({
+	  #browser()
       txt <- paste0(
         "<!-- Data: load data from package -->",
         "\n",
@@ -50,8 +51,8 @@ test_gizmo_data_server <- function(input, output, session, state = NULL) {
         input[["selectdat"]],
         ")",
         "\n",
-        if (input[["renameas"]] != input[["selectdat"]])
-          paste0(input[["renameas"]], " <-", input[["selectdat"]], "\n"),
+        ifelse (input[["renameas"]] != input[["selectdat"]], 
+          paste0(input[["renameas"]], " <-", input[["selectdat"]], "\n"), "  "),
         "head(",
         input[["renameas"]],
         ")",
