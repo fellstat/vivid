@@ -87,11 +87,11 @@ test_gizmo_esquisse_server <- function(input, output, session, state=NULL){
 		# }
 	# }
 	  
-	  if(!is.null(tempcode)){
-	  #browser()
-	  tempcode=substr(tempcode, instr(tempcode, "ggplot\\(data \\=")+14, nchar(tempcode))
-	  tempcode=substr(tempcode, 1, instr(tempcode, "\\)")-1)
-	  #message(tempcode)
+	  if(!is.null(isolate(state$esquisse_code))){
+	  tempcode<-isolate(state$esquisse_code)
+	  tempcode<-substr(tempcode, instr(tempcode, "ggplot\\(data \\=")+14, nchar(tempcode))
+	  tempcode<-substr(tempcode, 1, instr(tempcode, "\\)")-1)
+	  message(tempcode)
 	  }else{
 	      tempcode<- "reload"
 	  }
@@ -159,6 +159,15 @@ test_gizmo_esquisse_server <- function(input, output, session, state=NULL){
     } else if (input$data == "reload") {
 	  #data_r$data <- data.frame(replicate(10,sample(0:1,1000,rep=TRUE)))
       data_r$data <- isolate(state$esquisse_data)
+	  
+	  if(!is.null(isolate(state$esquisse_code))){
+	  tempcode<-isolate(state$esquisse_code)
+	  tempcode<-substr(tempcode, instr(tempcode, "ggplot\\(data \\=")+14, nchar(tempcode))
+	  tempcode<-substr(tempcode, 1, instr(tempcode, "\\)")-1)
+	  message(tempcode)
+	  }else{
+	      tempcode<- "reload"
+	  }
       data_r$name <- tempcode
       ##data_r$`esquisse-controls-title` <- isolate(state$esquisse_input$`esquisse-controls-title`)
       ##data_r$`esquisse-controls-x` <- isolate(state$esquisse_input$`esquisse-controls-x`)
