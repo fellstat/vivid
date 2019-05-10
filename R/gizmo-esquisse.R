@@ -44,6 +44,23 @@ test_gizmo_esquisse_ui <- function(ns){
 }
 
 test_gizmo_esquisse_server <- function(input, output, session, state=NULL){
+
+###test region
+  datasets <- reactiveVal(c())
+  remote_eval(vivid:::.get_data()$objects, function(obj){
+    names(obj) <- obj
+    print(obj)
+    datasets(obj)
+    session$onFlushed(function(){
+    updatePickerInput(session, inputId = "input_data", choices = obj)
+    })
+  })
+  observe({
+    updatePickerInput(session, inputId = "input_data", choices = datasets())
+  })
+
+
+
   affix <- gen_uuid()
   #data_r <- reactiveValues(data = ToothGrowth, name = "ToothGrowth")
   data_r <- reactiveValues(data = iris, name = "iris")
