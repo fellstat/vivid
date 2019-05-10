@@ -8,7 +8,15 @@ test_gizmo_esquisse_ui <- function(ns){
 		 fluidPage(
 		  tags$h1("Esquisse: ggplot2 Builder"),
 		  fluidRow(
-			  column(9,radioButtons(
+		      column(5,pickerInput(inputId = ns("input_data"),
+                         label = "Input Dataset:",
+                         choices = c(""),
+                         multiple=FALSE,
+                         options = list(`actions-box` = TRUE,
+                                        `live-search`=TRUE,
+                                        `none-selected-text`="Choose Data"))	
+			  ),
+			  column(4,radioButtons(
 				inputId = ns("data"),
 				label = "Sample data to use:",
 				choices = c("iris", "mtcars"),
@@ -124,6 +132,8 @@ test_gizmo_esquisse_server <- function(input, output, session, state=NULL){
 		for (elemdrop0 in dropmenu0){
 			shinyjs::runjs(paste0('document.getElementById("',affix,'-',elemdrop,'").addEventListener("click", function() {       document.getElementById("',affix,'-','sw-content-',elemdrop0,'").classList.remove("sw-show"); });'))
 		}
+		
+		
 	}
 
   # quick select
@@ -183,10 +193,18 @@ test_gizmo_esquisse_server <- function(input, output, session, state=NULL){
 			#message(paste0('document.getElementById("',affix,'-labsdrop").parentElement.parentElement.parentElement.getElementsByClassName("xyvar")[',cc,'-1].innerHTML+=("','<span class=\'label-dragula\' id=\'dragvars-target-label-',clean_string(tempvar),'\' data-value=\'',tempvar,'\'> <span class=\'label label-continue badge-dad\'>',tempvar,'</span> </span>','") '))
 			#browser()
 			shinyjs::runjs(paste0('document.getElementById("',affix,'-labsdrop").parentElement.parentElement.parentElement.getElementsByClassName("xyvar")[',cc,'-1].innerHTML+=("','<span class=\'label-dragula\' id=\'dragvars-target-label-',clean_string(tempvar),'\' data-value=\'',tempvar,'\'> <span class=\'label label-continue badge-dad\'>',tempvar,'</span> </span>','") '))
+
 			#browser()
 			
 			}
+			
+			#cc=document.getElementById("dad-target-label-Petal_Length")
 		}
+		
+		#message(paste0('$(document.getElementById("',affix,'-labsdrop").parentElement.parentElement.parentElement.getElementsByClassName("label-dragula")[1]).trigger("change") '))
+		#browser()
+		shinyjs::runjs(paste0('$(document.getElementById("',affix,'-labsdrop").parentElement.parentElement.parentElement.getElementsByClassName("label-dragula")[1]).trigger("change") '))		
+		
 		data_to_restore(FALSE)
 	  })
 	  ####### js css operation to move selected data 
