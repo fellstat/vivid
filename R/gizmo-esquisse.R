@@ -129,7 +129,7 @@ test_gizmo_esquisse_server <- function(input, output, session, state=NULL){
 			colnames(resultt)[ncol(resultt)] <- toString(selection[cc])
 		 }
 	  }
-	  View(data.frame(resultt))
+	  #View(data.frame(resultt))
 	  resulttA=data.frame(resultt)
 	  
 	  for(cc in 1:ncol(resulttA)){
