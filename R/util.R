@@ -76,3 +76,13 @@ instr <- function(str1,str2,startpos=1,n=1){
     if(length(aa) < n+1 ) return(0);
     return(sum(nchar(aa[1:n])) + startpos+(n-1)*nchar(str2) )
 }
+
+		get_df <- function(df, env = globalenv()) {
+		  if (df %in% ls(name = env)) {
+			get(x = df, envir = env)
+		  } else if (df %in% data(package = "ggplot2", envir = environment())$results[, "Item"]) {
+			get(utils::data(list = df, package = "ggplot2", envir = environment()))
+		  } else {
+			NULL
+		  }
+		}

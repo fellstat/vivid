@@ -9,7 +9,8 @@ NULL
 
 .onLoad <- function(libname, pkgname) {
   addResourcePath("vivid", system.file("www", package = "vivid"))
-
+  addResourcePath("shinyTree", system.file("www", package = "shinyTree"))
+  addResourcePath("dropdown", system.file("www", package = "shinyWidgets"))
   register_gizmo(
     gizmo_name="wrangle_data",
     ui=wrangle_ui,

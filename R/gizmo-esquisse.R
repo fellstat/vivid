@@ -1,20 +1,54 @@
-
+library(shinyTree)
 test_gizmo_esquisse_ui <- function(ns){
+library(shinyTree)
 	fluidPage(
 	    shinyjs::useShinyjs(),
 	    shinyjs::inlineCSS("html, body  { overflow: auto;  } "),
 		shinyjs::inlineCSS(".sw-dropdown { position: relative; display: inline-block;  } "),
-		textInput(ns("esquisse0"), "input", value="Ready."),
-		 fluidPage(
-		  tags$h1("Esquisse: ggplot2 Builder"),
+		fluidRow(
+		 #shiny::tags$script(src = 'shinyTree/jsTree-3.3.7/jstree.min.js'),
+         #shiny::tags$script(src = 'shinyTree/shinyTree.js'),
+		
+		column(6,textInput(ns("esquisse0"), "input", value="Ready.") ),
+		column(6,textInput(ns("esquisse1"), "Debug Only", value=ns("")) ),
+		column(12,verbatimTextOutput(ns("esquisse_DS")) )
+		),
+		 
+		
+		
+		tags$h1("Esquisse: ggplot2 Builder"),
+		  #shinyTree::shinyTree(ns("tree2"), checkbox = TRUE),
 		  fluidRow(
-		      column(5,pickerInput(inputId = ns("input_data"),
-                         label = "Input Dataset:",
-                         choices = c(""),
-                         multiple=FALSE,
-                         options = list(`actions-box` = TRUE,
-                                        `live-search`=TRUE,
-                                        `none-selected-text`="Choose Data"))	
+		      #column(12, uiOutput(ns("shinyTreeTest"))),
+			  #column(12, dropdown( tags$h3("List of Input"),
+			#	  br(),
+			#	  tags$h3("List of Input2"),
+			#	  style = "default", label = "Location", width = "300px", circle=FALSE
+			 # )),
+		       column(12,
+			  #pickerInput(inputId = ns("input_data"),
+                         # label = "Input Dataset:",
+                         # choices = c("a"),
+						 # #choicesOpt = c("a"),
+                         # multiple=FALSE,
+                         # options = list(`actions-box` = TRUE,
+                                        # `live-search`=TRUE,
+                                        # `none-selected-text`="Choose Data"))	
+				column(4,
+				 dropdownButton(
+					#textInput(ns("datfilter"),NULL, value="", placeholder = "Filter"),
+					shinyTree::shinyTree(ns("dattree"), checkbox = TRUE, search=TRUE),			
+					#, 
+					circle = FALSE, 
+					status = "default", 
+					icon = icon("gear"),  
+					label = "Data Selection", 
+					#width = "300px",
+					inputId=ns("ii"),
+					tooltip = tooltipOptions(title = "Click to see inputs !") 
+				)											
+										
+										
 			  ),
 			  column(4,radioButtons(
 				inputId = ns("data"),
@@ -29,42 +63,152 @@ test_gizmo_esquisse_ui <- function(ns){
 				inline = TRUE
 			  ))
 		  ),		  
-		  tags$div(
+		  fluidPage(tags$div(
 			style = "height: 700px; ",
 			esquisse::esquisserUI(
 			  id = ns("esquisse"),
 			  header = FALSE,
 			  choose_data = TRUE
-			)
+			))
 		  ),
-		  shinyjs::inlineCSS("html, body  { overflow: auto;   } "),
-		  shinyjs::inlineCSS(".sw-dropdown { position: relative; display: inline-block;  } ")
-		),tags$br()
+		  shinyjs::inlineCSS(".sw-dropdown { position: relative; display: inline-block;  } "),
+		  shinyjs::inlineCSS("html, body  { overflow: auto;   } ")
+		  
+		),tags$br(),tags$br(),tags$br(),tags$br(),
+		  shinyjs::delay(500,shinyjs::runjs(paste0("shinyTree.initSearch('",ns(""),"dattree','",ns(""),"dattree-search-input', 250);"))),
+		  #message(paste0("$(\"#",ns(""),"dattree\").jstree('open_all')")),
+		  #shinyjs::delay(500,shinyjs::runjs(paste0("$(\"#",ns(""),"dattree\").jstree('open_all')"))),
+		  shinyjs::delay(500,shinyjs::runjs(paste0("document.getElementById('dropdown-menu-",ns(""),"ii').style.maxHeight='250px'"))),
+		  shinyjs::delay(500,shinyjs::runjs(paste0("document.getElementById('dropdown-menu-",ns(""),"ii').style.minWidth='250px'"))),
+		  shinyjs::delay(500,shinyjs::runjs(paste0("document.getElementById('dropdown-menu-",ns(""),"ii').style.overflow='auto'")))
 	)
 }
 
 test_gizmo_esquisse_server <- function(input, output, session, state=NULL){
-
+  affix <- gen_uuid()
+  #data_r <- reactiveValues(data = ToothGrowth, name = "ToothGrowth")
+  data_r <- reactiveValues(data = iris, name = "iris")
+  tempcode=isolate(state$esquisse_code)
 ###test region
+
+#message(paste0("shinyTree.initSearch('",input$esquisse1,"dattree','",input$esquisse1,"dattree-search-input', 250);"))
+#shinyjs::delay(1000,shinyjs::runjs(paste0("shinyTree.initSearch('",input$esquisse1,"dattree','",input$esquisse1,"dattree-search-input', 250);")))
+	
+  #output$shinyTreeTest <- renderUI({ 
+  #  
+  #})
+  
+  
+  output$esquisse_DS <- renderText({
+    if (is.null(input$dattree)){
+      "None"
+    }else{
+      paste0("dattree: ",toString(get_selected(input$dattree, format="names")))
+    }
+  }) 
+  
+  observeEvent(input$dattree, {
+    library(ggplot2)
+    resultt=c()
+	typee=c()
+    if (is.null(input$dattree)){
+      "None"
+    }else{
+      message(paste0("dattree: ",toString(get_selected(input$dattree, format="names"))))
+	  selection=get_selected(input$dattree, format="names")
+	  for (cc in 1:length(selection)) {
+	     message(selection[cc])		
+	     datsm=eval(parse(text=toString(selection[cc])))
+		 #browser()
+		 
+         if(is.vector(datsm)){
+		    typee=c(typee,is.numeric(datsm))
+			#browser()
+			resultt=cbind(resultt,datsm)
+			
+			colnames(resultt)[ncol(resultt)] <- toString(selection[cc])
+		 }
+	  }
+	  View(data.frame(resultt))
+	  resulttA=data.frame(resultt)
+	  
+	  for(cc in 1:ncol(resulttA)){
+		if (typee[cc]){  resulttA[cc]=as.numeric(unlist(resulttA[cc]) ) }
+	  }
+	  
+	   #browser()
+	  data_r$name <- 'dataSelection'
+	  data_r$data <- resulttA
+	  resultt
+    }
+  })
+  
+  
+  output$dattree <- shinyTree::renderTree({ 
+#message(paste0("shinyTree.initSearch('",input$esquisse1,"dattree','",input$esquisse1,"dattree-search-input', 250);"))
+#shinyjs::delay(1000,shinyjs::runjs(paste0("shinyTree.initSearch('",input$esquisse1,"dattree','",input$esquisse1,"dattree-search-input', 250);")))
+  library(shinyTree)
+		  #shinyjs::delay(100,shinyjs::runjs(paste0("$(\"#",input$esquisse1,"dattree\").jstree('open_all')")))
+      #dfs <- search_obj(what = "data.frame")
+	  #if (is.null(dfs)) { }
+		dfs <- data(package = "ggplot2", envir = environment())$results[, "Item"]	  
+
+    list(  '.GlobalEnv'= list( 
+      'iris' =  structure(list('Sepal.Length'='1', 'Sepal.Width'='2','Petal.Length'='3'),stselected=TRUE),  
+      'mtcars' =  structure(list('mpg'='4','cyl'='5'), stselected=TRUE))) 
+	  
+		dfs <- data(package = "ggplot2", envir = environment())$results[, "Item"]	  
+		temp=list()
+		for (cc in 1:length(dfs) ) {
+		  temp1=names(get_df(dfs[cc]))
+		  temp2=list()
+		  for (dd in 1:length(temp1) ) {
+			ee=temp1[dd]#c(paste0(dfs[cc],"$",temp1[dd]))
+			names(ee)=paste0(dfs[cc],"$",temp1[dd])
+			temp2=append(temp2, ee)			
+		  }
+		  if(dfs[cc]=='msleep'){attr(temp2,"stselected")=TRUE;}
+		  temp3=list(temp2)
+		  names(temp3)=dfs[cc]
+		  attr(temp3,"stopened")=FALSE
+		  temp=c(temp,temp3)
+		}
+		temp 
+  })
+  output$tree2 <- shinyTree::renderTree({ 
+    library(shinyTree)
+    list(  'I lorem impsum'= list( 
+      'I.1 lorem impsum'   =  structure(list('I.1.1 lorem impsum'='1', 'I.1.2 lorem impsum'='2'),stselected=TRUE),  
+      'I.2 lorem impsum'   =  structure(list('I.2.1 lorem impsum'='3'), stselected=TRUE)))
+
+  })
+  #browser()
+
+
+
   datasets <- reactiveVal(c())
   remote_eval(vivid:::.get_data()$objects, function(obj){
     names(obj) <- obj
     print(obj)
     datasets(obj)
     session$onFlushed(function(){
-    updatePickerInput(session, inputId = "input_data", choices = obj)
+    updatePickerInput(session, inputId = "input_data", 
+	choices = c("iris","mtcars",obj)#,
+	#choicesOpt = c("iris","mtcars",obj)
+	)
     })
   })
   observe({
-    updatePickerInput(session, inputId = "input_data", choices = datasets())
+    updatePickerInput(session, inputId = "input_data", 
+	choices = c("iris","mtcars",datasets())#,
+	#choicesOpt = c("iris","mtcars",datasets())
+	
+	)
   })
 
 
 
-  affix <- gen_uuid()
-  #data_r <- reactiveValues(data = ToothGrowth, name = "ToothGrowth")
-  data_r <- reactiveValues(data = iris, name = "iris")
-  tempcode=isolate(state$esquisse_code)
+
   # Restore UI state
   if (!is.null(state)) {
     session$onFlushed(function() {

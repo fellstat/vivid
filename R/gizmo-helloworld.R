@@ -1,6 +1,9 @@
 
 test_gizmo_ui <- function(ns){
-  textInput(ns("helloworld"), "input")
+  fluidPage(dropdown( tags$h3("List of Input"),
+				  style = "default", label = "Location", width = "300px", circle=FALSE
+			  ),
+  textInput(ns("helloworld"), "input"))
 }
 
 test_gizmo_server <- function(input, output, session, state=NULL){
