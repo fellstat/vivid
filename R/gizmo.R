@@ -2,6 +2,7 @@ create_gizmo <- function(input, output, session, gizmo_name, doc_id=session$user
   gizmo <- .globals$gizmos[[gizmo_name]]
   ui <- gizmo$ui
   server <- gizmo$server
+  auto_pause = reactiveVal(TRUE)
 
   ns <- NS(id)
   insert_ui_with_js(
@@ -19,7 +20,12 @@ create_gizmo <- function(input, output, session, gizmo_name, doc_id=session$user
   output[[ns("rmarkdown")]] <- renderText({
     txt()
   })
-
+  
+  observeEvent(txt(),
+     {if(auto_pause()==FALSE){shinyjs::click(ns("__run_r_markdown"));}}
+  )
+  
+  
   session$userData$r_markdown[[id]] <- txt
   tl <- tagList(
     state$r_output,
@@ -54,7 +60,12 @@ create_gizmo <- function(input, output, session, gizmo_name, doc_id=session$user
       )
     }
   })
-
+  
+  observeEvent(input[[ns("__auto_pause")]],{
+    auto_pause(input[[ns("__auto_pause")]])
+	updateActionButton(session, ns("__run_r_markdown"), label=ifelse(input[[ns("__auto_pause")]],"Click to Run",{shinyjs::click(ns("__run_r_markdown"));"Auto Running"}))
+  })
+  
   observeEvent({input[[ns("__ctrl_up")]]}, {
     loc=create_gizmo_get_loc(session$userData$docs[[doc_id]], id)
     if (loc!=1){

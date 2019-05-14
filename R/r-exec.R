@@ -292,6 +292,7 @@ QueueLinkedR <- R6::R6Class(
     },
 
     eval = function(expr, callback=NULL, envir=NULL, substitute=TRUE){
+      library(vivid)
       if(substitute)
         expr <- substitute(expr)
       if(!is.null(envir))
