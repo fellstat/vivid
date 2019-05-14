@@ -4,7 +4,7 @@ create_gizmo <- function(input, output, session, gizmo_name, doc_id=session$user
   server <- gizmo$server
 
   ns <- NS(id)
-  insertUI(
+  insert_ui_with_js(
     paste0("#", doc_id),
     "beforeEnd",
     vivid_panel(ns, ui),
@@ -54,7 +54,7 @@ create_gizmo <- function(input, output, session, gizmo_name, doc_id=session$user
       )
     }
   })
-  
+
   observeEvent({input[[ns("__ctrl_up")]]}, {
     loc=create_gizmo_get_loc(session$userData$docs[[doc_id]], id)
     if (loc!=1){
