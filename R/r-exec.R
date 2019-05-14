@@ -25,6 +25,7 @@ start_server_r <- function(millis=250){
         parent_queue(pq)
         child_queue(cq)
         remote_r(QueueLinkedR$new(parent_queue(), child_queue()))
+		TRUE
       },
       function(result){
         #print(result)
