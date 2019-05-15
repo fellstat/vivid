@@ -49,10 +49,10 @@ test_gizmo_dynamic_server <- function(input, output, session, state=NULL){
     })
   })
 
-  output$dattree <- shinyTree::renderTree({
-    library(shinyTree)
-    datasets()
-  })
+  #output$dattree <- shinyTree::renderTree({
+  #  library(shinyTree)
+  #  datasets()
+  #})
   
   output$dslabels <- renderText(paste("X: ", {
     library(shinyTree)

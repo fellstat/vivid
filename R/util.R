@@ -101,7 +101,7 @@ texasCi <- function(){
         for (kk in 1:length(TreeA)){
 		   Treea=TreeA[kk]
 		   Treeat=TreeAt[kk]
-          try(eval(parse(text=paste0("Tree2s=c(Tree2s, '",Treea,"'=list(structure(\"",Treea,"\",sticon='fa fa-tag fa-tag-",select_color(Treeat),"')))")))) #,stopened=TRUE
+          try(eval(parse(text=paste0("Tree2s=c(Tree2s, '",Treea,"'=list(structure(\"",Treea,"\",sticon='fa fa-tag')))")))) #,stopened=TRUE
         }
       }			
       if(length(Tree2s))try(eval(parse(text=paste0("Tree1s=c(Tree1s,'",dd,"'=list(structure(Tree2s,sttype='df-node',sticon='tags',stopened=",toString(l2stopened),")))"))))
