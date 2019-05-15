@@ -6,13 +6,13 @@ insert_ui_with_js <- function (selector, where = c("beforeBegin", "afterBegin", 
       return(scripts)
     if(!is.null(ui$name)){
       if(ui$name == "script"){
-        scripts <- c(scripts, ui$children[[1]])
+        try({   scripts <- c(scripts, ui$children[[1]])   }, silent = TRUE)
       }
     }
     children <- if(is.null(ui$children)) ui else ui$children
     if(is.list(children)){
       for(child in children){
-        scripts <- extract_scripts(child, scripts)
+        try({ scripts <- extract_scripts(child, scripts)   }, silent = TRUE)
       }
     }
     scripts

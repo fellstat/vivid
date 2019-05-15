@@ -33,6 +33,8 @@ vivid_server <- function(){
 
     add_gizmo_server_hook(input, output, session, "menu_insert_markdown_block","markdown")
 
+    add_gizmo_server_hook(input, output, session, "dynamicui","dynamicui")
+
     make_menu()
     did <- add_new_document("Untitled")
     set_active_document(did)

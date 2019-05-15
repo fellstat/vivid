@@ -57,6 +57,10 @@ make_menu <- function(){
                 "3D Scatter Plot",
                 "vivid_menu_vis")
 
+  add_menu_item("dynamicui",
+                "Dynamic UI",
+                "vivid_menu_vis")             
+
   add_menu_item("newvdoc",
                 "New Document",
                 "vivid_menu_session")
