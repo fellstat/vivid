@@ -27,7 +27,8 @@ test_gizmo_dynamic_ui <- function(ns){
 	tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"ii').style.maxWidth='250px'")),
 	tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"ii').style.overflow='auto'")),
 	tags$script(paste0("var sp1 = document.createElement('i');sp1.classList.add('fa');sp1.classList.add('fa-search');document.getElementById('",ns(""),"dattree-search-input').parentNode.insertBefore(sp1,document.getElementById('",ns(""),"dattree-search-input').nextSibling);")),
-	tags$br()
+	tags$br(),
+    verbatimTextOutput(ns("dattree_display")),tags$br()
 	)
 }
 
@@ -64,6 +65,14 @@ test_gizmo_dynamic_server <- function(input, output, session, state=NULL){
 	  toString(resu)
     }
   }))
+  
+  output$dattree_display <- renderText({
+		 if (is.null(input$dattree)){
+      "None"
+    }else{
+	  paste0("dattree: ",toString(get_selected(input$dattree, format="names")))
+	    }
+  }) 
   
   # RMarkdown Code
   txt_react <- reactive({
