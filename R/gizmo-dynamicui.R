@@ -41,11 +41,11 @@ test_gizmo_dynamic_server <- function(input, output, session, state=NULL){
   } 
 
   variables <- reactiveVal(as.character(c()))
-  datasets <- reactiveVal(c())
+  datasets <- reactiveVal({library(shinyTree);list("NA"=structure("NA",sticon='fa fa-warning'))})
   remote_eval(vivid:::texasCi(), function(obj){
     datasets(obj)
     session$onFlushed(function(){
-		shinyTree::updateTree(session, "dattree", data = obj)
+  		shinyTree::updateTree(session, "dattree", data = obj)
     })
   })
 
