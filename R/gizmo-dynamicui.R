@@ -1,4 +1,4 @@
-
+library(shinyTree)
 test_gizmo_dynamic_ui <- function(ns){
 	fluidPage(	  
 	  shinyWidgets::dropdownButton( 
@@ -41,7 +41,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state=NULL){
   } 
 
   variables <- reactiveVal(as.character(c()))
-  datasets <- reactiveVal(c())
+  datasets <- reactiveVal({library(shinyTree);list("NA"=structure("NA",sticon='fa fa-warning'))})
   remote_eval(vivid:::texasCi(), function(obj){
     datasets(obj)
     #session$onFlushed(function(){
@@ -55,6 +55,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state=NULL){
   })
   
   output$dslabels <- renderText(paste("X: ", {
+    library(shinyTree)
 	resu <- extract_local(input$dattree)
     if (length(resu)==0){
       "None"
@@ -95,6 +96,7 @@ run_dynamic_ui <- function() run_standalone("dynamicui")
 
 
 extract_local <- function(dattree){
+    library(shinyTree)
 	resu <- list()
 	try(for (pkg in names(dattree)){
 		  for (dd in names(dattree[[pkg]])){
