@@ -46,9 +46,9 @@ test_gizmo_dynamic_server <- function(input, output, session, state=NULL){
   remote_eval(vivid:::texasCi(), function(obj){
     library(shinyTree)
     
-    session$onFlushed(function(){
-  		shinyTree::updateTree(session, "dattree", data = obj)
-    })
+    #session$onFlushed(function(){
+  	#	shinyTree::updateTree(session, "dattree", data = obj)
+    #})
 	datasets(obj)
   })
 
