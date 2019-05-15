@@ -93,7 +93,7 @@ texasCi <- function(){
         
       } else if (envir==".GlobalEnv"){
         TreeA=list()
-		TreeAt=list()
+		TreeAt=list() 
         
         try(eval(parse(text=paste0("TreeA=(names(",".GlobalEnv","$", dd,"))"))))
 		try(eval(parse(text=paste0("TreeAt=(sapply(",".GlobalEnv","$", dd,", class))"))))
