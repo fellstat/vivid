@@ -1,19 +1,33 @@
 
 test_gizmo_dynamic_ui <- function(ns){
 	fluidPage(	  
-	  shinyWidgets::dropdownButton(
-	                shinyjs::inlineCSS(".no_checkbox>i.jstree-checkbox { display:none }"),				 
+	  shinyWidgets::dropdownButton( 
+	                shinyjs::inlineCSS(".no_checkbox>i.jstree-checkbox { display:none }"),
+	                shinyjs::inlineCSS(".fa-tag-green { color: green }"),
+					shinyjs::inlineCSS(".fa-tag-orange { color: orange }"),
+					shinyjs::inlineCSS(".fa-tag-brown { color: brown }"),
+					shinyjs::inlineCSS(".jstree-anchor>.fa-tag-black { color: black }"),
 					shinyTree::shinyTree(ns("dattree"), checkbox = TRUE, search=TRUE,
-                types = "{ 'topp-node': {'a_attr' : { 'style' : 'color:red' , class: 'no_checkbox'}}, 
-                'blue-node': {'a_attr' : { 'style' : 'color:blue' }} }" ),
+                    types = "{ 'pkg-node': {'a_attr' : { 'style' : 'color:black' , class: 'no_checkbox'}}, 
+				               'df-node': {'a_attr' : { 'style' : 'color:black' , class: 'no_checkbox'}}, 
+                               'blue-node': {'a_attr' : { 'style' : 'color:blue' }} }" ),
 					circle = FALSE, 
 					status = "default", 
 					icon = icon("gear"),  
-					label = "Data Selection", 
+					label = textOutput(ns("dslabels"), inline = TRUE),
+					tags$i(
+					  tags$i(class="fa fa-tag fa-tag-brown","int"), 
+					  tags$i(class="fa fa-tag fa-tag-orange","float"),
+					  tags$i(class="fa fa-tag fa-tag-green","char")
+					),
 					#width = "300px",
 					inputId=ns("ii")
-    ),tags$br(),
-    verbatimTextOutput(ns("dattree_display")),tags$br()
+    ),
+	tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"ii').style.maxHeight='400px'")),
+	tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"ii').style.maxWidth='250px'")),
+	tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"ii').style.overflow='auto'")),
+	tags$script(paste0("var sp1 = document.createElement('i');sp1.classList.add('fa');sp1.classList.add('fa-search');document.getElementById('",ns(""),"dattree-search-input').parentNode.insertBefore(sp1,document.getElementById('",ns(""),"dattree-search-input').nextSibling);")),
+	tags$br()
 	)
 }
 
@@ -26,74 +40,28 @@ test_gizmo_dynamic_server <- function(input, output, session, state=NULL){
     })
   } 
 
-  #datasets <- reactiveVal(c())
-  #remote_eval(vivid:::.get_data()$objects, function(obj){
-  #  names(obj) <- obj
-  #  print(obj)
-  #  datasets(obj)
-  #  session$onFlushed(function(){
-  #
-  #  })
-  #})
-
-
-texasCi <- function(){
-  library(shinyTree)
-  library(ggplot2)
-  
-  envirs=base::search()
-  Tree0s=list()
-  
-  for (envir in envirs) {
-    pkgname=envir
-    if(substr(envir,1,8)=="package:"){pkgname=substr(envir,9,1000)}
-    if(substr(envir,1,6)=="tools:"){pkgname=substr(envir,7,1000)}
-    ccs=sapply(sapply(ls(as.environment(envir)), get), is.data.frame)
-    dds=names(ccs)[(ccs==TRUE)]
-    Tree1s=list()
-    for (dd in dds) {
-      Tree2s=list()
-      if(substr(envir,1,8)=="package:"){
-        TreeA=list()
-        
-        try(eval(parse(text=paste0("TreeA=(names(",pkgname,"::", dd,"))"))))
-        for (Treea in TreeA){
-          try(eval(parse(text=paste0("Tree2s=c(Tree2s, '",Treea,"'=list(structure(\"",Treea,"\",sticon=\"tag\")))"))))
-        }
-      } else if (substr(envir,1,6)=="tools:"){
-        
-      } else if (envir==".GlobalEnv"){
-        TreeA=list()
-        #browser()
-        try(eval(parse(text=paste0("TreeA=(names(",".GlobalEnv","$", dd,"))"))))
-        #TreeA=datasets()
-        for (Treea in TreeA){
-          try(eval(parse(text=paste0("Tree2s=c(Tree2s, '",Treea,"'=list(structure(\"",Treea,"\",sticon='tag')))"))))
-        }
-      }			
-      if(length(Tree2s))try(eval(parse(text=paste0("Tree1s=c(Tree1s,'",dd,"'=list(structure(Tree2s,sticon='tags')))"))))
-    }
-    if(length(Tree1s))try(eval(parse(text=paste0("Tree0s=c(Tree0s,'",pkgname,"'=list(structure(Tree1s,sttype='topp-node')))"))))
-  }
-  Tree0s
-}
+  variables <- reactiveVal(as.character(c()))
+  datasets <- reactiveVal(c())
+  remote_eval(vivid:::texasCi(), function(obj){
+    datasets(obj)
+    session$onFlushed(function(){
+		shinyTree::updateTree(session, "dattree", data = obj)
+    })
+  })
 
   output$dattree <- shinyTree::renderTree({
     library(shinyTree)
-    list('.GlobalEnv'= structure(list( 
-      'iris' =  structure(list('Sepal.Length'=structure('iris$Sepal.Length',sticon="tag"), 'Sepal.Width'=structure('iris$Sepal.Width',sticon="tag"),'Petal.Length'=structure('iris$Petal.Length',sticon="tag")),stselected=TRUE, sticon="tags"),  
-      'mtcars' =  structure(list('mpg'='mtcars$mpg','cyl'='mtcars$mpg'), stselected=TRUE, sticon="tags")), stopened=TRUE, sticon="cloud")) 
-  
-    texasCi()
+    datasets()
   })
-
-  output$dattree_display <- renderText({
-    if (is.null(input$dattree)){
+  
+  output$dslabels <- renderText(paste("X: ", {
+	resu <- extract_local(input$dattree)
+    if (length(resu)==0){
       "None"
     }else{
-      paste0("dattree: ",toString(get_selected(input$dattree, format="names")))
+	  toString(resu)
     }
-  }) 
+  }))
   
   # RMarkdown Code
   txt_react <- reactive({
@@ -124,3 +92,19 @@ texasCi <- function(){
 
 
 run_dynamic_ui <- function() run_standalone("dynamicui")
+
+
+extract_local <- function(dattree){
+	resu <- list()
+	try(for (pkg in names(dattree)){
+		  for (dd in names(dattree[[pkg]])){
+			for (slc in names(dattree[[pkg]][[dd]])){
+			   try(if ( attr(dattree[[pkg]][[dd]][[slc]],"stselected")  ){
+					resu <- c(resu, list(package=pkg,data=dd,col=slc))
+			   }, silent=TRUE)
+			}
+		  }
+		},
+	silent=TRUE)
+	resu
+} 
