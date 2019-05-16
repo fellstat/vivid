@@ -1,112 +1,157 @@
-library(shinyTree)
-test_gizmo_dynamic_ui <- function(ns){
-	fluidPage(	  
-	  shinyWidgets::dropdownButton( 
-	                shinyjs::inlineCSS(".no_checkbox>i.jstree-checkbox { display:none }"),
-	                shinyjs::inlineCSS(".fa-tag-green { color: green }"),
-					shinyjs::inlineCSS(".fa-tag-orange { color: orange }"),
-					shinyjs::inlineCSS(".fa-tag-brown { color: brown }"),
-					shinyjs::inlineCSS(".jstree-anchor>.fa-tag-black { color: black }"),
-					shinyTree::shinyTree(ns("dattree"), checkbox = TRUE, search=TRUE,
-                    types = "{ 'pkg-node': {'a_attr' : { 'style' : 'color:black' , class: 'no_checkbox'}}, 
-				               'df-node': {'a_attr' : { 'style' : 'color:black' , class: 'no_checkbox'}}, 
-                               'blue-node': {'a_attr' : { 'style' : 'color:blue' }} }" ),
-					circle = FALSE, 
-					status = "default", 
-					icon = icon("gear"),  
-					label = textOutput(ns("dslabels"), inline = TRUE),
-					tags$i(
-					  tags$i(class="fa fa-tag fa-tag-brown","int"), 
-					  tags$i(class="fa fa-tag fa-tag-orange","float"),
-					  tags$i(class="fa fa-tag fa-tag-green","char")
-					),
-					#width = "300px",
-					inputId=ns("ii")
-    ),
-	tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"ii').style.maxHeight='400px'")),
-	tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"ii').style.maxWidth='250px'")),
-	tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"ii').style.overflow='auto'")),
-	tags$script(paste0("var sp1 = document.createElement('i');sp1.classList.add('fa');sp1.classList.add('fa-search');document.getElementById('",ns(""),"dattree-search-input').parentNode.insertBefore(sp1,document.getElementById('",ns(""),"dattree-search-input').nextSibling);")),
-	tags$br()
-	)
-}
-
-test_gizmo_dynamic_server <- function(input, output, session, state=NULL){
-
-  # Restore UI state
-  if (!is.null(state)) {
-    session$onFlushed(function() {
-      
-    })
-  } 
-
-  variables <- reactiveVal(as.character(c()))
-  datasets <- reactiveVal({library(shinyTree);list("NA"=structure("NA",sticon='fa fa-warning'))})
-  remote_eval(vivid:::texasCi(), function(obj){
-    datasets(obj)
-    #session$onFlushed(function(){
-	#	shinyTree::updateTree(session, "dattree", data = obj)
-    #})
-  })
-
-  output$dattree <- shinyTree::renderTree({
-    library(shinyTree)
-    datasets()
-  })
-  
-  output$dslabels <- renderText(paste("X: ", {
-    library(shinyTree)
-	resu <- extract_local(input$dattree)
-    if (length(resu)==0){
-      "None"
-    }else{
-	  toString(resu)
-    }
-  }))
-  
-  # RMarkdown Code
-  txt_react <- reactive({
-    txt <- paste0("## knitr::kable( )")
-    txt
-  })
-
-  # Get UI state
-  get_state <- function(){
-    list(
-      
-      `__version__` = "1.0"
-    )
-  }
-  list(
-    code=txt_react,
-    get_state=get_state
+test_gizmo_dynamic_ui <- function(ns) {
+  fluidPage(
+    shinyjs::inlineCSS(".no_checkbox>i.jstree-checkbox { display:none }"),
+    shinyjs::inlineCSS(".fa-tag-green { color: green }"),
+    shinyjs::inlineCSS(".fa-tag-orange { color: orange }"),
+    shinyjs::inlineCSS(".fa-tag-brown { color: brown }"),
+    shinyjs::inlineCSS(".jstree-anchor>.fa-tag-black { color: black }"),
+    shinyWidgets::dropdownButton(
+      shinyTree::shinyTree(
+        ns("datatreex"),
+        checkbox = TRUE,
+        search = TRUE,
+        types = "{ 'pkg-node': {'a_attr' : { 'style' : 'color:black' , class: 'no_checkbox'}},
+				               'df-node': {'a_attr' : { 'style' : 'color:black' , class: 'no_checkbox'}},
+                               'blue-node': {'a_attr' : { 'style' : 'color:blue' }} }"
+      ),
+      circle = FALSE,
+      icon = icon("gear"),
+      label = textOutput(ns("lbdatatreex"), inline = TRUE),
+      #width = "300px",
+      inputId = ns("iidatatreex"),
+      tags$i(
+        tags$i(class = "fa fa-tag fa-tag-brown", "int"),
+        tags$i(class = "fa fa-tag fa-tag-orange", "float"),
+        tags$i(class = "fa fa-tag fa-tag-green", "char")
+      ),
+      tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreex').style.maxHeight='400px'")),
+      tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreex').style.maxWidth='350px'")),
+      tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreex').style.overflow='auto'")),
+      tags$script(paste0("var madatatreex = document.createElement('i');
+	    madatatreex.classList.add('fa');madatatreex.classList.add('fa-search');
+	    document.getElementById('",ns(""),"datatreex-search-input').parentNode.insertBefore(
+		madatatreex,document.getElementById('",ns(""),"datatreex-search-input').nextSibling);")),
+	  tags$script(paste0("$('#",ns(""),"datatreex').bind('activate_node.jstree', function (event, data) { if (data.instance.get_checked().length > 1) { data.instance.uncheck_all(); } });"))
+    ),	
+    tags$br(),
+    shinyWidgets::dropdownButton(
+      shinyTree::shinyTree(
+        ns("datatreey"),
+        checkbox = TRUE,
+        search = TRUE,
+        types = "{ 'pkg-node': {'a_attr' : { 'style' : 'color:black' , class: 'no_checkbox'}},
+				               'df-node': {'a_attr' : { 'style' : 'color:black' , class: 'no_checkbox'}},
+                               'blue-node': {'a_attr' : { 'style' : 'color:blue' }} }"
+      ),
+      circle = FALSE,
+      icon = icon("gear"),
+      label = textOutput(ns("lbdatatreey"), inline = TRUE),
+      #width = "300px",
+      inputId = ns("iidatatreey"),
+      tags$i(
+        tags$i(class = "fa fa-tag fa-tag-brown", "int"),
+        tags$i(class = "fa fa-tag fa-tag-orange", "float"),
+        tags$i(class = "fa fa-tag fa-tag-green", "char")
+      ),
+      tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreey').style.maxHeight='400px'")),
+      tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreey').style.maxWidth='350px'")),
+      tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreey').style.overflow='auto'")),
+      tags$script(paste0("var madatatreey = document.createElement('i');
+	    madatatreey.classList.add('fa');madatatreey.classList.add('fa-search');
+	    document.getElementById('",ns(""),"datatreey-search-input').parentNode.insertBefore(
+		madatatreey,document.getElementById('",ns(""),"datatreey-search-input').nextSibling);")),
+	  tags$script(paste0("$('#",ns(""),"datatreey').bind('activate_node.jstree', function (event, data) { if (data.instance.get_checked().length > 1) { data.instance.uncheck_all(); } });"))
+    ),	
+    tags$br()
   )
 }
 
+test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
+
+    # Restore UI state
+    if (!is.null(state)) {
+      session$onFlushed(function() {
+      })
+    }
+	
+    datasets <- reactiveVal(list("NA" = structure("NA", sticon = 'fa fa-warning')))
+	
+    remote_eval(vivid:::texasCi(), function(obj) {
+      datasets(obj)
+    })
+	
+
+   	#input X
+	output$datatreex <- shinyTree::renderTree({
+      datasets()
+    })
+
+    output$lbdatatreex <- renderText(paste("X: ", {
+      resu <- extract_local(input$datatreex)
+      if (length(resu) == 0) {
+        "None"
+      } else{
+        toString(resu)
+      }
+    }))
+	
+	#input Y
+	output$datatreey <- shinyTree::renderTree({
+      datasets()
+    })
+	
+    output$lbdatatreey <- renderText(paste("Y: ", {
+      resu <- extract_local(input$datatreey)
+      if (length(resu) == 0) {
+        "None"
+      } else{
+        toString(resu)
+      }
+    }))
+
+    # RMarkdown Code
+    txt_react <- reactive({
+      txt <- paste0("## knitr::kable( )")
+      txt
+    })
+
+    # Get UI state
+    get_state <- function() {
+      list(`__version__` = "1.0")
+    }
+    list(code = txt_react,
+         get_state = get_state)
+  }
+
 
 .globals$gizmos$dynamicui <- list(
-  ui=test_gizmo_dynamic_ui,
-  server=test_gizmo_dynamic_server,
-  library="vivid",
-  opts=list()
+  ui = test_gizmo_dynamic_ui,
+  server = test_gizmo_dynamic_server,
+  library = "vivid",
+  opts = list()
 )
 
 
-run_dynamic_ui <- function() run_standalone("dynamicui")
+run_dynamic_ui <- function()
+  run_standalone("dynamicui")
 
 
-extract_local <- function(dattree){
-    library(shinyTree)
-	resu <- list()
-	try(for (pkg in names(dattree)){
-		  for (dd in names(dattree[[pkg]])){
-			for (slc in names(dattree[[pkg]][[dd]])){
-			   try(if ( attr(dattree[[pkg]][[dd]][[slc]],"stselected")  ){
-					resu <- c(resu, list(package=pkg,data=dd,col=slc))
-			   }, silent=TRUE)
-			}
-		  }
-		},
-	silent=TRUE)
-	resu
-} 
+extract_local <- function(datatreex) {
+  library(shinyTree)
+  resu <- list()
+  try(for (pkg in names(datatreex)) {
+    for (dd in names(datatreex[[pkg]])) {
+      for (slc in names(datatreex[[pkg]][[dd]])) {
+        try(if (attr(datatreex[[pkg]][[dd]][[slc]], "stselected")) {
+          resu <- c(resu, list(
+            package = pkg,
+            data = dd,
+            col = slc
+          ))
+        }, silent = TRUE)
+      }
+    }
+  },
+  silent = TRUE)
+  resu
+}
