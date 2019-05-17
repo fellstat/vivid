@@ -1,9 +1,13 @@
 test_gizmo_dynamic_ui <- function(ns) {
   fluidPage(
     shinyjs::inlineCSS(".no_checkbox>i.jstree-checkbox { display:none }"),
-    shinyjs::inlineCSS(".fa-tag-green { color: green }"),
-    shinyjs::inlineCSS(".fa-tag-orange { color: orange }"),
-    shinyjs::inlineCSS(".fa-tag-brown { color: brown }"),
+    shinyjs::inlineCSS(".fa-tag-integer { color: brown }"),
+    shinyjs::inlineCSS(".fa-tag-numeric { color: orange }"),
+    shinyjs::inlineCSS(".fa-tag-character { color: green }"),
+	shinyjs::inlineCSS(".fa-tag-Date { color: red }"),
+	shinyjs::inlineCSS(".fa-tag-ts { color: red }"),
+	shinyjs::inlineCSS(".fa-tag-orderedfactor { color: purple }"),
+	shinyjs::inlineCSS(".fa-tag-factor { color: purple }"),
     shinyjs::inlineCSS(".jstree-anchor>.fa-tag-black { color: black }"),	
 	"Select ONLY one each. Jstree will be implemented as JS level!",	
     tags$br(),
@@ -21,11 +25,8 @@ test_gizmo_dynamic_ui <- function(ns) {
       label = textOutput(ns("lbdatatreept"), inline = TRUE),
       #width = "300px",
       inputId = ns("iidatatreept"),
-      # tags$i(
-        # tags$i(class = "fa fa-tag fa-tag-brown", "int"),
-        # tags$i(class = "fa fa-tag fa-tag-orange", "float"),
-        # tags$i(class = "fa fa-tag fa-tag-green", "char")
-      # ),
+      tags$i(
+      ),
       tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreept').style.maxHeight='400px'")),
       tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreept').style.maxWidth='350px'")),
       tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreept').style.overflow='auto'")),
@@ -79,9 +80,11 @@ test_gizmo_dynamic_ui <- function(ns) {
       #width = "300px",
       inputId = ns("iidatatreex"),
       tags$i(
-       tags$i(class = "fa fa-tag fa-tag-brown", "int"),
-       tags$i(class = "fa fa-tag fa-tag-orange", "float"),
-       tags$i(class = "fa fa-tag fa-tag-green", "char")
+        tags$i(class = "fa fa-tag fa-tag-integer", "integer"),
+        tags$i(class = "fa fa-tag fa-tag-numeric", "numeric"),
+        tags$i(class = "fa fa-tag fa-tag-character", "character"),
+		tags$i(class = "fa fa-tag fa-tag-Date", "Date"),
+	    tags$i(class = "fa fa-tag fa-tag-factor", "factor")
       ),
       tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreex').style.maxHeight='400px'")),
       tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreex').style.maxWidth='350px'")),
@@ -108,9 +111,11 @@ test_gizmo_dynamic_ui <- function(ns) {
       #width = "300px",
       inputId = ns("iidatatreey"),
       tags$i(
-        tags$i(class = "fa fa-tag fa-tag-brown", "int"),
-        tags$i(class = "fa fa-tag fa-tag-orange", "float"),
-        tags$i(class = "fa fa-tag fa-tag-green", "char")
+        tags$i(class = "fa fa-tag fa-tag-integer", "integer"),
+        tags$i(class = "fa fa-tag fa-tag-numeric", "numeric"),
+        tags$i(class = "fa fa-tag fa-tag-character", "character"),
+		tags$i(class = "fa fa-tag fa-tag-Date", "Date"),
+	    tags$i(class = "fa fa-tag fa-tag-factor", "factor")
       ),
       tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreey').style.maxHeight='400px'")),
       tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreey').style.maxWidth='350px'")),
@@ -137,9 +142,11 @@ test_gizmo_dynamic_ui <- function(ns) {
       #width = "300px",
       inputId = ns("iidatatreecolor"),
       tags$i(
-        tags$i(class = "fa fa-tag fa-tag-brown", "int"),
-        tags$i(class = "fa fa-tag fa-tag-orange", "float"),
-        tags$i(class = "fa fa-tag fa-tag-green", "char")
+        tags$i(class = "fa fa-tag fa-tag-integer", "integer"),
+        tags$i(class = "fa fa-tag fa-tag-numeric", "numeric"),
+        tags$i(class = "fa fa-tag fa-tag-character", "character"),
+		tags$i(class = "fa fa-tag fa-tag-Date", "Date"),
+	    tags$i(class = "fa fa-tag fa-tag-factor", "factor")
       ),
       tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreecolor').style.maxHeight='400px'")),
       tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreecolor').style.maxWidth='350px'")),
@@ -312,7 +319,8 @@ extract_local <- function(datatreex) {
           resu <- append(resu, list(c(
             package = pkg,
             data = dd,
-            col = slc
+            col = slc,
+            dt = get_dt(attr(datatreex[[pkg]][[dd]][[slc]], "sticon"))
           )))
         }, silent = TRUE)
       }
@@ -320,6 +328,11 @@ extract_local <- function(datatreex) {
   },
   silent = TRUE)
   resu
+}
+
+get_dt<- function(resu) {
+	kk=strsplit(toString(resu), " ")[[1]]
+	substr(kk[[length(kk)]],8,1000)
 }
 
 extract_local2 <- function(datatreex) {

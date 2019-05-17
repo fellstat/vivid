@@ -124,12 +124,20 @@ texasCi <- function(){
 
 select_color <- function (intype){
 	if (toString(intype)=='integer'){
-		 'brown'
+		 'integer'
 	}else if (toString(intype)=='numeric'){
-		 'orange'
+		 'numeric'
 	}else if (toString(intype)=='character'){
-		 'green'
+		 'character'
+	}else if (toString(intype)=='Date'){
+		 'Date'
+	}else if (toString(intype)=='ts'){
+		 'ts'
+	}else if (toString(intype)=="c(\"ordered\", \"factor\")"){
+		 'orderedfactor'
+	}else if (toString(intype)=='factor'){
+		 'factor'
 	}else{
-		 'black'
+		 'unknown'
 	}
 }
