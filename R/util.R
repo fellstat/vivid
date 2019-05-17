@@ -66,7 +66,7 @@ texasCi <- function(){
   library(ggplot2)
   
   envirs=base::search()
-  Tree0s=list();Traa0s=list()
+  Tree0s=NULL;Traa0s=NULL
   
   l1stopened=TRUE
   for (envir in envirs) {
@@ -75,10 +75,10 @@ texasCi <- function(){
     if(substr(envir,1,6)=="tools:"){pkgname=substr(envir,7,1000)}
     ccs=sapply(lapply(ls(as.environment(envir)), get), is.data.frame)
     dds=ls(as.environment(envir))[(ccs==TRUE)]
-    Tree1s=list();Traa1s=list()
+    Tree1s=NULL;Traa1s=NULL
 	l2stopened=TRUE
     for (dd in dds) {
-      Tree2s=list();Traa2s=list()
+      Tree2s=NULL;Traa2s=NULL
       if(substr(envir,1,8)=="package:"){
         TreeA=list() 
 		TreeAt=list()		
@@ -106,15 +106,15 @@ texasCi <- function(){
       }			
       if(length(Tree2s)){
 		try(eval(parse(text=paste0("Tree1s=c(Tree1s,'",dd,"'=list(structure(Tree2s,sttype='df-node',sticon='tags',stopened=",toString(l2stopened),")))"))))
-		try(eval(parse(text=paste0("Traa1s=c(Traa1s,'",dd,"'=list(structure('",dd,"',sticon='tags',stopened=",toString(l2stopened),")))"))))
-	  }
-	  l2stopened=FALSE
+		try(eval(parse(text=paste0("Traa1s=c(Traa1s,'",dd,"'=list(structure('",dd,"',sticon='tags',stopened=",toString(TRUE),")))"))))
+		l2stopened=FALSE
+	  }	  
     }
     if(length(Tree1s)){
 	  try(eval(parse(text=paste0("Tree0s=c(Tree0s,'",pkgname,"'=list(structure(Tree1s,sttype='pkg-node',sticon='fas fa-box',stopened=",toString(l1stopened),")))"))))
-	  try(eval(parse(text=paste0("Traa0s=c(Traa0s,'",pkgname,"'=list(structure(Traa1s,sttype='pkg-node',sticon='fas fa-box',stopened=",toString(l1stopened),")))"))))
-	}
-	l1stopened=FALSE
+	  try(eval(parse(text=paste0("Traa0s=c(Traa0s,'",pkgname,"'=list(structure(Traa1s,sttype='pkg-node',sticon='fas fa-box',stopened=",toString(TRUE),")))"))))
+	  l1stopened=FALSE
+	}	
   }
   result=list()
   result$Tree0s=Tree0s

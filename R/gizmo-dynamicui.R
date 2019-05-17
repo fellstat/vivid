@@ -5,6 +5,8 @@ test_gizmo_dynamic_ui <- function(ns) {
     shinyjs::inlineCSS(".fa-tag-orange { color: orange }"),
     shinyjs::inlineCSS(".fa-tag-brown { color: brown }"),
     shinyjs::inlineCSS(".jstree-anchor>.fa-tag-black { color: black }"),	
+	"Select ONLY one each. Jstree will be implemented as JS level!",	
+    tags$br(),
     shinyWidgets::dropdownButton(
       shinyTree::shinyTree(
         ns("datatreept"),
@@ -48,11 +50,10 @@ test_gizmo_dynamic_ui <- function(ns) {
       label = textOutput(ns("lbdatatreedf"), inline = TRUE),
       #width = "300px",
       inputId = ns("iidatatreedf"),
-      # tags$i(
-        # tags$i(class = "fa fa-tag fa-tag-brown", "int"),
-        # tags$i(class = "fa fa-tag fa-tag-orange", "float"),
-        # tags$i(class = "fa fa-tag fa-tag-green", "char")
-      # ),
+      tags$i(
+        tags$i(class = "fa fa-box", "environment"),
+        tags$i(class = "fa fa-tags", "data.frame")
+      ),
       tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreedf').style.maxHeight='400px'")),
       tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreedf').style.maxWidth='350px'")),
       tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreedf').style.overflow='auto'")),
@@ -161,8 +162,8 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
       })
     }
 	
-    datasets <- reactiveVal(list("NA" = structure("NA", sticon = 'fa fa-warning')))
-	datadfs  <- reactiveVal(list("NA" = structure("NA", sticon = 'fa fa-warning')))
+    datasets <- reactiveVal(NAlist())
+	datadfs  <- reactiveVal(NAlist())
 	
     remote_eval(vivid:::texasCi(), function(obj) {
       datasets(obj$Tree0s)
@@ -182,23 +183,29 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
     output$lbdatatreedf <- renderText(paste("DATA FRAME: ", {
       show_local(extract_local2(input$datatreedf))
     }))
-
+	
    	#input X
-	output$datatreex <- shinyTree::renderTree(datasets())
-	plotx <- reactive(format_local(extract_local(input$datatreex)))
+	output$datatreex <- shinyTree::renderTree(filter_df(datasets(), extract_local2(input$datatreedf)))
+	inputdatatreex <- reactiveVal(NAlist())
+	observeEvent(input$datatreex,{inputdatatreex(input$datatreex) } ,ignoreNULL = FALSE)
+	observeEvent(input$datatreedf,{inputdatatreex(NAlist())} ,ignoreNULL = FALSE)
+	plotx <- reactive(format_local(extract_local(inputdatatreex())))
     output$lbdatatreex <- renderText(paste("X: ", {
-      show_local(extract_local(input$datatreex))
+      show_local(extract_local(inputdatatreex()))
     }))
 	
-	#input Y
-	output$datatreey <- shinyTree::renderTree(datasets())	
-	ploty <- reactive(format_local(extract_local(input$datatreey)))
+   	#input Y
+	output$datatreey <- shinyTree::renderTree(filter_df(datasets(), extract_local2(input$datatreedf)))
+	inputdatatreey <- reactiveVal(NAlist())
+	observeEvent(input$datatreey,{inputdatatreey(input$datatreey) } ,ignoreNULL = FALSE)
+	observeEvent(input$datatreedf,{inputdatatreey(NAlist())} ,ignoreNULL = FALSE)
+	ploty <- reactive(format_local(extract_local(inputdatatreey())))
     output$lbdatatreey <- renderText(paste("Y: ", {
-      show_local(extract_local(input$datatreey))
+      show_local(extract_local(inputdatatreey()))
     }))
 	
 	#input COLOR
-	output$datatreecolor <- shinyTree::renderTree(datasets())	
+	output$datatreecolor <- shinyTree::renderTree(NAlist())	
 	plotcolor <- reactive(format_local(extract_local(input$datatreecolor)))
     output$lbdatatreecolor <- renderText(paste("COLOR: ", {
       show_local(extract_local(input$datatreecolor))
@@ -215,15 +222,62 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		
 	    "```{r}\n",
 	    "library(ggplot2)\n",
+		
+		if (toString(plottype())=="histogram"){paste0(
 		"(                             "," \n",
 		"  ggplot(",toString(plotdf()),", aes(",toString(plotx()),")) +  "," \n",
 		"  geom_histogram(bins=20) +   "," \n",
 		"  theme_bw()                  "," \n",
-		") %>% plotly::ggplotly()      "," \n",
+		") %>% plotly::ggplotly()      "," \n"
+		)}else{""},
+		
+		if (toString(plottype())=="bar"){paste0(
+		"(                             "," \n",
+		"  ggplot(",toString(plotdf()),", aes(",toString(plotx()),")) +  "," \n",
+		"  geom_bar() +                "," \n",
+		"  theme_bw()                  "," \n",
+		") %>% plotly::ggplotly()      "," \n"
+		)}else{""},	
+
+		if (toString(plottype())=="box"){paste0(
+		"(                             "," \n",
+		"  ggplot(",toString(plotdf()),", aes(",toString(plotx()),")) +  "," \n",
+		"  geom_boxplot() +            "," \n",
+		"  theme_bw()                  "," \n",
+		") %>% plotly::ggplotly()      "," \n"
+		)}else{""},			
+		
+		if (toString(plottype())=="line"){paste0(
+		"(                             "," \n",
+		"  ggplot(",toString(plotdf()),", aes(x=seq_along(",toString(plotx()),"),y=",toString(plotx()),")) +  "," \n",
+		"  geom_line() +            "," \n",
+		"  theme_bw()                  "," \n",
+		") %>% plotly::ggplotly()      "," \n"
+		)}else{""},	
+		
+		if (toString(plottype())=="area"){paste0(
+		"(                             "," \n",
+		"  ggplot(",toString(plotdf()),", aes(x=seq_along(",toString(plotx()),"),y=",toString(plotx()),")) +  "," \n",
+		"  geom_area() +            "," \n",
+		"  theme_bw()                  "," \n",
+		") %>% plotly::ggplotly()      "," \n"
+		)}else{""},	
+		
+		if (toString(plottype())=="pie"){paste0(
+		"(                             "," \n",
+		"  ggplot(",toString(plotdf()),", aes(x=factor(1),fill=",toString(plotx()),")) +  "," \n",
+		"  geom_bar(width = 1) +            "," \n",
+		"  coord_polar('y') #+            "," \n",
+		"  #theme_bw()                  "," \n",
+		") #%>% plotly::ggplotly()      "," \n"
+		)}else{""},	
+		
+
 	    "```\n",
 		
 		" \n"
 	  )
+	  
       txt
     })
 
@@ -316,7 +370,7 @@ format_local2 <- function(resu) {
 show_local <- function(resu) {
   if (length(resu) == 0) {
     "None"
-  } else if (resu == "") {
+  } else if (toString(resu) == "") {
     "None"
   } else {
     toString(resu)
@@ -325,9 +379,42 @@ show_local <- function(resu) {
 
 plottypes <- function( ) {
 	structure(list(
-	  'Line'=structure('Line',sticon=' fa fa-line-chart ',stselected=FALSE), 
-	  'Bar'=structure('Bar',sticon=' fa fa-bar-chart ',stselected=FALSE),
-	  'Pie'=structure('Pie',sticon=' fa fa-pie-chart ',stselected=FALSE),
-	  'Area'=structure('Area',sticon=' fa fa-area-chart ',stselected=FALSE)	  
+	  'histogram'=structure('histogram',sticon=' fa fa-bar-chart ',stselected=FALSE),
+	  'line'=structure('line',sticon=' fa fa-line-chart ',stselected=FALSE), 
+	  'bar'=structure('bar',sticon=' fa fa-bar-chart ',stselected=FALSE),
+	  'box'=structure('box',sticon=' fa fa-tag ',stselected=FALSE),
+	  'pie'=structure('pie',sticon=' fa fa-pie-chart ',stselected=FALSE),
+	  'area'=structure('area',sticon=' fa fa-area-chart ',stselected=FALSE)	  
 	),stopened=TRUE)
+}
+
+
+
+filter_df <- function (original, criterias){
+  Tree0s=NULL
+  for (pkg in names(original)) {
+    for (dd in names(original[[pkg]])) {
+		for (criteria in criterias){
+			      if(pkg==criteria[["package"]] & dd==criteria[["data"]] ){
+	        for (slc in names(original[[pkg]][[dd]])) {				
+				Tree0s[[pkg]][[dd]]=original[[pkg]][[dd]]
+				attr(Tree0s[[pkg]][[dd]], "stopened")=TRUE
+				attr(Tree0s[[pkg]], "sttype")="pkg-node"
+				attr(Tree0s[[pkg]], "sticon")="fas fa-box"
+				attr(Tree0s[[pkg]], "stopened")=TRUE
+			}
+			      }
+			
+		}
+    }
+  }
+  if(is.null(Tree0s)){
+     NAlist()
+  } else {
+    Tree0s
+  }
+}
+
+NAlist <- function ( ){
+list("NA" = structure("NA",sttype='pkg-node',sticon = ' fa fa-warning'))
 }
