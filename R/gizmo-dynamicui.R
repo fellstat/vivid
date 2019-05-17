@@ -30,8 +30,37 @@ test_gizmo_dynamic_ui <- function(ns) {
       tags$script(paste0("var madatatreept = document.createElement('i');
 	    madatatreept.classList.add('fa');madatatreept.classList.add('fa-search');
 	    document.getElementById('",ns(""),"datatreept-search-input').parentNode.insertBefore(
-		madatatreept,document.getElementById('",ns(""),"datatreept-search-input').nextSibling);")),
-	  tags$script(paste0("$('#",ns(""),"datatreept').bind('activate_node.jstree', function (event, data) { if (data.instance.get_checked().length > 1) { data.instance.uncheck_all(); } });"))
+		madatatreept,document.getElementById('",ns(""),"datatreept-search-input').nextSibling);"))#,
+	  #tags$script(paste0("$('#",ns(""),"datatreept').bind('activate_node.jstree', function (event, data) { if (data.instance.get_checked().length > 1) { data.instance.uncheck_all(); } });"))
+    ),	
+    tags$br(),
+    shinyWidgets::dropdownButton(
+      shinyTree::shinyTree(
+        ns("datatreedf"),
+        checkbox = TRUE,
+        search = TRUE,
+        types = "{ 'pkg-node': {'a_attr' : { 'style' : 'color:black' , class: 'no_checkbox'}},
+				               'df-node': {'a_attr' : { 'style' : 'color:black' , class: 'no_checkbox'}},
+                               'blue-node': {'a_attr' : { 'style' : 'color:blue' }} }"
+      ),
+      circle = FALSE,
+      icon = icon("gear"),
+      label = textOutput(ns("lbdatatreedf"), inline = TRUE),
+      #width = "300px",
+      inputId = ns("iidatatreedf"),
+      # tags$i(
+        # tags$i(class = "fa fa-tag fa-tag-brown", "int"),
+        # tags$i(class = "fa fa-tag fa-tag-orange", "float"),
+        # tags$i(class = "fa fa-tag fa-tag-green", "char")
+      # ),
+      tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreedf').style.maxHeight='400px'")),
+      tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreedf').style.maxWidth='350px'")),
+      tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreedf').style.overflow='auto'")),
+      tags$script(paste0("var madatatreedf = document.createElement('i');
+	    madatatreedf.classList.add('fa');madatatreedf.classList.add('fa-search');
+	    document.getElementById('",ns(""),"datatreedf-search-input').parentNode.insertBefore(
+		madatatreedf,document.getElementById('",ns(""),"datatreedf-search-input').nextSibling);"))#,
+	  #tags$script(paste0("$('#",ns(""),"datatreedf').bind('activate_node.jstree', function (event, data) { if (data.instance.get_checked().length > 1) { data.instance.uncheck_all(); } });"))
     ),	
     tags$br(),
     shinyWidgets::dropdownButton(
@@ -88,8 +117,8 @@ test_gizmo_dynamic_ui <- function(ns) {
       tags$script(paste0("var madatatreey = document.createElement('i');
 	    madatatreey.classList.add('fa');madatatreey.classList.add('fa-search');
 	    document.getElementById('",ns(""),"datatreey-search-input').parentNode.insertBefore(
-		madatatreey,document.getElementById('",ns(""),"datatreey-search-input').nextSibling);")),
-	  tags$script(paste0("$('#",ns(""),"datatreey').bind('activate_node.jstree', function (event, data) { if (data.instance.get_checked().length > 1) { data.instance.uncheck_all(); } });"))
+		madatatreey,document.getElementById('",ns(""),"datatreey-search-input').nextSibling);"))#,
+	  #tags$script(paste0("$('#",ns(""),"datatreey').bind('activate_node.jstree', function (event, data) { if (data.instance.get_checked().length > 1) { data.instance.uncheck_all(); } });"))
     ),	
     tags$br(),
     shinyWidgets::dropdownButton(
@@ -117,8 +146,8 @@ test_gizmo_dynamic_ui <- function(ns) {
       tags$script(paste0("var madatatreecolor = document.createElement('i');
 	    madatatreecolor.classList.add('fa');madatatreecolor.classList.add('fa-search');
 	    document.getElementById('",ns(""),"datatreecolor-search-input').parentNode.insertBefore(
-		madatatreecolor,document.getElementById('",ns(""),"datatreecolor-search-input').nextSibling);")),
-	  tags$script(paste0("$('#",ns(""),"datatreecolor').bind('activate_node.jstree', function (event, data) { if (data.instance.get_checked().length > 1) { data.instance.uncheck_all(); } });"))
+		madatatreecolor,document.getElementById('",ns(""),"datatreecolor-search-input').nextSibling);"))#,
+	  #tags$script(paste0("$('#",ns(""),"datatreecolor').bind('activate_node.jstree', function (event, data) { if (data.instance.get_checked().length > 1) { data.instance.uncheck_all(); } });"))
     ),
 	tags$br()
   )
@@ -133,16 +162,25 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
     }
 	
     datasets <- reactiveVal(list("NA" = structure("NA", sticon = 'fa fa-warning')))
+	datadfs  <- reactiveVal(list("NA" = structure("NA", sticon = 'fa fa-warning')))
 	
     remote_eval(vivid:::texasCi(), function(obj) {
-      datasets(obj)
+      datasets(obj$Tree0s)
+	  datadfs (obj$Traa0s)
     })
 	
    	#input PLOT TYPE
 	output$datatreept <- shinyTree::renderTree(plottypes())
     plottype <- reactive(toString(get_selected(input$datatreept, format = c("names"))))
     output$lbdatatreept <- renderText(paste("PLOT TYPE: ", {
-      plottype()
+      show_local(plottype())
+    }))
+	
+	#input DATA FRAME
+	output$datatreedf <- shinyTree::renderTree(datadfs())	
+    plotdf <- reactive(format_local2(extract_local2(input$datatreedf)))
+    output$lbdatatreedf <- renderText(paste("DATA FRAME: ", {
+      show_local(extract_local2(input$datatreedf))
     }))
 
    	#input X
@@ -161,6 +199,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	
 	#input COLOR
 	output$datatreecolor <- shinyTree::renderTree(datasets())	
+	plotcolor <- reactive(format_local(extract_local(input$datatreecolor)))
     output$lbdatatreecolor <- renderText(paste("COLOR: ", {
       show_local(extract_local(input$datatreecolor))
     }))
@@ -169,8 +208,20 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
     txt_react <- reactive({
       txt <- paste0(
 	    "* PLOT: ",toString(plottype())," \n",
-	    "*    X: ",toString(plotx())," \n",
-		"*    Y: ",toString(ploty())," \n",
+		"* DATA: ",toString(plotdf())," \n",
+	    "* X: ",toString(plotx())," \n",
+		"* Y: ",toString(ploty())," \n",
+		"* COLOR: ",toString(plotcolor())," \n",
+		
+	    "```{r}\n",
+	    "library(ggplot2)\n",
+		"(                             "," \n",
+		"  ggplot(",toString(plotdf()),", aes(",toString(plotx()),")) +  "," \n",
+		"  geom_histogram(bins=20) +   "," \n",
+		"  theme_bw()                  "," \n",
+		") %>% plotly::ggplotly()      "," \n",
+	    "```\n",
+		
 		" \n"
 	  )
       txt
@@ -217,6 +268,23 @@ extract_local <- function(datatreex) {
   resu
 }
 
+extract_local2 <- function(datatreex) {
+  library(shinyTree)
+  resu <- list()
+  try(for (pkg in names(datatreex)) {
+    for (dd in names(datatreex[[pkg]])) {
+        try(if (attr(datatreex[[pkg]][[dd]], "stselected")) {
+          resu <- append(resu, list(c(
+            package = pkg,
+            data = dd
+          )))
+        }, silent = TRUE)
+    }
+  },
+  silent = TRUE)
+  resu
+}
+
 format_local <- function(resu) {
   library(shinyTree)
   result <- NULL
@@ -231,10 +299,26 @@ format_local <- function(resu) {
   result
 }
 
+format_local2 <- function(resu) {
+  library(shinyTree)
+  result <- NULL
+  for (res in resu) {
+	try(result <- append(result, list(c(
+		paste0(
+			ifelse(res[["package"]]=='.GlobalEnv','.GlobalEnv$',paste0(res[["package"]],"::") ),
+			res[["data"]]
+		)
+	))))
+  }
+  result
+}
+
 show_local <- function(resu) {
   if (length(resu) == 0) {
     "None"
-  } else{
+  } else if (resu == "") {
+    "None"
+  } else {
     toString(resu)
   }
 }
