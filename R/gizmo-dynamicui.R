@@ -182,9 +182,33 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 
 	#input DATA FRAME
 	output$datatreedf <- shinyTree::renderTree(datadfs())
-    plotdf <- reactive(format_local2(extract_local2(input$datatreedf)))
+	outputdatatreedf_old <- reactiveVal(datadfs())  #single selection ctrl
+	observeEvent(input$datatreedf,{   #single selection
+		T <- extract_local2(input$datatreedf)
+		if(length(T)>2){
+			shinyTree::updateTree(session, "datatreedf",  outputdatatreedf_old() )
+		}else if(length(T)==2){
+		    if(isTRUE(attr(outputdatatreedf_old()[[T[[1]][['package']]]][[T[[1]][['data']]]],'stselected'))){
+				outputdatatreedf_temp <- datadfs()
+				attr(outputdatatreedf_temp[[T[[2]][['package']]]][[T[[2]][['data']]]],'stselected')=TRUE
+				outputdatatreedf_old(outputdatatreedf_temp)
+			}else{
+				outputdatatreedf_temp <- datadfs()
+				attr(outputdatatreedf_temp[[T[[1]][['package']]]][[T[[1]][['data']]]],'stselected')=TRUE
+				outputdatatreedf_old(outputdatatreedf_temp)
+			}			
+			shinyTree::updateTree(session, "datatreedf",  outputdatatreedf_old() )
+		}else if(length(T)==1){
+			outputdatatreedf_temp <- datadfs()
+			attr(outputdatatreedf_temp[[T[[1]][['package']]]][[T[[1]][['data']]]],'stselected')=TRUE
+			outputdatatreedf_old(outputdatatreedf_temp)
+		}else{
+			outputdatatreedf_old(datadfs())
+		}		
+	})	
+    plotdf <- reactive(format_local2(outputdatatreedf_old()))
     output$lbdatatreedf <- renderText(paste("DATA FRAME: ", {
-      toStringB(extract_local2(input$datatreedf))
+      toStringB(extract_local2(outputdatatreedf_old()))
     }))
 
    	#input X
