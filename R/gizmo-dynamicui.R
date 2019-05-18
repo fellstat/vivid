@@ -222,8 +222,9 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	#observeEvent(input$datatreedf,{inputdatatreept(NApt())} ,ignoreNULL = FALSE)
     plottype <- reactive(  (filter_pt(get_selected(inputdatatreept(), format = c("names")),extract_local(inputdatatreex()),extract_local(inputdatatreey()))))
     output$lbdatatreept <- renderText(paste("PLOT TYPE: ", {
-      toStringB(plottype())
+      toStringB(plottype(),'Auto')
     }))
+	
 
 	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
 
@@ -452,11 +453,11 @@ format_local2 <- function(resu) {
   result
 }
 
-toStringB <- function(resu) {
+toStringB <- function(resu,zeromessage="None") {
   if (length(resu) == 0) {
-    "None"
+    zeromessage
   } else if (toString(resu) == "") {
-    "None"
+    zeromessage
   } else {
     toString(resu)
   }
@@ -512,7 +513,7 @@ NAlist <- function ( ){
 }
 
 filter_pt <- function (original,x,y){
-	if(!is.element('auto', original)| length(original)==0) {
+	if(!is.element('auto', original) & length(original) > 0) {
 		original
 	}else{
 		decide_pt(x,y)
@@ -523,7 +524,6 @@ decide_pt <- function (xx,yy){
 	if(!length(xx)&!length(yy)){
 		result <- list( structure("auto",implied='unknown'))
 	}else if( length(xx)&!length(yy)){
-		#browser()
 		for (xxx in xx){
 			result<-c(result, if( judge_numeric(xxx) ){
 									structure("auto histogram",implied='histogram')
