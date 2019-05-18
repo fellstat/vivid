@@ -206,32 +206,32 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 			outputdatatreedf_old(datadfs())
 		}		
 	})	
-    plotdf <- reactive(format_local2(outputdatatreedf_old()))
+    plotdf <- reactive( format_local2(extract_local2(outputdatatreedf_old())) )
     output$lbdatatreedf <- renderText(paste("DATA FRAME: ", {
       toStringB(extract_local2(outputdatatreedf_old()))
     }))
 
    	#input X
-	output$datatreex <- shinyTree::renderTree(filter_dis(filter_df(datasets(), extract_local2(input$datatreedf)),ptdisablex()) )
+	output$datatreex <- shinyTree::renderTree(filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),ptdisablex()) )
 	inputdatatreexx <- reactiveVal(NAlist())
 	inputdatatreex <- reactiveVal(NAlist())
 	observeEvent(ptdisablex(),{inputdatatreex(filter_dis(inputdatatreexx(),ptdisablex())) } ,ignoreNULL = FALSE)
-	observeEvent(inputdatatreexx(),{inputdatatreex(filter_dis(inputdatatreexx(),ptdisablex())) } ,ignoreNULL = FALSE)	
-	observeEvent(input$datatreex,{inputdatatreexx(input$datatreex) } ,ignoreNULL = FALSE)
-	observeEvent(input$datatreedf,{inputdatatreexx(NAlist())} ,ignoreNULL = FALSE)
+	observeEvent(inputdatatreexx(),{message("I got input B");browser();inputdatatreex(filter_dis(inputdatatreexx(),ptdisablex())) } ,ignoreNULL = FALSE)	
+	observeEvent(input$datatreex,{message("I got input A");inputdatatreexx(input$datatreex) } ,ignoreNULL = FALSE)
+	observeEvent(plotdf(),{inputdatatreexx(NAlist())} ,ignoreNULL = FALSE)
 	plotx <- reactive(format_local(extract_local(inputdatatreex())))
     output$lbdatatreex <- renderText(paste("X: ", {
       toStringB(extract_local(inputdatatreex()))
     }))
 
    	#input Y
-	output$datatreey <- shinyTree::renderTree(filter_dis(filter_df(datasets(), extract_local2(input$datatreedf)),ptdisabley()) )
+	output$datatreey <- shinyTree::renderTree(filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),ptdisabley()) )
 	inputdatatreeyy <- reactiveVal(NAlist())
 	inputdatatreey <- reactiveVal(NAlist())
 	observeEvent(ptdisabley(),{inputdatatreey(filter_dis(inputdatatreeyy(),ptdisabley())) } ,ignoreNULL = FALSE)	
 	observeEvent(inputdatatreeyy(),{inputdatatreey(filter_dis(inputdatatreeyy(),ptdisabley())) } ,ignoreNULL = FALSE)	
 	observeEvent(input$datatreey,{inputdatatreeyy(input$datatreey) } ,ignoreNULL = FALSE)
-	observeEvent(input$datatreedf,{inputdatatreeyy(NAlist())} ,ignoreNULL = FALSE)
+	observeEvent(plotdf(),{inputdatatreeyy(NAlist())} ,ignoreNULL = FALSE)
 	ploty <- reactive(format_local(extract_local(inputdatatreey())))
     output$lbdatatreey <- renderText(paste("Y: ", {
       toStringB(extract_local(inputdatatreey()))
@@ -274,7 +274,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	output$datatreept <- shinyTree::renderTree(NApt())
 	inputdatatreept <- reactiveVal(NApt())
 	observeEvent(input$datatreept,{inputdatatreept(input$datatreept) } ,ignoreNULL = FALSE)
-	#observeEvent(input$datatreedf,{inputdatatreept(NApt())} ,ignoreNULL = FALSE)
+	#observeEvent(outputdatatreedf_old(),{inputdatatreept(NApt())} ,ignoreNULL = FALSE)
     plottype <- reactive(  filter_pt(get_selected(inputdatatreept(), format = c("names")),extract_local(inputdatatreex()),extract_local(inputdatatreey())))
     output$lbdatatreept <- renderText(paste("PLOT TYPE: ", {
       toStringB(plottype(),'Auto')
