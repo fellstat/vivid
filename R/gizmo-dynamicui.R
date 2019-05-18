@@ -222,27 +222,27 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	
 	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
 	
-extract_local <- function(datatreex) {
-  library(shinyTree)
-  resu <- list()
-  try(for (pkg in names(datatreex)) {
-    for (dd in names(datatreex[[pkg]])) {
-      for (slc in names(datatreex[[pkg]][[dd]])) {
-        try(if (attr(datatreex[[pkg]][[dd]][[slc]], "stselected")) {
-          resu <- append(resu, list(c(
-            package = pkg,
-            data = dd,
-            col = slc,
-            dt = get_dt(attr(datasets()[[pkg]][[dd]][[slc]], "sticon"))
-          )))
-        }, silent = TRUE)
-      }
-    }
-  },
-  silent = TRUE)
-  resu
-}
-	
+	extract_local <- function(datatreex) {
+	  library(shinyTree)
+	  resu <- list()
+	  try(for (pkg in names(datatreex)) {
+		for (dd in names(datatreex[[pkg]])) {
+		  for (slc in names(datatreex[[pkg]][[dd]])) {
+			try(if (attr(datatreex[[pkg]][[dd]][[slc]], "stselected")) {
+			  resu <- append(resu, list(c(
+				package = pkg,
+				data = dd,
+				col = slc,
+				dt = get_dt(attr(datasets()[[pkg]][[dd]][[slc]], "sticon"))
+			  )))
+			}, silent = TRUE)
+		  }
+		}
+	  },
+	  silent = TRUE)
+	  resu
+	}
+		
 
 	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
 
@@ -256,8 +256,8 @@ extract_local <- function(datatreex) {
       toStringB(plottype(),'Auto')
     }))
 	observeEvent(input$datatreept,{
-		if (length(input$datatreept)>0){
-			temp <- get_selected(inputdatatreept(), format = c("names"))
+	    temp <- get_selected(inputdatatreept(), format = c("names"))
+		if (length(temp)>0){
 			if(!is.element('auto', temp)){
 				disablex=TRUE;disabley=TRUE
 				if(is.element("histogram", temp)) {disablex=FALSE}
