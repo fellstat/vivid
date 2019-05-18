@@ -279,7 +279,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	    "```{r}\n",
 	    "library(ggplot2)\n",
 
-		if (toString(pt_autofree(plottype()))=="histogram"){paste0(
+		if (toString(pt_autofree(plottype()))=="histogram" & length(get_col(plotx()))>0 ){paste0(
 		"#(numeric x)                  "," \n",
 		"(                             "," \n",
 		" ggplot(",toString(plotdf()),", aes(",toString(get_col(plotx())),")) +  "," \n",
@@ -289,7 +289,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		)}else{""},
 		
 
-		if (toString(pt_autofree(plottype()))=="bar"){paste0(
+		if (toString(pt_autofree(plottype()))=="bar" & length(get_col(plotx()))>0 ){paste0(
 		"#(categorical x)              "," \n",
 		"(                             "," \n",
 		" ggplot(",toString(plotdf()),", aes(",toString(get_col(plotx())),")) +  "," \n",
@@ -299,7 +299,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		)}else{""},
 		
 
-		if (toString(pt_autofree(plottype()))=="box"){paste0(
+		if (toString(pt_autofree(plottype()))=="box" & length(get_col(ploty()))>0 ){paste0(
 		"#(numeric y)                  "," \n",
 		"(                             "," \n",
 		" ggplot(",toString(plotdf()),", aes(",toString(get_col(ploty())),", x = \"\")) +  "," \n",
@@ -310,7 +310,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		)}else{""},
 		
 		
-		if (toString(pt_autofree(plottype()))=="bar2"){paste0(
+		if (toString(pt_autofree(plottype()))=="bar2" & length(get_col(ploty()))>0 ){paste0(
 		"#(categorical y)              "," \n",
 		"(                             "," \n",
 		" ",toString(plotdf())," %>%                                  "," \n",
@@ -324,7 +324,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		)}else{""},
 		
 		
-		if (toString(pt_autofree(plottype()))=="scatter"){paste0(
+		if (toString(pt_autofree(plottype()))=="scatter" & length(get_col(plotx()))>0 & length(get_col(ploty()))>0 ){paste0(
 		"#(numeric x and y)            "," \n",
 		"(                             "," \n",
 		" ggplot(",toString(plotdf()),", aes(",toString(get_col(plotx())),",",toString(get_col(ploty())),")) +  "," \n",
@@ -334,7 +334,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		)}else{""},
 		
 		
-		if (toString(pt_autofree(plottype()))=="box2"){paste0(
+		if (toString(pt_autofree(plottype()))=="box2" & length(get_col(plotx()))>0 & length(get_col(ploty()))>0 ){paste0(
 		"#(categorical x numeric y)    "," \n",
 		"(                             "," \n",
 		" ggplot(",toString(plotdf()),", aes(",toString(get_col(plotx())),",",toString(get_col(ploty())),")) +  "," \n",
@@ -344,7 +344,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		)}else{""},
 		
 		
-		if (toString(pt_autofree(plottype()))=="histogram2"){paste0(
+		if (toString(pt_autofree(plottype()))=="histogram2" & length(get_col(plotx()))>0 & length(get_col(ploty()))>0 ){paste0(
 		"#(numeric x categorical y)    "," \n",
 		"#(                             "," \n",
 		" ggplot(",toString(plotdf()),", aes(",toString(get_col(plotx())),",",toString(get_col(ploty())),")) +  "," \n",
@@ -354,7 +354,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		)}else{""},
 		
 
-		if (toString(pt_autofree(plottype()))=="grid"){paste0(
+		if (toString(pt_autofree(plottype()))=="grid" & length(get_col(plotx()))>0 & length(get_col(ploty()))>0 ){paste0(
 		"#(categorical x categorical y)"," \n",
 		"(                             "," \n",
 		" ggplot(",toString(plotdf()),", aes(x=seq_along(",toString(get_col(plotx())),"),y=",toString(get_col(ploty())),", fill=stat(count))) +  "," \n",
@@ -367,7 +367,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		
 		######################################################@@@@@@@@@@@@@@@@@@
 
-		if (toString(pt_autofree(plottype()))=="line"){paste0(
+		if (toString(pt_autofree(plottype()))=="line" & length(get_col(plotx()))>0 & length(get_col(ploty()))>0 ){paste0(
 		"(                             "," \n",
 		" ggplot(",toString(plotdf()),", aes(x=seq_along(",toString(get_col(plotx())),"),y=",toString(get_col(ploty())),")) +  "," \n",
 		"  geom_line() +            "," \n",
@@ -375,7 +375,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
 
-		if (toString(pt_autofree(plottype()))=="area"){paste0(
+		if (toString(pt_autofree(plottype()))=="area" & length(get_col(plotx()))>0 & length(get_col(ploty()))>0 ){paste0(
 		"(                             "," \n",
 		" ggplot(",toString(plotdf()),", aes(x=seq_along(",toString(get_col(plotx())),"),y=",toString(get_col(ploty())),")) +  "," \n",
 		"  geom_area() +            "," \n",
