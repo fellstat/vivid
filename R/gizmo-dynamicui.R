@@ -127,36 +127,36 @@ test_gizmo_dynamic_ui <- function(ns) {
 	  #tags$script(paste0("$('#",ns(""),"datatreey').bind('activate_node.jstree', function (event, data) { if (data.instance.get_checked().length > 1) { data.instance.uncheck_all(); } });"))
     ),
     tags$br(),
-    shinyWidgets::dropdownButton(
-      shinyTree::shinyTree(
-        ns("datatreecolor"),
-        checkbox = TRUE,
-        search = TRUE,
-        types = "{ 'pkg-node': {'a_attr' : { 'style' : 'color:black' , class: 'no_checkbox'}},
-				   'df-node': {'a_attr' : { 'style' : 'color:black' , class: 'no_checkbox'}}  }"
-      ),
-      circle = FALSE,
-      icon = icon("gear"),
-      label = textOutput(ns("lbdatatreecolor"), inline = TRUE),
-      #width = "300px",
-      inputId = ns("iidatatreecolor"),
-      tags$i(
-        tags$i(class = "fa fa-tag fa-tag-integer", "integer"),
-        tags$i(class = "fa fa-tag fa-tag-numeric", "numeric"),
-        tags$i(class = "fa fa-tag fa-tag-character", "character"),
-		tags$i(class = "fa fa-tag fa-tag-Date", "Date"),
-	    tags$i(class = "fa fa-tag fa-tag-factor", "factor")
-      ),
-      tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreecolor').style.maxHeight='400px'")),
-      tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreecolor').style.minWidth='300px'")),
-      tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreecolor').style.maxWidth='350px'")),
-      tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreecolor').style.overflow='auto'")),
-      tags$script(paste0("var madatatreecolor = document.createElement('i');
-	    madatatreecolor.classList.add('fa');madatatreecolor.classList.add('fa-search');
-	    document.getElementById('",ns(""),"datatreecolor-search-input').parentNode.insertBefore(
-		madatatreecolor,document.getElementById('",ns(""),"datatreecolor-search-input').nextSibling);"))#,
-	  #tags$script(paste0("$('#",ns(""),"datatreecolor').bind('activate_node.jstree', function (event, data) { if (data.instance.get_checked().length > 1) { data.instance.uncheck_all(); } });"))
-    ),
+    # shinyWidgets::dropdownButton(
+      # shinyTree::shinyTree(
+        # ns("datatreecolor"),
+        # checkbox = TRUE,
+        # search = TRUE,
+        # types = "{ 'pkg-node': {'a_attr' : { 'style' : 'color:black' , class: 'no_checkbox'}},
+				   # 'df-node': {'a_attr' : { 'style' : 'color:black' , class: 'no_checkbox'}}  }"
+      # ),
+      # circle = FALSE,
+      # icon = icon("gear"),
+      # label = textOutput(ns("lbdatatreecolor"), inline = TRUE),
+      # #width = "300px",
+      # inputId = ns("iidatatreecolor"),
+      # tags$i(
+        # tags$i(class = "fa fa-tag fa-tag-integer", "integer"),
+        # tags$i(class = "fa fa-tag fa-tag-numeric", "numeric"),
+        # tags$i(class = "fa fa-tag fa-tag-character", "character"),
+		# tags$i(class = "fa fa-tag fa-tag-Date", "Date"),
+	    # tags$i(class = "fa fa-tag fa-tag-factor", "factor")
+      # ),
+      # tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreecolor').style.maxHeight='400px'")),
+      # tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreecolor').style.minWidth='300px'")),
+      # tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreecolor').style.maxWidth='350px'")),
+      # tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreecolor').style.overflow='auto'")),
+      # tags$script(paste0("var madatatreecolor = document.createElement('i');
+	    # madatatreecolor.classList.add('fa');madatatreecolor.classList.add('fa-search');
+	    # document.getElementById('",ns(""),"datatreecolor-search-input').parentNode.insertBefore(
+		# madatatreecolor,document.getElementById('",ns(""),"datatreecolor-search-input').nextSibling);"))#,
+	  # #tags$script(paste0("$('#",ns(""),"datatreecolor').bind('activate_node.jstree', function (event, data) { if (data.instance.get_checked().length > 1) { data.instance.uncheck_all(); } });"))
+    # ),
 	tags$br()
   )
 }
@@ -177,7 +177,8 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	  datadfs (obj$Traa0s)
     })
 
-
+	ptdisablex <- reactiveVal(FALSE)
+	ptdisabley <- reactiveVal(FALSE)
 
 	#input DATA FRAME
 	output$datatreedf <- shinyTree::renderTree(datadfs())
@@ -187,31 +188,37 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
     }))
 
    	#input X
-	output$datatreex <- shinyTree::renderTree(filter_df(datasets(), extract_local2(input$datatreedf)))
+	output$datatreex <- shinyTree::renderTree(filter_dis(filter_df(datasets(), extract_local2(input$datatreedf)),ptdisablex()) )
+	inputdatatreexx <- reactiveVal(NAlist())
 	inputdatatreex <- reactiveVal(NAlist())
-	observeEvent(input$datatreex,{inputdatatreex(input$datatreex) } ,ignoreNULL = FALSE)
-	observeEvent(input$datatreedf,{inputdatatreex(NAlist())} ,ignoreNULL = FALSE)
+	observeEvent(ptdisablex(),{inputdatatreex(filter_dis(inputdatatreexx(),ptdisablex())) } ,ignoreNULL = FALSE)
+	observeEvent(inputdatatreexx(),{inputdatatreex(filter_dis(inputdatatreexx(),ptdisablex())) } ,ignoreNULL = FALSE)	
+	observeEvent(input$datatreex,{inputdatatreexx(input$datatreex) } ,ignoreNULL = FALSE)
+	observeEvent(input$datatreedf,{inputdatatreexx(NAlist())} ,ignoreNULL = FALSE)
 	plotx <- reactive(format_local(extract_local(inputdatatreex())))
     output$lbdatatreex <- renderText(paste("X: ", {
       toStringB(extract_local(inputdatatreex()))
     }))
 
    	#input Y
-	output$datatreey <- shinyTree::renderTree(filter_df(datasets(), extract_local2(input$datatreedf)))
+	output$datatreey <- shinyTree::renderTree(filter_dis(filter_df(datasets(), extract_local2(input$datatreedf)),ptdisabley()) )
+	inputdatatreeyy <- reactiveVal(NAlist())
 	inputdatatreey <- reactiveVal(NAlist())
-	observeEvent(input$datatreey,{inputdatatreey(input$datatreey) } ,ignoreNULL = FALSE)
-	observeEvent(input$datatreedf,{inputdatatreey(NAlist())} ,ignoreNULL = FALSE)
+	observeEvent(ptdisabley(),{inputdatatreey(filter_dis(inputdatatreeyy(),ptdisabley())) } ,ignoreNULL = FALSE)	
+	observeEvent(inputdatatreeyy(),{inputdatatreey(filter_dis(inputdatatreeyy(),ptdisabley())) } ,ignoreNULL = FALSE)	
+	observeEvent(input$datatreey,{inputdatatreeyy(input$datatreey) } ,ignoreNULL = FALSE)
+	observeEvent(input$datatreedf,{inputdatatreeyy(NAlist())} ,ignoreNULL = FALSE)
 	ploty <- reactive(format_local(extract_local(inputdatatreey())))
     output$lbdatatreey <- renderText(paste("Y: ", {
       toStringB(extract_local(inputdatatreey()))
     }))
 
-	#input COLOR
-	output$datatreecolor <- shinyTree::renderTree(NAlist())
-	plotcolor <- reactive(format_local(extract_local(input$datatreecolor)))
-    output$lbdatatreecolor <- renderText(paste("COLOR: ", {
-      toStringB(extract_local(input$datatreecolor))
-    }))
+	# #input COLOR
+	# output$datatreecolor <- shinyTree::renderTree(NAlist())
+	# plotcolor <- reactive(format_local(extract_local(input$datatreecolor)))
+    # output$lbdatatreecolor <- renderText(paste("COLOR: ", {
+      # toStringB(extract_local(input$datatreecolor))
+    # }))
 
 	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
 
@@ -220,10 +227,40 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	inputdatatreept <- reactiveVal(NApt())
 	observeEvent(input$datatreept,{inputdatatreept(input$datatreept) } ,ignoreNULL = FALSE)
 	#observeEvent(input$datatreedf,{inputdatatreept(NApt())} ,ignoreNULL = FALSE)
-    plottype <- reactive(  (filter_pt(get_selected(inputdatatreept(), format = c("names")),extract_local(inputdatatreex()),extract_local(inputdatatreey()))))
+    plottype <- reactive(  filter_pt(get_selected(inputdatatreept(), format = c("names")),extract_local(inputdatatreex()),extract_local(inputdatatreey())))
     output$lbdatatreept <- renderText(paste("PLOT TYPE: ", {
       toStringB(plottype(),'Auto')
     }))
+	observeEvent(input$datatreept,{
+		if (length(input$datatreept)>0){
+			temp <- get_selected(inputdatatreept(), format = c("names"))
+			if(!is.element('auto', temp)){
+				disablex=TRUE;disabley=TRUE
+				if(is.element("histogram", temp)) {disablex=FALSE}
+				if(is.element("bar", temp)) {disablex=FALSE}
+				if(is.element("box", temp)) {disabley=FALSE}
+				if(is.element("bar2", temp)) {disabley=FALSE}
+				if(is.element("scatter", temp)) {disablex=FALSE;disabley=FALSE}
+				if(is.element("box2", temp)) {disablex=FALSE;disabley=FALSE}
+				if(is.element("histogram2", temp)) {disablex=FALSE;disabley=FALSE}
+				if(is.element("grid", temp)) {disablex=FALSE;disabley=FALSE}
+				
+				if(is.element("line", temp)) {disablex=FALSE;disabley=FALSE}
+				if(is.element("area", temp)) {disablex=FALSE;disabley=FALSE}
+				ptdisablex(disablex)
+				ptdisabley(disabley)
+			}else{
+				disablex=FALSE;disabley=FALSE				
+				ptdisablex(disablex)
+				ptdisabley(disabley)
+			}
+		}else{
+				disablex=FALSE;disabley=FALSE				
+				ptdisablex(disablex)
+				ptdisabley(disabley)
+		}
+	
+	} ,ignoreNULL = FALSE)
 	
 
 	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
@@ -235,8 +272,10 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"* DATA: ",toString(plotdf())," \n",
 	    "* X: ",toString(plotx())," \n",
 		"* Y: ",toString(ploty())," \n",
-		"* COLOR: ",toString(plotcolor())," \n",
-
+		#"* COLOR: ",toString(plotcolor())," \n",
+		" \n",
+		" \n",
+		
 	    "```{r}\n",
 	    "library(ggplot2)\n",
 
@@ -308,7 +347,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		if (toString(pt_autofree(plottype()))=="histogram2"){paste0(
 		"#(numeric x categorical y)    "," \n",
 		"#(                             "," \n",
-		" ggplot(",toString(plotdf()),", aes(x=seq_along(",toString(get_col(plotx())),"),y=",toString(get_col(plotx())),")) +  "," \n",
+		" ggplot(",toString(plotdf()),", aes(",toString(get_col(plotx())),",",toString(get_col(ploty())),")) +  "," \n",
 		"  ggridges::stat_binline(bins = 50, scale = .7, draw_baseline = FALSE) +     "," \n",
 		"  ggridges::theme_ridges()               "," \n",
 		"#) %>% plotly::ggplotly()      "," \n"
@@ -318,7 +357,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		if (toString(pt_autofree(plottype()))=="grid"){paste0(
 		"#(categorical x categorical y)"," \n",
 		"(                             "," \n",
-		" ggplot(",toString(plotdf()),", aes(x=seq_along(",toString(get_col(plotx())),"),y=",toString(get_col(plotx())),", fill=stat(count))) +  "," \n",
+		" ggplot(",toString(plotdf()),", aes(x=seq_along(",toString(get_col(plotx())),"),y=",toString(get_col(ploty())),", fill=stat(count))) +  "," \n",
 		"  stat_bin2d() +              "," \n",
 		"  scale_fill_gradient2() +     "," \n",
 		"  theme_bw()                  "," \n",
@@ -571,7 +610,8 @@ decide_pt <- function (xx,yy){
 
 
 judge_numeric <- function (res){
-   is.element(res['dt'],c('numeric','integer'))
+   #is.element(res['dt'],c('numeric','integer','Date','ts'))
+   !judge_categorical(res)
 }
 judge_categorical <- function (res){
    is.element(res['dt'],c('orderedfactor','factor','character'))
@@ -598,4 +638,10 @@ get_col <- function(resu) {
 	result
 }
 
-
+filter_dis <- function(resu,disabled=FALSE,fill=NAlist()) {
+	if(disabled){
+		fill
+	}else{
+		resu
+	}
+}
