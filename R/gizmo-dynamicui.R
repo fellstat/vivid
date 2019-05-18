@@ -192,27 +192,26 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	inputdatatreexx <- reactiveVal(NAlist())
 	inputdatatreex <- reactiveVal(NAlist())
 	observeEvent(ptdisablex(),{inputdatatreex(filter_dis(inputdatatreexx(),ptdisablex())) } ,ignoreNULL = FALSE)
-	observeEvent(inputdatatreexx(),{inputdatatreex(filter_dis(inputdatatreexx(),ptdisablex())) } ,ignoreNULL = FALSE)
+	observeEvent(inputdatatreexx(),{inputdatatreex(filter_dis(inputdatatreexx(),ptdisablex())) } ,ignoreNULL = FALSE)	
 	observeEvent(input$datatreex,{inputdatatreexx(input$datatreex) } ,ignoreNULL = FALSE)
 	observeEvent(input$datatreedf,{inputdatatreexx(NAlist())} ,ignoreNULL = FALSE)
-	plotx <- reactive(format_local(extract_local(inputdatatreex(),filter_dis(filter_df(datasets(), extract_local2(input$datatreedf)),ptdisablex()) )))
+	plotx <- reactive(format_local(extract_local(inputdatatreex())))
     output$lbdatatreex <- renderText(paste("X: ", {
-      toStringB(extract_local(inputdatatreex(),filter_dis(filter_df(datasets(), extract_local2(input$datatreedf)),ptdisablex())))
+      toStringB(extract_local(inputdatatreex()))
     }))
 
    	#input Y
 	output$datatreey <- shinyTree::renderTree(filter_dis(filter_df(datasets(), extract_local2(input$datatreedf)),ptdisabley()) )
 	inputdatatreeyy <- reactiveVal(NAlist())
 	inputdatatreey <- reactiveVal(NAlist())
-	observeEvent(ptdisabley(),{inputdatatreey(filter_dis(inputdatatreeyy(),ptdisabley())) } ,ignoreNULL = FALSE)
-	observeEvent(inputdatatreeyy(),{inputdatatreey(filter_dis(inputdatatreeyy(),ptdisabley())) } ,ignoreNULL = FALSE)
+	observeEvent(ptdisabley(),{inputdatatreey(filter_dis(inputdatatreeyy(),ptdisabley())) } ,ignoreNULL = FALSE)	
+	observeEvent(inputdatatreeyy(),{inputdatatreey(filter_dis(inputdatatreeyy(),ptdisabley())) } ,ignoreNULL = FALSE)	
 	observeEvent(input$datatreey,{inputdatatreeyy(input$datatreey) } ,ignoreNULL = FALSE)
 	observeEvent(input$datatreedf,{inputdatatreeyy(NAlist())} ,ignoreNULL = FALSE)
-	ploty <- reactive(format_local(extract_local(inputdatatreey(),filter_dis(filter_df(datasets(), extract_local2(input$datatreedf)),ptdisabley()))))
+	ploty <- reactive(format_local(extract_local(inputdatatreey())))
     output$lbdatatreey <- renderText(paste("Y: ", {
-      toStringB(extract_local(inputdatatreey(),filter_dis(filter_df(datasets(), extract_local2(input$datatreedf)),ptdisabley())))
+      toStringB(extract_local(inputdatatreey()))
     }))
-
 
 	# #input COLOR
 	# output$datatreecolor <- shinyTree::renderTree(NAlist())
@@ -220,6 +219,30 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
     # output$lbdatatreecolor <- renderText(paste("COLOR: ", {
       # toStringB(extract_local(input$datatreecolor))
     # }))
+	
+	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
+	
+extract_local <- function(datatreex) {
+  library(shinyTree)
+  resu <- list()
+  try(for (pkg in names(datatreex)) {
+    for (dd in names(datatreex[[pkg]])) {
+      for (slc in names(datatreex[[pkg]][[dd]])) {
+        try(if (attr(datatreex[[pkg]][[dd]][[slc]], "stselected")) {
+          resu <- append(resu, list(c(
+            package = pkg,
+            data = dd,
+            col = slc,
+            dt = get_dt(attr(datasets()[[pkg]][[dd]][[slc]], "sticon"))
+          )))
+        }, silent = TRUE)
+      }
+    }
+  },
+  silent = TRUE)
+  resu
+}
+	
 
 	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
 
@@ -245,24 +268,24 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 				if(is.element("box2", temp)) {disablex=FALSE;disabley=FALSE}
 				if(is.element("histogram2", temp)) {disablex=FALSE;disabley=FALSE}
 				if(is.element("grid", temp)) {disablex=FALSE;disabley=FALSE}
-
+				
 				if(is.element("line", temp)) {disablex=FALSE;disabley=FALSE}
 				if(is.element("area", temp)) {disablex=FALSE;disabley=FALSE}
 				ptdisablex(disablex)
 				ptdisabley(disabley)
 			}else{
-				disablex=FALSE;disabley=FALSE
+				disablex=FALSE;disabley=FALSE				
 				ptdisablex(disablex)
 				ptdisabley(disabley)
 			}
 		}else{
-				disablex=FALSE;disabley=FALSE
+				disablex=FALSE;disabley=FALSE				
 				ptdisablex(disablex)
 				ptdisabley(disabley)
 		}
-
+	
 	} ,ignoreNULL = FALSE)
-
+	
 
 	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
 
@@ -276,7 +299,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		#"* COLOR: ",toString(plotcolor())," \n",
 		" \n",
 		" \n",
-
+		
 	    "```{r}\n",
 	    "library(ggplot2)\n",
 
@@ -288,7 +311,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"  theme_bw()                  "," \n",
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
-
+		
 
 		if (toString(pt_autofree(plottype()))=="bar" & length(get_col(plotx()))>0 ){paste0(
 		"#(categorical x)              "," \n",
@@ -298,7 +321,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"  theme_bw()                  "," \n",
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
-
+		
 
 		if (toString(pt_autofree(plottype()))=="box" & length(get_col(ploty()))>0 ){paste0(
 		"#(numeric y)                  "," \n",
@@ -309,8 +332,8 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"  theme_bw()                  "," \n",
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
-
-
+		
+		
 		if (toString(pt_autofree(plottype()))=="bar2" & length(get_col(ploty()))>0 ){paste0(
 		"#(categorical y)              "," \n",
 		"(                             "," \n",
@@ -323,8 +346,8 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"  theme_bw()                                                 "," \n",
 		") %>% plotly::ggplotly()                                     "," \n"
 		)}else{""},
-
-
+		
+		
 		if (toString(pt_autofree(plottype()))=="scatter" & length(get_col(plotx()))>0 & length(get_col(ploty()))>0 ){paste0(
 		"#(numeric x and y)            "," \n",
 		"(                             "," \n",
@@ -333,8 +356,8 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"  theme_bw()                  "," \n",
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
-
-
+		
+		
 		if (toString(pt_autofree(plottype()))=="box2" & length(get_col(plotx()))>0 & length(get_col(ploty()))>0 ){paste0(
 		"#(categorical x numeric y)    "," \n",
 		"(                             "," \n",
@@ -343,8 +366,8 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"  theme_bw()                  "," \n",
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
-
-
+		
+		
 		if (toString(pt_autofree(plottype()))=="histogram2" & length(get_col(plotx()))>0 & length(get_col(ploty()))>0 ){paste0(
 		"#(numeric x categorical y)    "," \n",
 		"#(                             "," \n",
@@ -353,7 +376,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"  ggridges::theme_ridges()               "," \n",
 		"#) %>% plotly::ggplotly()      "," \n"
 		)}else{""},
-
+		
 
 		if (toString(pt_autofree(plottype()))=="grid" & length(get_col(plotx()))>0 & length(get_col(ploty()))>0 ){paste0(
 		"#(categorical x categorical y)"," \n",
@@ -363,9 +386,9 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"  scale_fill_gradient2() +     "," \n",
 		"  theme_bw()                  "," \n",
 		") %>% plotly::ggplotly()      "," \n"
-		)}else{""},
-
-
+		)}else{""},		
+		
+		
 		######################################################@@@@@@@@@@@@@@@@@@
 
 		if (toString(pt_autofree(plottype()))=="line" & length(get_col(plotx()))>0 & length(get_col(ploty()))>0 ){paste0(
@@ -422,27 +445,7 @@ run_dynamic_ui <- function()
   run_standalone("dynamicui")
 
 
-extract_local <- function(datatreex,bkp) {
-  library(shinyTree)
-  resu <- list()
-  try(for (pkg in names(datatreex)) {
-    for (dd in names(datatreex[[pkg]])) {
-      for (slc in names(datatreex[[pkg]][[dd]])) {
-        try(
-			if (attr(datatreex[[pkg]][[dd]][[slc]], "stselected")) {
-			  resu <- append(resu, list(c(
-				package = pkg,
-				data = dd,
-				col = slc,
-				dt = get_dt(attr(bkp[[pkg]][[dd]][[slc]], "sticon"))
-			  )))
-			}, silent = TRUE)
-      }
-    }
-  },
-  silent = TRUE)
-  resu
-}
+
 
 get_dt<- function(resu) {
 	kk=strsplit(toString(resu), " ")[[1]]
