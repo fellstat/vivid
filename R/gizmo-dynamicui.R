@@ -216,8 +216,8 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	inputdatatreexx <- reactiveVal(NAlist())
 	inputdatatreex <- reactiveVal(NAlist())
 	observeEvent(ptdisablex(),{inputdatatreex(filter_dis(inputdatatreexx(),ptdisablex())) } ,ignoreNULL = FALSE)
-	observeEvent(inputdatatreexx(),{message("I got input B");browser();inputdatatreex(filter_dis(inputdatatreexx(),ptdisablex())) } ,ignoreNULL = FALSE)	
-	observeEvent(input$datatreex,{message("I got input A");inputdatatreexx(input$datatreex) } ,ignoreNULL = FALSE)
+	observeEvent(inputdatatreexx(),{inputdatatreex(filter_dis(inputdatatreexx(),ptdisablex())) } ,ignoreNULL = FALSE)	
+	observeEvent(input$datatreex,{inputdatatreexx(input$datatreex) } ,ignoreNULL = FALSE)
 	observeEvent(plotdf(),{inputdatatreexx(NAlist())} ,ignoreNULL = FALSE)
 	plotx <- reactive(format_local(extract_local(inputdatatreex())))
     output$lbdatatreex <- renderText(paste("X: ", {
