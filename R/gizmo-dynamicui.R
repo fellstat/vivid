@@ -300,7 +300,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 				package = pkg,
 				data = dd,
 				col = slc,
-				dt = get_dt(attr(datasets()[[pkg]][[dd]][[slc]], "sticon"))
+				dt = attr(datasets()[[pkg]][[dd]][[slc]], "dt")
 			  )))
 			}, silent = TRUE)
 		  }
@@ -535,17 +535,8 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
   opts = list()
 )
 
-
 run_dynamic_ui <- function()
   run_standalone("dynamicui")
-
-
-
-
-get_dt<- function(resu) {
-	kk=strsplit(toString(resu), " ")[[1]]
-	substr(kk[[length(kk)]],8,1000)
-}
 
 extract_local2 <- function(datatreex) {
   library(shinyTree)

@@ -82,12 +82,12 @@ texasCi <- function(){
       if(substr(envir,1,8)=="package:"){
         TreeA=list() 
 		TreeAt=list()		
-        try(eval(parse(text=paste0("TreeA=(names(",pkgname,"::", dd,"))"))))
-		try(eval(parse(text=paste0("TreeAt=(sapply(",pkgname,"::", dd,", class))"))))
+        eval(parse(text=paste0("TreeA=(names(",pkgname,"::", dd,"))")))
+		eval(parse(text=paste0("TreeAt=(sapply(",pkgname,"::", dd,", class))")))
         for (kk in 1:length(TreeA)){
 		   Treea=TreeA[kk]
 		   Treeat=TreeAt[kk]
-          try(eval(parse(text=paste0("Tree2s=c(Tree2s, '",Treea,"'=list(structure(\"",Treea,"\",sticon=' fa fa-tag fa-tag-",select_color(Treeat),"')))")))) #,stopened=TRUE
+          eval(parse(text=paste0("Tree2s=c(Tree2s, '",Treea,"'=list(structure(\"",Treea,"\",sticon=' fa fa-tag fa-tag-",removespace(Treeat),"',dt='",removespace(Treeat),"')))"))) #,stopened=TRUE
         }
       } else if (substr(envir,1,6)=="tools:"){
         
@@ -95,24 +95,24 @@ texasCi <- function(){
         TreeA=list()
 		TreeAt=list() 
         
-        try(eval(parse(text=paste0("TreeA=(names(",".GlobalEnv","$", dd,"))"))))
-		try(eval(parse(text=paste0("TreeAt=(sapply(",".GlobalEnv","$", dd,", class))"))))
+        eval(parse(text=paste0("TreeA=(names(",".GlobalEnv","$", dd,"))")))
+		eval(parse(text=paste0("TreeAt=(sapply(",".GlobalEnv","$", dd,", class))")))
         #TreeA=datasets()
         for (kk in 1:length(TreeA)){
 		   Treea=TreeA[kk]
 		   Treeat=TreeAt[kk]
-          try(eval(parse(text=paste0("Tree2s=c(Tree2s, '",Treea,"'=list(structure(\"",Treea,"\",sticon=' fa fa-tag fa-tag-",select_color(Treeat),"')))")))) #,stopened=TRUE
+          eval(parse(text=paste0("Tree2s=c(Tree2s, '",Treea,"'=list(structure(\"",Treea,"\",sticon=' fa fa-tag fa-tag-",removespace(Treeat),"',dt='",removespace(Treeat),"')))"))) #,stopened=TRUE
         }
       }			
       if(length(Tree2s)){
-		try(eval(parse(text=paste0("Tree1s=c(Tree1s,'",dd,"'=list(structure(Tree2s,sttype='df-node',sticon='tags',stopened=",toString(l2stopened),")))"))))
-		try(eval(parse(text=paste0("Traa1s=c(Traa1s,'",dd,"'=list(structure('",dd,"',sticon='tags',stopened=",toString(TRUE),")))"))))
+		eval(parse(text=paste0("Tree1s=c(Tree1s,'",dd,"'=list(structure(Tree2s,sttype='df-node',sticon='tags',stopened=",toString(l2stopened),")))")))
+		eval(parse(text=paste0("Traa1s=c(Traa1s,'",dd,"'=list(structure('",dd,"',sticon='tags',stopened=",toString(TRUE),")))")))
 		l2stopened=FALSE
 	  }	  
     }
     if(length(Tree1s)){
-	  try(eval(parse(text=paste0("Tree0s=c(Tree0s,'",pkgname,"'=list(structure(Tree1s,sttype='pkg-node',sticon='fas fa-box',stopened=",toString(l1stopened),")))"))))
-	  try(eval(parse(text=paste0("Traa0s=c(Traa0s,'",pkgname,"'=list(structure(Traa1s,sttype='pkg-node',sticon='fas fa-box',stopened=",toString(TRUE),")))"))))
+	  eval(parse(text=paste0("Tree0s=c(Tree0s,'",pkgname,"'=list(structure(Tree1s,sttype='pkg-node',sticon='fas fa-box',stopened=",toString(l1stopened),")))")))
+	  eval(parse(text=paste0("Traa0s=c(Traa0s,'",pkgname,"'=list(structure(Traa1s,sttype='pkg-node',sticon='fas fa-box',stopened=",toString(TRUE),")))")))
 	  l1stopened=FALSE
 	}	
   }
@@ -122,7 +122,7 @@ texasCi <- function(){
   result
 }
 
-select_color <- function (intype){
+removespace <- function (intype){
 	if (toString(intype)=='integer'){
 		 'integer'
 	}else if (toString(intype)=='numeric'){
