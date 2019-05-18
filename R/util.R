@@ -87,7 +87,7 @@ texasCi <- function(){
         for (kk in 1:length(TreeA)){
 		   Treea=TreeA[kk]
 		   Treeat=TreeAt[kk]
-          eval(parse(text=paste0("Tree2s=c(Tree2s, '",Treea,"'=list(structure(\"",Treea,"\",sticon=' fa fa-tag fa-tag-",removespace(Treeat),"',dt='",removespace(Treeat),"')))"))) #,stopened=TRUE
+          eval(parse(text=paste0("Tree2s=c(Tree2s, '",Treea,"'=list(structure(\"",Treea,"\",sticon=' fa fa-tag fa-tag-",checkintype(Treeat),"',dt='",checkintype(Treeat),"')))"))) #,stopened=TRUE
         }
       } else if (substr(envir,1,6)=="tools:"){
         
@@ -101,7 +101,7 @@ texasCi <- function(){
         for (kk in 1:length(TreeA)){
 		   Treea=TreeA[kk]
 		   Treeat=TreeAt[kk]
-          eval(parse(text=paste0("Tree2s=c(Tree2s, '",Treea,"'=list(structure(\"",Treea,"\",sticon=' fa fa-tag fa-tag-",removespace(Treeat),"',dt='",removespace(Treeat),"')))"))) #,stopened=TRUE
+          eval(parse(text=paste0("Tree2s=c(Tree2s, '",Treea,"'=list(structure(\"",Treea,"\",sticon=' fa fa-tag fa-tag-",checkintype(Treeat),"',dt='",checkintype(Treeat),"')))"))) #,stopened=TRUE
         }
       }			
       if(length(Tree2s)){
@@ -122,7 +122,7 @@ texasCi <- function(){
   result
 }
 
-removespace <- function (intype){
+checkintype <- function (intype){
 	if (toString(intype)=='integer'){
 		 'integer'
 	}else if (toString(intype)=='numeric'){

@@ -242,7 +242,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	observeEvent(plotdf(),{outputdatatreex_old(NAlist())} ,ignoreNULL = FALSE)
 	plotx <- reactive(format_local(extract_local(inputdatatreex())))
     output$lbdatatreex <- renderText(paste("X: ", {
-      toStringB(extract_local(inputdatatreex()))
+      toStringB(extract_local(inputdatatreex()),ptdisablex())
     }))
 
    	#input Y
@@ -277,7 +277,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	observeEvent(plotdf(),{outputdatatreey_old(NAlist())} ,ignoreNULL = FALSE)
 	ploty <- reactive(format_local(extract_local(inputdatatreey())))
     output$lbdatatreey <- renderText(paste("Y: ", {
-      toStringB(extract_local(inputdatatreey()))
+      toStringB(extract_local(inputdatatreey()),ptdisabley())
     }))
 
 	# #input COLOR
@@ -346,7 +346,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	#observeEvent(outputdatatreedf_old(),{outputdatatreept_old(NApt())} ,ignoreNULL = FALSE)
     plottype <- reactive(  filter_pt(get_selected(outputdatatreept_old(), format = c("names")),extract_local(inputdatatreex()),extract_local(inputdatatreey())))
     output$lbdatatreept <- renderText(paste("PLOT TYPE: ", {
-      toStringB(plottype(),'Auto')
+      toStringB(plottype())
     }))
 	
 	
@@ -583,7 +583,9 @@ format_local2 <- function(resu) {
   result
 }
 
-toStringB <- function(resu,zeromessage="None") {
+toStringB <- function(resu,disable=FALSE) {
+  zeromessage="Select...     "
+  if(disable)zeromessage="Not Required"
   if (length(resu) == 0) {
     zeromessage
   } else if (toString(resu) == "") {
