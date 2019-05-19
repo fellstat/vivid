@@ -1,5 +1,5 @@
-test_gizmo_dynamic_ui <- function(ns) {
-  fluidPage(
+ctrlJS <- function (...){
+  tags$i(
     shinyjs::inlineCSS(".no_checkbox>i.jstree-checkbox { display:none }"),
     shinyjs::inlineCSS(".fa-tag-integer { color: brown }"),
     shinyjs::inlineCSS(".fa-tag-numeric { color: orange }"),
@@ -8,11 +8,14 @@ test_gizmo_dynamic_ui <- function(ns) {
 	shinyjs::inlineCSS(".fa-tag-ts { color: red }"),
 	shinyjs::inlineCSS(".fa-tag-orderedfactor { color: purple }"),
 	shinyjs::inlineCSS(".fa-tag-factor { color: purple }"),
-    shinyjs::inlineCSS(".jstree-anchor>.fa-tag-black { color: black }"),
-    tags$br(),
+    shinyjs::inlineCSS(".jstree-anchor>.fa-tag-black { color: black }")
+  )
+}
+
+ctrlA <- function (ns, ctrlname, ...){
     shinyWidgets::dropdownButton(
       shinyTree::shinyTree(
-        ns("datatreept"),
+        ns(ctrlname),
         checkbox = TRUE,
         search = TRUE,
         types = "{ 'pkg-node': {'a_attr' : { 'style' : 'color:black' , class: 'no_checkbox'}},
@@ -20,256 +23,81 @@ test_gizmo_dynamic_ui <- function(ns) {
       ),
       circle = FALSE,
       icon = icon("gear"),
-      label = textOutput(ns("lbdatatreept"), inline = TRUE),
-      #width = "300px",
-      inputId = ns("iidatatreept"),
+      label = textOutput(ns(paste0("lb",ctrlname)), inline = TRUE),
+      inputId = ns(paste0("ii",ctrlname)),	  
       tags$i(
+	  tags$br(),
+        tags$i(class = "fa fa-box", "environment"),
+        tags$i(class = "fa fa-tags", "data.frame"),
+		tags$br(),
+        tags$i(class = "fa fa-tag fa-tag-integer", "integer"),
+        tags$i(class = "fa fa-tag fa-tag-numeric", "numeric"),
+        tags$i(class = "fa fa-tag fa-tag-character", "character"),		
+		tags$i(class = "fa fa-tag fa-tag-Date", "Date"),
+	    tags$i(class = "fa fa-tag fa-tag-factor", "factor")
       ),
-      tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreept').style.maxHeight='400px'")),
-	  tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreept').style.minWidth='300px'")),
-      tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreept').style.maxWidth='350px'")),
-      tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreept').style.overflow='auto'")),
+      tags$script(paste0("document.getElementById('",paste0("dropdown-menu-",ns(paste0("ii",ctrlname))),"').style.maxHeight='400px'")),
+	  tags$script(paste0("document.getElementById('",paste0("dropdown-menu-",ns(paste0("ii",ctrlname))),"').style.minWidth='300px'")),
+      tags$script(paste0("document.getElementById('",paste0("dropdown-menu-",ns(paste0("ii",ctrlname))),"').style.maxWidth='500px'")),
+      tags$script(paste0("document.getElementById('",paste0("dropdown-menu-",ns(paste0("ii",ctrlname))),"').style.overflow='auto'")),
       tags$script(paste0("var madatatreept = document.createElement('i');
 	    madatatreept.classList.add('fa');madatatreept.classList.add('fa-search');
-	    document.getElementById('",ns(""),"datatreept-search-input').parentNode.insertBefore(
-		madatatreept,document.getElementById('",ns(""),"datatreept-search-input').nextSibling);"))
-    ),
-    tags$br(),
-    shinyWidgets::dropdownButton(
-      shinyTree::shinyTree(
-        ns("datatreedf"),
-        checkbox = TRUE,
-        search = TRUE,
-        types = "{ 'pkg-node': {'a_attr' : { 'style' : 'color:black' , class: 'no_checkbox'}},
-				   'df-node': {'a_attr' : { 'style' : 'color:black' , class: 'no_checkbox'}}  }"
-      ),
-      circle = FALSE,
-      icon = icon("gear"),
-      label = textOutput(ns("lbdatatreedf"), inline = TRUE),
-      #width = "300px",
-      inputId = ns("iidatatreedf"),
-      tags$i(
-        tags$i(class = "fa fa-box", "environment"),
-        tags$i(class = "fa fa-tags", "data.frame")
-      ),
-      tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreedf').style.maxHeight='400px'")),
-      tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreedf').style.minWidth='300px'")),
-      tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreedf').style.maxWidth='350px'")),
-      tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreedf').style.overflow='auto'")),
-      tags$script(paste0("var madatatreedf = document.createElement('i');
-	    madatatreedf.classList.add('fa');madatatreedf.classList.add('fa-search');
-	    document.getElementById('",ns(""),"datatreedf-search-input').parentNode.insertBefore(
-		madatatreedf,document.getElementById('",ns(""),"datatreedf-search-input').nextSibling);"))
-    ),
-    tags$br(),
-    shinyWidgets::dropdownButton(
-      shinyTree::shinyTree(
-        ns("datatreex"),
-        checkbox = TRUE,
-        search = TRUE,
-        types = "{ 'pkg-node': {'a_attr' : { 'style' : 'color:black' , class: 'no_checkbox'}},
-				   'df-node': {'a_attr' : { 'style' : 'color:black' , class: 'no_checkbox'}}  }"
-      ),
-      circle = FALSE,
-      icon = icon("gear"),
-      label = textOutput(ns("lbdatatreex"), inline = TRUE),
-      #width = "300px",
-      inputId = ns("iidatatreex"),
-      tags$i(
-        tags$i(class = "fa fa-tag fa-tag-integer", "integer"),
-        tags$i(class = "fa fa-tag fa-tag-numeric", "numeric"),
-        tags$i(class = "fa fa-tag fa-tag-character", "character"),
-		tags$i(class = "fa fa-tag fa-tag-Date", "Date"),
-	    tags$i(class = "fa fa-tag fa-tag-factor", "factor")
-      ),
-      tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreex').style.maxHeight='400px'")),
-      tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreex').style.minWidth='300px'")),
-      tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreex').style.maxWidth='350px'")),
-      tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreex').style.overflow='auto'")),
-      tags$script(paste0("var madatatreex = document.createElement('i');
-	    madatatreex.classList.add('fa');madatatreex.classList.add('fa-search');
-	    document.getElementById('",ns(""),"datatreex-search-input').parentNode.insertBefore(
-		madatatreex,document.getElementById('",ns(""),"datatreex-search-input').nextSibling);"))
-    ),
-    tags$br(),
-    shinyWidgets::dropdownButton(
-      shinyTree::shinyTree(
-        ns("datatreey"),
-        checkbox = TRUE,
-        search = TRUE,
-        types = "{ 'pkg-node': {'a_attr' : { 'style' : 'color:black' , class: 'no_checkbox'}},
-				   'df-node': {'a_attr' : { 'style' : 'color:black' , class: 'no_checkbox'}}  }"
-      ),
-      circle = FALSE,
-      icon = icon("gear"),
-      label = textOutput(ns("lbdatatreey"), inline = TRUE),
-      #width = "300px",
-      inputId = ns("iidatatreey"),
-      tags$i(
-        tags$i(class = "fa fa-tag fa-tag-integer", "integer"),
-        tags$i(class = "fa fa-tag fa-tag-numeric", "numeric"),
-        tags$i(class = "fa fa-tag fa-tag-character", "character"),
-		tags$i(class = "fa fa-tag fa-tag-Date", "Date"),
-	    tags$i(class = "fa fa-tag fa-tag-factor", "factor")
-      ),
-      tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreey').style.maxHeight='400px'")),
-      tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreey').style.minWidth='300px'")),
-      tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreey').style.maxWidth='350px'")),
-      tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreey').style.overflow='auto'")),
-      tags$script(paste0("var madatatreey = document.createElement('i');
-	    madatatreey.classList.add('fa');madatatreey.classList.add('fa-search');
-	    document.getElementById('",ns(""),"datatreey-search-input').parentNode.insertBefore(
-		madatatreey,document.getElementById('",ns(""),"datatreey-search-input').nextSibling);"))
-    ),
+	    document.getElementById('",ns(paste0(ctrlname,"-search-input")),"').parentNode.insertBefore(
+		madatatreept,document.getElementById('",ns(paste0(ctrlname,"-search-input")),"').nextSibling);"))
+    )
+}
+
+
+ctrlB <- function (ns, ctrlname, ...){
+  shiny::column(3,shinyWidgets::dropdown(
+	    ...,
+        circle = FALSE,
+        icon = icon("gear"),
+        label = toupper(ctrlname),
+        inputId = ns(paste0("ii",ctrlname)),
+		up = TRUE, 
+		tags$script(paste0("document.getElementById('",ns(paste0("ii",ctrlname)),"').style.width='100%'")),
+        tags$script(paste0("document.getElementById('",paste0("dropdown-menu-",ns(paste0("ii",ctrlname))),"').style.maxHeight='400px'")),
+        tags$script(paste0("document.getElementById('",paste0("dropdown-menu-",ns(paste0("ii",ctrlname))),"').style.minWidth='300px'")),
+        tags$script(paste0("document.getElementById('",paste0("dropdown-menu-",ns(paste0("ii",ctrlname))),"').style.maxWidth='350px'")),
+        tags$script(paste0("document.getElementById('",paste0("dropdown-menu-",ns(paste0("ii",ctrlname))),"').style.overflow='auto'"))
+      ))
+}
+
+
+test_gizmo_dynamic_ui <- function(ns) {
+  fluidPage(
+	ctrlJS(),
+	ctrlA(ns,"datatreept"),tags$br(),
+	ctrlA(ns,"datatreedf"),tags$br(),
+	ctrlA(ns,"datatreex"),tags$br(),
+	ctrlA(ns,"datatreey"),tags$br(),
     tags$br(),
 	fluidRow(
-	  column(6,shinyWidgets::dropdownButton(
-		  shinyTree::shinyTree(
-			ns("datatreecolor"),
-			checkbox = TRUE,
-			search = TRUE,
-			types = "{ 'pkg-node': {'a_attr' : { 'style' : 'color:black' , class: 'no_checkbox'}},
-					   'df-node': {'a_attr' : { 'style' : 'color:black' , class: 'no_checkbox'}}  }"
-		  ),
-		  circle = FALSE,
-		  icon = icon("gear"),
-		  label = textOutput(ns("lbdatatreecolor"), inline = TRUE),
-		  #width = "300px",
-		  inputId = ns("iidatatreecolor"),
-		  tags$i(
-			tags$i(class = "fa fa-tag fa-tag-integer", "integer"),
-			tags$i(class = "fa fa-tag fa-tag-numeric", "numeric"),
-			tags$i(class = "fa fa-tag fa-tag-character", "character"),
-			tags$i(class = "fa fa-tag fa-tag-Date", "Date"),
-			tags$i(class = "fa fa-tag fa-tag-factor", "factor")
-		  ),
-		  tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreecolor').style.maxHeight='400px'")),
-		  tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreecolor').style.minWidth='300px'")),
-		  tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreecolor').style.maxWidth='350px'")),
-		  tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreecolor').style.overflow='auto'")),
-		  tags$script(paste0("var madatatreecolor = document.createElement('i');
-			madatatreecolor.classList.add('fa');madatatreecolor.classList.add('fa-search');
-			document.getElementById('",ns(""),"datatreecolor-search-input').parentNode.insertBefore(
-			madatatreecolor,document.getElementById('",ns(""),"datatreecolor-search-input').nextSibling);"))
-		)
-	  ),
-	  column(6,shinyWidgets::dropdownButton(
-		  shinyTree::shinyTree(
-			ns("datatreefacet"),
-			checkbox = TRUE,
-			search = TRUE,
-			types = "{ 'pkg-node': {'a_attr' : { 'style' : 'color:black' , class: 'no_checkbox'}},
-					   'df-node': {'a_attr' : { 'style' : 'color:black' , class: 'no_checkbox'}}  }"
-		  ),
-		  circle = FALSE,
-		  icon = icon("gear"),
-		  label = textOutput(ns("lbdatatreefacet"), inline = TRUE),
-		  #width = "300px",
-		  inputId = ns("iidatatreefacet"),
-		  tags$i(
-			tags$i(class = "fa fa-tag fa-tag-integer", "integer"),
-			tags$i(class = "fa fa-tag fa-tag-numeric", "numeric"),
-			tags$i(class = "fa fa-tag fa-tag-character", "character"),
-			tags$i(class = "fa fa-tag fa-tag-Date", "Date"),
-			tags$i(class = "fa fa-tag fa-tag-factor", "factor")
-		  ),
-		  tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreefacet').style.maxHeight='400px'")),
-		  tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreefacet').style.minWidth='300px'")),
-		  tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreefacet').style.maxWidth='350px'")),
-		  tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreefacet').style.overflow='auto'")),
-		  tags$script(paste0("var madatatreefacet = document.createElement('i');
-			madatatreefacet.classList.add('fa');madatatreefacet.classList.add('fa-search');
-			document.getElementById('",ns(""),"datatreefacet-search-input').parentNode.insertBefore(
-			madatatreefacet,document.getElementById('",ns(""),"datatreefacet-search-input').nextSibling);"))
-		)
-	  )
-	),tags$br(),
+	  column(6,ctrlA(ns,"datatreecolor")),
+	  column(6,ctrlA(ns,"datatreefacet"))
+	),
+	tags$br(),
 	fluidRow(
-      column(3,shinyWidgets::dropdown(
+      ctrlB(ns,"main-panel",
 		textInput(ns("title"), "TITLE"),
 		checkboxInput(ns("geom_violin"), "GEOM VIOLIN", FALSE),
 		checkboxInput(ns("stat_summary"), "STAT SUMMARY", FALSE),
-		checkboxInput(ns("coord_flip"), "COORD FLIP", FALSE),
-        circle = FALSE,
-        icon = icon("gear"),
-        label = "MAIN",
-        inputId = ns("iimain"),
-		up = TRUE, 
-		tags$script(paste0("document.getElementById('",ns(""),"iimain').style.width='100%'")),
-        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iimain').style.maxHeight='400px'")),
-        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iimain').style.minWidth='300px'")),
-        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iimain').style.maxWidth='350px'")),
-        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iimain').style.overflow='auto'"))
-      )),
-      column(3,shinyWidgets::dropdown(
+		checkboxInput(ns("coord_flip"), "COORD FLIP", FALSE)),
+      ctrlB(ns,"xaxis-panel",
         textInput(ns("xlabel"), "X LABEL"),
-		checkboxInput(ns("xlog"), "X AXIS LOG", FALSE),
-        circle = FALSE,
-        icon = icon("gear"),
-        label = "X AXIS",
-        inputId = ns("iixaxis"),
-		up = TRUE, 
-		tags$script(paste0("document.getElementById('",ns(""),"iixaxis').style.width='100%'")),
-        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iixaxis').style.maxHeight='400px'")),
-        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iixaxis').style.minWidth='300px'")),
-        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iixaxis').style.maxWidth='350px'")),
-        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iixaxis').style.overflow='auto'"))
-      )),
-      column(3,shinyWidgets::dropdown(
+		checkboxInput(ns("xlog"), "X AXIS LOG", FALSE)),
+      ctrlB(ns,"yaxis-panel",
         textInput(ns("ylabel"), "Y LABEL"),
-		checkboxInput(ns("ylog"), "Y AXIS LOG", FALSE),
-        circle = FALSE,
-        icon = icon("gear"),
-        label = "Y AXIS",
-        inputId = ns("iiyaxis"),
-		up = TRUE, 
-		tags$script(paste0("document.getElementById('",ns(""),"iiyaxis').style.width='100%'")),
-        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iiyaxis').style.maxHeight='400px'")),
-        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iiyaxis').style.minWidth='300px'")),
-        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iiyaxis').style.maxWidth='350px'")),
-        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iiyaxis').style.overflow='auto'"))
-      )),
-      column(3,shinyWidgets::dropdown(
-        textAreaInput(ns("customized_code"), "CUSTOMIZED CODE", width='100%'),
-        circle = FALSE,
-        icon = icon("gear"),
-        label = "DEBUG",
-        inputId = ns("iidebug"),
-		up = TRUE, 
-		tags$script(paste0("document.getElementById('",ns(""),"iidebug').style.width='100%'")),
-        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidebug').style.maxHeight='400px'")),
-        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidebug').style.minWidth='300px'")),
-        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidebug').style.maxWidth='350px'")),
-        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidebug').style.overflow='auto'"))
-      )),
-	  column(3,shinyWidgets::dropdown(
+		checkboxInput(ns("ylog"), "Y AXIS LOG", FALSE)),
+      ctrlB(ns,"debug-panel",
+        textAreaInput(ns("customized_code"), "CUSTOMIZED CODE", width='100%')),
+	  ctrlB(ns,"theme-panel",
         pickerInput(ns("theme"), label = "SELECT THEME ...", choices = theme_choices(), selected = "theme_bw" ), 
-		numericInput(ns("base_size"), "BASE SIZE", 12, min = 1, max = 100),
-        circle = FALSE,
-        icon = icon("gear"),
-        label = "THEME",
-        inputId = ns("iitheme"),
-		up = TRUE, 
-		tags$script(paste0("document.getElementById('",ns(""),"iitheme').style.width='100%'")),
-        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iitheme').style.maxHeight='400px'")),
-        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iitheme').style.minWidth='300px'")),
-        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iitheme').style.maxWidth='350px'")),
-        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iitheme').style.overflow='auto'"))
-      )),
-	  column(3,shinyWidgets::dropdown(
+		numericInput(ns("base_size"), "BASE SIZE", 12, min = 1, max = 100)),
+	  ctrlB(ns,"histogram-panel",
 	    checkboxInput(ns("histogram"), "HISTOGRAM", FALSE),
-		numericInput(ns("bins"), "BINS", 20, min = 1, max = 100),
-        circle = FALSE,
-        icon = icon("gear"),
-        label = "HISTOGRAM",
-        inputId = ns("iihistogram"),
-		up = TRUE, 
-		tags$script(paste0("document.getElementById('",ns(""),"iihistogram').style.width='100%'")),
-        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iihistogram').style.maxHeight='400px'")),
-        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iihistogram').style.minWidth='300px'")),
-        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iihistogram').style.maxWidth='350px'")),
-        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iihistogram').style.overflow='auto'"))
-      ))
+		numericInput(ns("bins"), "BINS", 20, min = 1, max = 100))
 	),
     tags$br(),
 	tags$br()
