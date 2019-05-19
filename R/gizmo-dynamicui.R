@@ -241,6 +241,20 @@ test_gizmo_dynamic_ui <- function(ns) {
         tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidebug').style.minWidth='300px'")),
         tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidebug').style.maxWidth='350px'")),
         tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidebug').style.overflow='auto'"))
+      )),
+	  column(3,shinyWidgets::dropdown(
+        pickerInput(ns("theme"), label = "SELECT THEME ...", choices = theme_choices(), selected = "theme_bw" ), 
+		numericInput(ns("base_size"), "BASE SIZE", 12, min = 1, max = 100),
+        circle = FALSE,
+        icon = icon("gear"),
+        label = "THEME",
+        inputId = ns("iitheme"),
+		up = TRUE, 
+		tags$script(paste0("document.getElementById('",ns(""),"iitheme').style.width='100%'")),
+        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iitheme').style.maxHeight='400px'")),
+        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iitheme').style.minWidth='300px'")),
+        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iitheme').style.maxWidth='350px'")),
+        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iitheme').style.overflow='auto'"))
       ))
 	),
     tags$br(),
@@ -444,13 +458,12 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	
 	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
 	
-	extract_local <- function(datatreex) {
-	  library(shinyTree)
+	extract_local <- function(datatreez) {
 	  resu <- list()
-	  try(for (pkg in names(datatreex)) {
-		for (dd in names(datatreex[[pkg]])) {
-		  for (slc in names(datatreex[[pkg]][[dd]])) {
-			try(if (attr(datatreex[[pkg]][[dd]][[slc]], "stselected")) {
+	  try(for (pkg in names(datatreez)) {
+		for (dd in names(datatreez[[pkg]])) {
+		  for (slc in names(datatreez[[pkg]][[dd]])) {
+			try(if (attr(datatreez[[pkg]][[dd]][[slc]], "stselected")) {
 			  resu <- append(resu, list(c(
 				package = pkg,
 				data = dd,
@@ -460,8 +473,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 			}, silent = TRUE)
 		  }
 		}
-	  },
-	  silent = TRUE)
+	  },silent = TRUE)
 	  resu
 	}
 		
@@ -503,6 +515,11 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
     output$lbdatatreept <- renderText(paste("PLOT TYPE: ", {
       toStringB(plottype())
     }))
+	
+	plotdf_ <- reactive(toString(plotdf()))
+	plottreex_ <- reactive(toString(get_col(plottreex())))
+	plottreey_ <- reactive(toString(get_col(plottreey())))
+	plottype_ <- reactive(toString(pt_autofree(plottype())))
 	
 	
 	observeEvent(input$datatreept,{
@@ -615,6 +632,12 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	  }else{""}
 	}
 	
+	get_theme <- function (){
+	  if(isTRUE(nchar(input$theme)>0) ){
+		paste0("  ",toString(input$theme),'(',ifelse(as.numeric(input$base_size)!=12,paste0("base_size = ",as.numeric(input$base_size)),""),') \n')
+	  }else{""}
+	}
+	
 	
 	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
 
@@ -624,8 +647,8 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	    "```{r echo=FALSE} \n",
 		"Sys.time()\n",
 		"```\n",
-	    "* PLOT: ",toString(pt_autofree(plottype()))," \n",
-		"* DATA: ",toString(plotdf())," \n",
+	    "* PLOT: ",plottype_()," \n",
+		"* DATA: ",plotdf_()," \n",
 		if(!ptdisabletreex()){
 			paste0("* X: ",toString(plottreex())," \n")
 		}else{""},
@@ -668,10 +691,10 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	    "```{r}\n",
 	    "library(ggplot2)\n",
 
-		if (toString(pt_autofree(plottype()))=="histogram" & length(get_col(plottreex()))>0 ){paste0(
+		if (plottype_()=="histogram" & plottreex_()!="" ){paste0(
 		"#(numeric x)                  "," \n",
 		"(                             "," \n",
-		" ggplot(",toString(plotdf()),", aes(",toString(get_col(plottreex())),get_color(),")) +  "," \n",
+		" ggplot(",plotdf_(),", aes(",plottreex_(),get_color(),")) +  "," \n",
 		"  geom_histogram(bins=20) +   "," \n",
 		get_customized_code(),
 		get_geom_violin(),
@@ -680,15 +703,15 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		get_title_xlabel_ylabel(),
 		get_xlog_ylog(),
 		get_facet(),
-		"  theme_bw()                  "," \n",
+		get_theme(),
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
 		
 
-		if (toString(pt_autofree(plottype()))=="bar" & length(get_col(plottreex()))>0 ){paste0(
+		if (plottype_()=="bar" & plottreex_()!="" ){paste0(
 		"#(categorical x)              "," \n",
 		"(                             "," \n",
-		" ggplot(",toString(plotdf()),", aes(",toString(get_col(plottreex())),get_color(),")) +  "," \n",
+		" ggplot(",plotdf_(),", aes(",plottreex_(),get_color(),")) +  "," \n",
 		"  geom_bar() +                "," \n",
 		get_customized_code(),
 		get_geom_violin(),
@@ -697,15 +720,15 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		get_title_xlabel_ylabel(),
 		get_xlog_ylog(),
 		get_facet(),
-		"  theme_bw()                  "," \n",
+		get_theme(),
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
 		
 
-		if (toString(pt_autofree(plottype()))=="box" & length(get_col(plottreey()))>0 ){paste0(
+		if (plottype_()=="box" & plottreey_()!="" ){paste0(
 		"#(numeric y)                  "," \n",
 		"(                             "," \n",
-		" ggplot(",toString(plotdf()),", aes(",toString(get_col(plottreey())),", x = \"\"",get_color(),")) +  "," \n",
+		" ggplot(",plotdf_(),", aes(",plottreey_(),", x = \"\"",get_color(),")) +  "," \n",
 		"  geom_boxplot() +            "," \n",
 		"  xlab(\"\") +                  "," \n",
 		get_customized_code(),
@@ -715,18 +738,18 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		get_title_xlabel_ylabel(),
 		get_xlog_ylog(),
 		get_facet(),
-		"  theme_bw()                  "," \n",
+		get_theme(),
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
 		
 		
-		if (toString(pt_autofree(plottype()))=="bar2" & length(get_col(plottreey()))>0 ){paste0(
+		if (plottype_()=="bar2" & plottreey_()!="" ){paste0(
 		"#(categorical y)              "," \n",
 		"(                             "," \n",
-		" ",toString(plotdf())," %>%                                  "," \n",
-		"  dplyr::group_by(",toString(get_col(plottreey())),") %>%        "," \n",
+		" ",plotdf_()," %>%                                  "," \n",
+		"  dplyr::group_by(",plottreey_(),") %>%        "," \n",
 		"  dplyr::summarise( count= dplyr::n()) %>%                   "," \n",
-		"  ggplot(aes(x=count, y=",toString(get_col(plottreey())),get_color(),")) +   "," \n",
+		"  ggplot(aes(x=count, y=",plottreey_(),get_color(),")) +   "," \n",
 		"  geom_point(size=2) +                                       "," \n",
 		"  geom_errorbarh(aes(xmax=count), xmin=0, height=0) +        "," \n",
 		get_customized_code(),
@@ -736,15 +759,15 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		get_title_xlabel_ylabel(),
 		get_xlog_ylog(),
 		get_facet(),
-		"  theme_bw()                                                 "," \n",
+		get_theme(),
 		") %>% plotly::ggplotly()                                     "," \n"
 		)}else{""},
 		
 		
-		if (toString(pt_autofree(plottype()))=="scatter" & length(get_col(plottreex()))>0 & length(get_col(plottreey()))>0 ){paste0(
+		if (plottype_()=="scatter" & plottreex_()!="" & plottreey_()!="" ){paste0(
 		"#(numeric x and y)            "," \n",
 		"(                             "," \n",
-		" ggplot(",toString(plotdf()),", aes(",toString(get_col(plottreex())),",",toString(get_col(plottreey())),get_color(),")) +  "," \n",
+		" ggplot(",plotdf_(),", aes(",plottreex_(),",",plottreey_(),get_color(),")) +  "," \n",
 		"  geom_point() +              "," \n",
 		get_customized_code(),
 		get_geom_violin(),
@@ -753,15 +776,15 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		get_title_xlabel_ylabel(),
 		get_xlog_ylog(),
 		get_facet(),
-		"  theme_bw()                  "," \n",
+		get_theme(),
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
 		
 		
-		if (toString(pt_autofree(plottype()))=="box2" & length(get_col(plottreex()))>0 & length(get_col(plottreey()))>0 ){paste0(
+		if (plottype_()=="box2" & plottreex_()!="" & plottreey_()!="" ){paste0(
 		"#(categorical x numeric y)    "," \n",
 		"(                             "," \n",
-		" ggplot(",toString(plotdf()),", aes(",toString(get_col(plottreex())),",",toString(get_col(plottreey())),get_color(),")) +  "," \n",
+		" ggplot(",plotdf_(),", aes(",plottreex_(),",",plottreey_(),get_color(),")) +  "," \n",
 		"  geom_boxplot() +            "," \n",
 		get_customized_code(),
 		get_geom_violin(),
@@ -770,15 +793,15 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		get_title_xlabel_ylabel(),
 		get_xlog_ylog(),
 		get_facet(),
-		"  theme_bw()                  "," \n",
+		get_theme(),
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
 		
 		
-		if (toString(pt_autofree(plottype()))=="histogram2" & length(get_col(plottreex()))>0 & length(get_col(plottreey()))>0 ){paste0(
+		if (plottype_()=="histogram2" & plottreex_()!="" & plottreey_()!="" ){paste0(
 		"#(numeric x categorical y)    "," \n",
 		"#(                             "," \n",
-		" ggplot(",toString(plotdf()),", aes(",toString(get_col(plottreex())),",",toString(get_col(plottreey())),get_color(),")) +  "," \n",
+		" ggplot(",plotdf_(),", aes(",plottreex_(),",",plottreey_(),get_color(),")) +  "," \n",
 		get_customized_code(),
 		get_geom_violin(),
 		get_stat_summary(),
@@ -786,16 +809,17 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		get_title_xlabel_ylabel(),
 		get_xlog_ylog(),
 		get_facet(),
+		#get_theme(),
 		"  ggridges::stat_binline(bins = 50, scale = .7, draw_baseline = FALSE) +     "," \n",
 		"  ggridges::theme_ridges()               "," \n",
 		"#) %>% plotly::ggplotly()      "," \n"
 		)}else{""},
 		
 
-		if (toString(pt_autofree(plottype()))=="grid" & length(get_col(plottreex()))>0 & length(get_col(plottreey()))>0 ){paste0(
+		if (plottype_()=="grid" & plottreex_()!="" & plottreey_()!="" ){paste0(
 		"#(categorical x categorical y)"," \n",
 		"(                             "," \n",
-		" ggplot(",toString(plotdf()),", aes(x=seq_along(",toString(get_col(plottreex())),"),y=",toString(get_col(plottreey())),", fill=stat(count)",get_color(),")) +  "," \n",
+		" ggplot(",plotdf_(),", aes(x=seq_along(",plottreex_(),"),y=",plottreey_(),", fill=stat(count)",get_color(),")) +  "," \n",
 		"  stat_bin2d() +              "," \n",
 		"  scale_fill_gradient2() +     "," \n",
 		get_customized_code(),
@@ -805,16 +829,16 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		get_title_xlabel_ylabel(),
 		get_xlog_ylog(),
 		get_facet(),
-		"  theme_bw()                  "," \n",
+		get_theme(),
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},		
 		
 		
 		######################################################@@@@@@@@@@@@@@@@@@
 
-		if (toString(pt_autofree(plottype()))=="line" & length(get_col(plottreex()))>0 & length(get_col(plottreey()))>0 ){paste0(
+		if (plottype_()=="line" & plottreex_()!="" & plottreey_()!="" ){paste0(
 		"(                             "," \n",
-		" ggplot(",toString(plotdf()),", aes(x=seq_along(",toString(get_col(plottreex())),"),y=",toString(get_col(plottreey())),get_color(),")) +  "," \n",
+		" ggplot(",plotdf_(),", aes(x=seq_along(",plottreex_(),"),y=",plottreey_(),get_color(),")) +  "," \n",
 		"  geom_line() +            "," \n",
 		get_customized_code(),
 		get_geom_violin(),
@@ -823,13 +847,13 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		get_title_xlabel_ylabel(),
 		get_xlog_ylog(),
 		get_facet(),
-		"  theme_bw()                  "," \n",
+		get_theme(),
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
 
-		if (toString(pt_autofree(plottype()))=="area" & length(get_col(plottreex()))>0 & length(get_col(plottreey()))>0 ){paste0(
+		if (plottype_()=="area" & plottreex_()!="" & plottreey_()!="" ){paste0(
 		"(                             "," \n",
-		" ggplot(",toString(plotdf()),", aes(x=seq_along(",toString(get_col(plottreex())),"),y=",toString(get_col(plottreey())),get_color(),",)) +  "," \n",
+		" ggplot(",plotdf_(),", aes(x=seq_along(",plottreex_(),"),y=",plottreey_(),get_color(),",)) +  "," \n",
 		"  geom_area() +            "," \n",
 		get_customized_code(),
 		get_geom_violin(),
@@ -838,21 +862,12 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		get_title_xlabel_ylabel(),
 		get_xlog_ylog(),
 		get_facet(),
-		"  theme_bw()                  "," \n",
+		get_theme(),
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
 
-		# if (toString(pt_autofree(plottype()))=="pie"){paste0(
-		# "(                             "," \n",
-		# "  ggplot(",toString(plotdf()),", aes(x=factor(1),fill=",toString(plottreex()),")) +  "," \n",
-		# "  geom_bar(width = 1) +            "," \n",
-		# "  coord_polar('y') #+            "," \n",
-		# "  #theme_bw()                  "," \n",
-		# ") #%>% plotly::ggplotly()      "," \n"
-		# )}else{""},
-
+		
 	    "```\n",
-
 		" \n"
 	  )
 
@@ -896,10 +911,9 @@ extract_local2 <- function(datatreex) {
 }
 
 format_local <- function(resu) {
-  library(shinyTree)
   result <- NULL
   for (res in resu) {
-	try(result <- append(result, list(
+	result <- append(result, list(
 	  structure(
 		paste0(
 			ifelse(res[["package"]]=='.GlobalEnv','.GlobalEnv$',paste0(res[["package"]],"::") ),
@@ -909,21 +923,20 @@ format_local <- function(resu) {
 	  ,data=res[["data"]]
 	  ,col=res[["col"]]
 	  )
-	)))
+	))
   }
   result
 }
 
 format_local2 <- function(resu) {
-  library(shinyTree)
   result <- NULL
   for (res in resu) {
-	try(result <- append(result, list(c(
+	result <- append(result, list(c(
 		paste0(
 			ifelse(res[["package"]]=='.GlobalEnv','.GlobalEnv$',paste0(res[["package"]],"::") ),
 			res[["data"]]
 		)
-	))))
+	)))
   }
   result
 }
@@ -954,33 +967,30 @@ NApt <- function(auto=FALSE) {
 	  'line'=structure('line',sticon=' fa fa-line-chart ',stselected=FALSE),
 	  #'pie'=structure('pie',sticon=' fa fa-pie-chart ',stselected=FALSE), #Not supported
 	  'scatter'=structure('scatter',sticon=' fas fa-braille ',stselected=FALSE)
-
 	),stopened=TRUE)
 }
 
-
-
 filter_df <- function (original, criterias, reference=NULL){
-  Tree0s=NULL
+  Tree0s <- NULL
   for (pkg in names(original)) {
     for (dd in names(original[[pkg]])) {
-		for (criteria in criterias){
-			      if(pkg==criteria[["package"]] & dd==criteria[["data"]] ){
-					Tree0s[[pkg]][[dd]] <- original[[pkg]][[dd]]
-					attr(Tree0s[[pkg]][[dd]], "stopened")=TRUE
-					attr(Tree0s[[pkg]], "sttype")="pkg-node"
-					attr(Tree0s[[pkg]], "sticon")="fas fa-box"
-					attr(Tree0s[[pkg]], "stopened")=TRUE
-	        for (slc in names(original[[pkg]][[dd]])) {
-				try({attr(Tree0s[[pkg]][[dd]][[slc]], "stselected")=attr(reference[[pkg]][[dd]][[slc]], "stselected")}, silent=TRUE)
-			}
-			      }
-
-		}
+      for (criteria in criterias){
+        if(pkg==criteria[["package"]] & dd==criteria[["data"]] ){
+          Tree0s[[pkg]][[dd]] <- original[[pkg]][[dd]]
+          attr(Tree0s[[pkg]][[dd]], "stopened") <- TRUE
+          attr(Tree0s[[pkg]], "sttype") <- "pkg-node"
+          attr(Tree0s[[pkg]], "sticon") <- "fas fa-box"
+          attr(Tree0s[[pkg]], "stopened") <- TRUE
+          for (slc in names(original[[pkg]][[dd]])) {
+            try({attr(Tree0s[[pkg]][[dd]][[slc]], "stselected") <- attr(reference[[pkg]][[dd]][[slc]], "stselected")}, silent=TRUE)
+          }
+        }
+        
+      }
     }
   }
   if(is.null(Tree0s)){
-     NAlist()
+    NAlist()
   } else {
     Tree0s
   }
@@ -991,96 +1001,100 @@ NAlist <- function ( ){
 }
 
 filter_pt <- function (original,x,y){
-	if(!is.element('auto', original) & length(original) > 0) {
-		original
-	}else{
-		decide_pt(x,y)
-	}
+  if(!is.element('auto', original) & length(original) > 0) {
+    original
+  }else{
+    decide_pt(x,y)
+  }
 }
 decide_pt <- function (xx,yy){
-    result <- NULL
-	if(!length(xx)&!length(yy)){
-		result <- list( structure("auto",implied='unknown'))
-	}else if( length(xx)&!length(yy)){
-		for (xxx in xx){
-			result<-c(result, if( judge_numeric(xxx) ){
-									structure("auto histogram",implied='histogram')
-							  }else if( judge_categorical(xxx) ){
-							        structure("auto bar",implied='bar')
-							  }else{
-							        structure("auto",implied='unknown')
-							  }
-
-			)
-		}
-	}else if(!length(xx)& length(yy)){
-		for (yyy in yy){
-			result<-c(result, if( judge_numeric(yyy) ){
-									structure("auto box",implied='box')
-							  }else if( judge_categorical(yyy) ){
-							        structure("auto bar2",implied='bar2')
-							  }else{
-							        structure("auto",implied='unknown')
-							  }
-
-			)
-		}
-	}else{
-		for (xxx in xx){
-			for (yyy in yy){
-				result<-c(result, if( judge_numeric(xxx) & judge_numeric(yyy) ){
-										structure("auto scatter",implied='scatter')
-									}else if( judge_categorical(xxx) & judge_numeric(yyy) ){
-										structure("auto box2",implied='box2')
-									}else if( judge_numeric(xxx) & judge_categorical(yyy) ){
-										structure("auto histogram2",implied='histogram2')
-									}else if( judge_categorical(xxx) & judge_categorical(yyy) ){
-										structure("auto grid",implied='grid')
-									}else{
-										structure("auto",implied='unknown')
-									}
-				)
-			}
-		}
-	}
-	result
-
+  result <- NULL
+  if(!length(xx)&!length(yy)){
+    result <- list( structure("auto",implied='unknown'))
+  }else if( length(xx)&!length(yy)){
+    for (xxx in xx){
+      result<-c(result, if( judge_numeric(xxx) ){
+        structure("auto histogram",implied='histogram')
+      }else if( judge_categorical(xxx) ){
+        structure("auto bar",implied='bar')
+      }else{
+        structure("auto",implied='unknown')
+      }
+      
+      )
+    }
+  }else if(!length(xx)& length(yy)){
+    for (yyy in yy){
+      result<-c(result, if( judge_numeric(yyy) ){
+        structure("auto box",implied='box')
+      }else if( judge_categorical(yyy) ){
+        structure("auto bar2",implied='bar2')
+      }else{
+        structure("auto",implied='unknown')
+      }
+      
+      )
+    }
+  }else{
+    for (xxx in xx){
+      for (yyy in yy){
+        result<-c(result, if( judge_numeric(xxx) & judge_numeric(yyy) ){
+          structure("auto scatter",implied='scatter')
+        }else if( judge_categorical(xxx) & judge_numeric(yyy) ){
+          structure("auto box2",implied='box2')
+        }else if( judge_numeric(xxx) & judge_categorical(yyy) ){
+          structure("auto histogram2",implied='histogram2')
+        }else if( judge_categorical(xxx) & judge_categorical(yyy) ){
+          structure("auto grid",implied='grid')
+        }else{
+          structure("auto",implied='unknown')
+        }
+        )
+      }
+    }
+  }
+  result
+  
 }    #original <- c(original,   list('auto numeric'=structure("auto numeric",implied='numeric')))
 
 
 judge_numeric <- function (res){
-   #is.element(res['dt'],c('numeric','integer','Date','ts'))
-   !judge_categorical(res)
+  #is.element(res['dt'],c('numeric','integer','Date','ts'))
+  !judge_categorical(res)
 }
 judge_categorical <- function (res){
-   is.element(res['dt'],c('orderedfactor','factor','character'))
+  is.element(res['dt'],c('orderedfactor','factor','character'))
 }
 #Date ts are unknown type
 
 pt_autofree <- function(resu) {
-	result <- NULL
-	for (res in resu){
-	    if (substr(res,1,5)=="auto "){
-		    result <- c(result, substr(res,6,1000) )
-		}else{
-			result <- c(result, res )
-		}
-	}
-	result
+  result <- NULL
+  for (res in resu){
+    if (substr(res,1,5)=="auto "){
+      result <- c(result, substr(res,6,1000) )
+    }else{
+      result <- c(result, res )
+    }
+  }
+  result
 }
 
 get_col <- function(resu) {
-	result <- NULL
-	for (res in resu){
-		    result <- c(result, attr(res,"col") )
-	}
-	result
+  result <- NULL
+  for (res in resu){
+    result <- c(result, attr(res,"col") )
+  }
+  result
 }
 
-filter_dis <- function(resu,disabled=FALSE,fill=NAlist()) {
-	if(disabled){
-		fill
-	}else{
-		resu
-	}
+filter_dis <- function(resu, disabled=FALSE, fill=NAlist()) {
+  if(disabled){
+    fill
+  }else{
+    resu
+  }
+}
+
+theme_choices <- function(){
+  list("theme_grey", "theme_gray", "theme_bw", "theme_linedraw", "theme_light", "theme_dark", "theme_minimal", "theme_classic", "theme_void", "theme_test")
 }
