@@ -123,6 +123,38 @@ test_gizmo_dynamic_ui <- function(ns) {
     ),
     tags$br(),
 	fluidRow(
+	  column(3,shinyWidgets::dropdownButton(
+		  shinyTree::shinyTree(
+			ns("datatreecolor"),
+			checkbox = TRUE,
+			search = TRUE,
+			types = "{ 'pkg-node': {'a_attr' : { 'style' : 'color:black' , class: 'no_checkbox'}},
+					   'df-node': {'a_attr' : { 'style' : 'color:black' , class: 'no_checkbox'}}  }"
+		  ),
+		  circle = FALSE,
+		  icon = icon("gear"),
+		  label = textOutput(ns("lbdatatreecolor"), inline = TRUE),
+		  #width = "300px",
+		  inputId = ns("iidatatreecolor"),
+		  tags$i(
+			tags$i(class = "fa fa-tag fa-tag-integer", "integer"),
+			tags$i(class = "fa fa-tag fa-tag-numeric", "numeric"),
+			tags$i(class = "fa fa-tag fa-tag-character", "character"),
+			tags$i(class = "fa fa-tag fa-tag-Date", "Date"),
+			tags$i(class = "fa fa-tag fa-tag-factor", "factor")
+		  ),
+		  tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreecolor').style.maxHeight='400px'")),
+		  tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreecolor').style.minWidth='300px'")),
+		  tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreecolor').style.maxWidth='350px'")),
+		  tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreecolor').style.overflow='auto'")),
+		  tags$script(paste0("var madatatreecolor = document.createElement('i');
+			madatatreecolor.classList.add('fa');madatatreecolor.classList.add('fa-search');
+			document.getElementById('",ns(""),"datatreecolor-search-input').parentNode.insertBefore(
+			madatatreecolor,document.getElementById('",ns(""),"datatreecolor-search-input').nextSibling);"))
+		)
+	  )
+	),tags$br(),
+	fluidRow(
       column(3,shinyWidgets::dropdownButton(
 		textInput(ns("title"), "TITLE"),
         circle = FALSE,
@@ -216,8 +248,9 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	  datadfs (obj$Traa0s)
     })
 
-	ptdisablex <- reactiveVal(FALSE)
-	ptdisabley <- reactiveVal(FALSE)
+	ptdisabletreex <- reactiveVal(FALSE)
+	ptdisabletreey <- reactiveVal(FALSE)
+	ptdisabletreecolor <- reactiveVal(FALSE)
 
 	#input DATA FRAME
 	output$datatreedf <- shinyTree::renderTree(datadfs())
@@ -251,11 +284,11 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
     }))
 
    	#input X
-	output$datatreex <- shinyTree::renderTree(filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old()),outputdatatreex_old()),ptdisablex()) )
+	output$datatreex <- shinyTree::renderTree(filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old()),outputdatatreex_old()),ptdisabletreex()) )
 	outputdatatreex_old <- reactiveVal(NAlist())
 	inputdatatreex <- reactiveVal(NAlist())
-	observeEvent(ptdisablex(),{inputdatatreex(filter_dis(outputdatatreex_old(),ptdisablex())) } ,ignoreNULL = FALSE)
-	observeEvent(outputdatatreex_old(),{inputdatatreex(filter_dis(outputdatatreex_old(),ptdisablex())) } ,ignoreNULL = FALSE)	
+	observeEvent(ptdisabletreex(),{inputdatatreex(filter_dis(outputdatatreex_old(),ptdisabletreex())) } ,ignoreNULL = FALSE)
+	observeEvent(outputdatatreex_old(),{inputdatatreex(filter_dis(outputdatatreex_old(),ptdisabletreex())) } ,ignoreNULL = FALSE)	
 	observeEvent(input$datatreex,{
 		T <- extract_local(input$datatreex)		
 		if(length(T)>2){
@@ -280,17 +313,17 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		}
 	} ,ignoreNULL = FALSE)
 	observeEvent(plotdf(),{outputdatatreex_old(NAlist())} ,ignoreNULL = FALSE)
-	plotx <- reactive(format_local(extract_local(inputdatatreex())))
+	plottreex <- reactive(format_local(extract_local(inputdatatreex())))
     output$lbdatatreex <- renderText(paste("X: ", {
-      toStringB(extract_local(inputdatatreex()),ptdisablex())
+      toStringB(extract_local(inputdatatreex()),ptdisabletreex())
     }))
 
    	#input Y
-	output$datatreey <- shinyTree::renderTree(filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old()),outputdatatreey_old()),ptdisabley()) )
+	output$datatreey <- shinyTree::renderTree(filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old()),outputdatatreey_old()),ptdisabletreey()) )
 	outputdatatreey_old <- reactiveVal(NAlist())
 	inputdatatreey <- reactiveVal(NAlist())
-	observeEvent(ptdisabley(),{inputdatatreey(filter_dis(outputdatatreey_old(),ptdisabley())) } ,ignoreNULL = FALSE)	
-	observeEvent(outputdatatreey_old(),{inputdatatreey(filter_dis(outputdatatreey_old(),ptdisabley())) } ,ignoreNULL = FALSE)	
+	observeEvent(ptdisabletreey(),{inputdatatreey(filter_dis(outputdatatreey_old(),ptdisabletreey())) } ,ignoreNULL = FALSE)	
+	observeEvent(outputdatatreey_old(),{inputdatatreey(filter_dis(outputdatatreey_old(),ptdisabletreey())) } ,ignoreNULL = FALSE)	
 	observeEvent(input$datatreey,{
 		T <- extract_local(input$datatreey)		
 		if(length(T)>2){
@@ -315,17 +348,46 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		}
 	} ,ignoreNULL = FALSE)
 	observeEvent(plotdf(),{outputdatatreey_old(NAlist())} ,ignoreNULL = FALSE)
-	ploty <- reactive(format_local(extract_local(inputdatatreey())))
+	plottreey <- reactive(format_local(extract_local(inputdatatreey())))
     output$lbdatatreey <- renderText(paste("Y: ", {
-      toStringB(extract_local(inputdatatreey()),ptdisabley())
+      toStringB(extract_local(inputdatatreey()),ptdisabletreey())
     }))
 
-	# #input COLOR
-	# output$datatreecolor <- shinyTree::renderTree(NAlist())
-	# plotcolor <- reactive(format_local(extract_local(input$datatreecolor)))
-    # output$lbdatatreecolor <- renderText(paste("COLOR: ", {
-      # toStringB(extract_local(input$datatreecolor))
-    # }))
+   	#input COLOR
+	output$datatreecolor <- shinyTree::renderTree(filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old()),outputdatatreecolor_old()),ptdisabletreecolor()) )
+	outputdatatreecolor_old <- reactiveVal(NAlist())
+	inputdatatreecolor <- reactiveVal(NAlist())
+	observeEvent(ptdisabletreecolor(),{inputdatatreecolor(filter_dis(outputdatatreecolor_old(),ptdisabletreecolor())) } ,ignoreNULL = FALSE)	
+	observeEvent(outputdatatreecolor_old(),{inputdatatreecolor(filter_dis(outputdatatreecolor_old(),ptdisabletreecolor())) } ,ignoreNULL = FALSE)	
+	observeEvent(input$datatreecolor,{
+		T <- extract_local(input$datatreecolor)		
+		if(length(T)>2){
+			shinyTree::updateTree(session, "datatreecolor",  outputdatatreecolor_old() )
+		}else if(length(T)==2){
+		    if(isTRUE(attr(outputdatatreecolor_old()[[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected'))){
+				outputdatatreecolor_temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
+				attr(outputdatatreecolor_temp[[T[[2]][['package']]]][[T[[2]][['data']]]][[T[[2]][['col']]]],'stselected')=TRUE
+				outputdatatreecolor_old(outputdatatreecolor_temp)
+			}else{
+				outputdatatreecolor_temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
+				attr(outputdatatreecolor_temp[[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected')=TRUE
+				outputdatatreecolor_old(outputdatatreecolor_temp)
+			}			
+			shinyTree::updateTree(session, "datatreecolor",  outputdatatreecolor_old() )
+		}else if(length(T)==1){
+			outputdatatreecolor_temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
+			attr(outputdatatreecolor_temp[[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected')=TRUE
+			outputdatatreecolor_old(outputdatatreecolor_temp)
+		}else{
+			outputdatatreecolor_old(filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE))
+		}
+	} ,ignoreNULL = FALSE)
+	observeEvent(plotdf(),{outputdatatreecolor_old(NAlist())} ,ignoreNULL = FALSE)
+	plottreecolor <- reactive(format_local(extract_local(inputdatatreecolor())))
+    output$lbdatatreecolor <- renderText(paste("COLOR: ", {
+      toStringB(extract_local(inputdatatreecolor()),ptdisabletreecolor())
+    }))
+	
 	
 	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
 	
@@ -406,17 +468,17 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 				
 				if(is.element("line", temp)) {disablex=FALSE;disabley=FALSE}
 				if(is.element("area", temp)) {disablex=FALSE;disabley=FALSE}
-				ptdisablex(disablex)
-				ptdisabley(disabley)
+				ptdisabletreex(disablex)
+				ptdisabletreey(disabley)
 			}else{
 				disablex=FALSE;disabley=FALSE				
-				ptdisablex(disablex)
-				ptdisabley(disabley)
+				ptdisabletreex(disablex)
+				ptdisabletreey(disabley)
 			}
 		}else{
 				disablex=FALSE;disabley=FALSE				
-				ptdisablex(disablex)
-				ptdisabley(disabley)
+				ptdisabletreex(disablex)
+				ptdisabletreey(disabley)
 		}
 	
 	} ,ignoreNULL = FALSE)
@@ -424,7 +486,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
 	
 	get_title_xlabel_ylabel <- function (){
-	  title_xlabel_ylabel <- paste0(
+	  paste0(
 		if(isTRUE(nchar(input$title)>0)){
 			paste0("  ggtitle(\"",toString(input$title),"\") + \n")
 		}else{""},
@@ -438,12 +500,18 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	}
 	
 	get_xlog_ylog <- function (x=TRUE,y=TRUE){
-	  title_xlabel_ylabel <- paste0(
+	  paste0(
 		if(isTRUE(input$xlog) & x){
-			paste0("  scale_x_log10() +\n")
-		}else{""},
-		if(isTRUE(input$ylog) & y){
-			paste0("  scale_y_log10() +\n")
+			paste0("  ggtitle(\"",toString(input$title),"\") + \n")
+		}else{""}
+	  )	
+	}
+	
+	get_color <- function (){
+	  color <- toString(       (plottreecolor())) #color <- toString(get_col(plottreecolor()))
+	  paste0(
+		if(isTRUE(nchar(color)>0)){
+			paste0(", color=",color)
 		}else{""}
 	  )	
 	}
@@ -454,27 +522,29 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
       txt <- paste0(
 	    "* PLOT: ",toString(pt_autofree(plottype()))," \n",
 		"* DATA: ",toString(plotdf())," \n",
-		if(!ptdisablex()){
-			paste0("* X: ",toString(plotx())," \n")
+		if(!ptdisabletreex()){
+			paste0("* X: ",toString(plottreex())," \n")
 		}else{""},
-		if(!ptdisabley()){
-			paste0("* Y: ",toString(ploty())," \n")
+		if(!ptdisabletreey()){
+			paste0("* Y: ",toString(plottreey())," \n")
 		}else{""},  
-		#"* COLOR: ",toString(plotcolor())," \n",	
+		if(isTRUE(nchar(plottreecolor())>0) & !ptdisabletreecolor()){
+			paste0("* COLOR: ",toString(plottreecolor())," \n")
+		}else{""},  
 		if(isTRUE(nchar(input$title)>0)){
 			paste0("* TITLE: ",toString(input$title)," \n")
 		}else{""},
-		if(isTRUE(nchar(input$xlabel)>0) & !ptdisablex() ){
+		if(isTRUE(nchar(input$xlabel)>0) & !ptdisabletreex() ){
 			paste0("* X LABEL: ",toString(input$xlabel)," \n")
 		}else{""},
-		if(isTRUE(nchar(input$ylabel)>0) & !ptdisabley() ){
+		if(isTRUE(nchar(input$ylabel)>0) & !ptdisabletreey() ){
 			paste0("* Y LABEL: ",toString(input$ylabel)," \n")
 		}else{""},
-		if(isTRUE(input$xlog) & !ptdisablex() ){
-			paste0(" X AXIS: scale_x_log10() \n")
+		if(isTRUE(input$xlog) & !ptdisabletreex() ){
+			paste0("*  X AXIS: scale_x_log10() \n")
 		}else{""},
-		if(isTRUE(input$ylog) & !ptdisabley() ){
-			paste0(" Y AXIS: scale_y_log10() \n")
+		if(isTRUE(input$ylog) & !ptdisabletreey() ){
+			paste0("*  Y AXIS: scale_y_log10() \n")
 		}else{""},
 		" \n",
 		" \n",
@@ -482,10 +552,10 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	    "```{r}\n",
 	    "library(ggplot2)\n",
 
-		if (toString(pt_autofree(plottype()))=="histogram" & length(get_col(plotx()))>0 ){paste0(
+		if (toString(pt_autofree(plottype()))=="histogram" & length(get_col(plottreex()))>0 ){paste0(
 		"#(numeric x)                  "," \n",
 		"(                             "," \n",
-		" ggplot(",toString(plotdf()),", aes(",toString(get_col(plotx())),")) +  "," \n",
+		" ggplot(",toString(plotdf()),", aes(",toString(get_col(plottreex())),get_color(),")) +  "," \n",
 		"  geom_histogram(bins=20) +   "," \n",
 		get_title_xlabel_ylabel(),
 		get_xlog_ylog(1,0),
@@ -494,10 +564,10 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		)}else{""},
 		
 
-		if (toString(pt_autofree(plottype()))=="bar" & length(get_col(plotx()))>0 ){paste0(
+		if (toString(pt_autofree(plottype()))=="bar" & length(get_col(plottreex()))>0 ){paste0(
 		"#(categorical x)              "," \n",
 		"(                             "," \n",
-		" ggplot(",toString(plotdf()),", aes(",toString(get_col(plotx())),")) +  "," \n",
+		" ggplot(",toString(plotdf()),", aes(",toString(get_col(plottreex())),get_color(),")) +  "," \n",
 		"  geom_bar() +                "," \n",
 		get_title_xlabel_ylabel(),
 		get_xlog_ylog(1,0),
@@ -506,10 +576,10 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		)}else{""},
 		
 
-		if (toString(pt_autofree(plottype()))=="box" & length(get_col(ploty()))>0 ){paste0(
+		if (toString(pt_autofree(plottype()))=="box" & length(get_col(plottreey()))>0 ){paste0(
 		"#(numeric y)                  "," \n",
 		"(                             "," \n",
-		" ggplot(",toString(plotdf()),", aes(",toString(get_col(ploty())),", x = \"\")) +  "," \n",
+		" ggplot(",toString(plotdf()),", aes(",toString(get_col(plottreey())),", x = \"\"",get_color(),")) +  "," \n",
 		"  geom_boxplot() +            "," \n",
 		"  xlab(\"\") +                  "," \n",
 		get_title_xlabel_ylabel(),
@@ -519,13 +589,13 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		)}else{""},
 		
 		
-		if (toString(pt_autofree(plottype()))=="bar2" & length(get_col(ploty()))>0 ){paste0(
+		if (toString(pt_autofree(plottype()))=="bar2" & length(get_col(plottreey()))>0 ){paste0(
 		"#(categorical y)              "," \n",
 		"(                             "," \n",
 		" ",toString(plotdf())," %>%                                  "," \n",
-		"  dplyr::group_by(",toString(get_col(ploty())),") %>%        "," \n",
+		"  dplyr::group_by(",toString(get_col(plottreey())),") %>%        "," \n",
 		"  dplyr::summarise( count= dplyr::n()) %>%                   "," \n",
-		"  ggplot(aes(x=count, y=",toString(get_col(ploty())),")) +   "," \n",
+		"  ggplot(aes(x=count, y=",toString(get_col(plottreey())),get_color(),")) +   "," \n",
 		"  geom_point(size=2) +                                       "," \n",
 		"  geom_errorbarh(aes(xmax=count), xmin=0, height=0) +        "," \n",
 		get_title_xlabel_ylabel(),
@@ -535,10 +605,10 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		)}else{""},
 		
 		
-		if (toString(pt_autofree(plottype()))=="scatter" & length(get_col(plotx()))>0 & length(get_col(ploty()))>0 ){paste0(
+		if (toString(pt_autofree(plottype()))=="scatter" & length(get_col(plottreex()))>0 & length(get_col(plottreey()))>0 ){paste0(
 		"#(numeric x and y)            "," \n",
 		"(                             "," \n",
-		" ggplot(",toString(plotdf()),", aes(",toString(get_col(plotx())),",",toString(get_col(ploty())),")) +  "," \n",
+		" ggplot(",toString(plotdf()),", aes(",toString(get_col(plottreex())),",",toString(get_col(plottreey())),get_color(),")) +  "," \n",
 		"  geom_point() +              "," \n",
 		get_title_xlabel_ylabel(),
 		get_xlog_ylog(),
@@ -547,10 +617,10 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		)}else{""},
 		
 		
-		if (toString(pt_autofree(plottype()))=="box2" & length(get_col(plotx()))>0 & length(get_col(ploty()))>0 ){paste0(
+		if (toString(pt_autofree(plottype()))=="box2" & length(get_col(plottreex()))>0 & length(get_col(plottreey()))>0 ){paste0(
 		"#(categorical x numeric y)    "," \n",
 		"(                             "," \n",
-		" ggplot(",toString(plotdf()),", aes(",toString(get_col(plotx())),",",toString(get_col(ploty())),")) +  "," \n",
+		" ggplot(",toString(plotdf()),", aes(",toString(get_col(plottreex())),",",toString(get_col(plottreey())),get_color(),")) +  "," \n",
 		"  geom_boxplot() +            "," \n",
 		get_title_xlabel_ylabel(),
 		get_xlog_ylog(),
@@ -559,10 +629,10 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		)}else{""},
 		
 		
-		if (toString(pt_autofree(plottype()))=="histogram2" & length(get_col(plotx()))>0 & length(get_col(ploty()))>0 ){paste0(
+		if (toString(pt_autofree(plottype()))=="histogram2" & length(get_col(plottreex()))>0 & length(get_col(plottreey()))>0 ){paste0(
 		"#(numeric x categorical y)    "," \n",
 		"#(                             "," \n",
-		" ggplot(",toString(plotdf()),", aes(",toString(get_col(plotx())),",",toString(get_col(ploty())),")) +  "," \n",
+		" ggplot(",toString(plotdf()),", aes(",toString(get_col(plottreex())),",",toString(get_col(plottreey())),get_color(),")) +  "," \n",
 		get_title_xlabel_ylabel(),
 		get_xlog_ylog(),
 		"  ggridges::stat_binline(bins = 50, scale = .7, draw_baseline = FALSE) +     "," \n",
@@ -571,10 +641,10 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		)}else{""},
 		
 
-		if (toString(pt_autofree(plottype()))=="grid" & length(get_col(plotx()))>0 & length(get_col(ploty()))>0 ){paste0(
+		if (toString(pt_autofree(plottype()))=="grid" & length(get_col(plottreex()))>0 & length(get_col(plottreey()))>0 ){paste0(
 		"#(categorical x categorical y)"," \n",
 		"(                             "," \n",
-		" ggplot(",toString(plotdf()),", aes(x=seq_along(",toString(get_col(plotx())),"),y=",toString(get_col(ploty())),", fill=stat(count))) +  "," \n",
+		" ggplot(",toString(plotdf()),", aes(x=seq_along(",toString(get_col(plottreex())),"),y=",toString(get_col(plottreey())),", fill=stat(count)",get_color(),")) +  "," \n",
 		"  stat_bin2d() +              "," \n",
 		"  scale_fill_gradient2() +     "," \n",
 		get_title_xlabel_ylabel(),
@@ -586,9 +656,9 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		
 		######################################################@@@@@@@@@@@@@@@@@@
 
-		if (toString(pt_autofree(plottype()))=="line" & length(get_col(plotx()))>0 & length(get_col(ploty()))>0 ){paste0(
+		if (toString(pt_autofree(plottype()))=="line" & length(get_col(plottreex()))>0 & length(get_col(plottreey()))>0 ){paste0(
 		"(                             "," \n",
-		" ggplot(",toString(plotdf()),", aes(x=seq_along(",toString(get_col(plotx())),"),y=",toString(get_col(ploty())),")) +  "," \n",
+		" ggplot(",toString(plotdf()),", aes(x=seq_along(",toString(get_col(plottreex())),"),y=",toString(get_col(plottreey())),get_color(),")) +  "," \n",
 		"  geom_line() +            "," \n",
 		get_title_xlabel_ylabel(),
 		get_xlog_ylog(),
@@ -596,9 +666,9 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
 
-		if (toString(pt_autofree(plottype()))=="area" & length(get_col(plotx()))>0 & length(get_col(ploty()))>0 ){paste0(
+		if (toString(pt_autofree(plottype()))=="area" & length(get_col(plottreex()))>0 & length(get_col(plottreey()))>0 ){paste0(
 		"(                             "," \n",
-		" ggplot(",toString(plotdf()),", aes(x=seq_along(",toString(get_col(plotx())),"),y=",toString(get_col(ploty())),")) +  "," \n",
+		" ggplot(",toString(plotdf()),", aes(x=seq_along(",toString(get_col(plottreex())),"),y=",toString(get_col(plottreey())),get_color(),",)) +  "," \n",
 		"  geom_area() +            "," \n",
 		get_title_xlabel_ylabel(),
 		get_xlog_ylog(),
@@ -608,7 +678,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 
 		# if (toString(pt_autofree(plottype()))=="pie"){paste0(
 		# "(                             "," \n",
-		# "  ggplot(",toString(plotdf()),", aes(x=factor(1),fill=",toString(plotx()),")) +  "," \n",
+		# "  ggplot(",toString(plotdf()),", aes(x=factor(1),fill=",toString(plottreex()),")) +  "," \n",
 		# "  geom_bar(width = 1) +            "," \n",
 		# "  coord_polar('y') #+            "," \n",
 		# "  #theme_bw()                  "," \n",
@@ -663,12 +733,17 @@ format_local <- function(resu) {
   library(shinyTree)
   result <- NULL
   for (res in resu) {
-	try(result <- append(result, list(c(
+	try(result <- append(result, list(
+	  structure(
 		paste0(
 			ifelse(res[["package"]]=='.GlobalEnv','.GlobalEnv$',paste0(res[["package"]],"::") ),
 			res[["data"]],"$",res[["col"]]
 		)
-	))))
+	  ,package=ifelse(res[["package"]]=='.GlobalEnv','.GlobalEnv$',paste0(res[["package"]],"::") )
+	  ,data=res[["data"]]
+	  ,col=res[["col"]]
+	  )
+	)))
   }
   result
 }
@@ -831,7 +906,7 @@ pt_autofree <- function(resu) {
 get_col <- function(resu) {
 	result <- NULL
 	for (res in resu){
-		    result <- c(result, substr(res,stringr::str_locate(res, "\\$")[[1]]+1,1000) )
+		    result <- c(result, attr(res,"col") )
 	}
 	result
 }
