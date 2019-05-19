@@ -502,7 +502,10 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	get_xlog_ylog <- function (x=TRUE,y=TRUE){
 	  paste0(
 		if(isTRUE(input$xlog) & x){
-			paste0("  ggtitle(\"",toString(input$title),"\") + \n")
+			paste0("  scale_x_log10() +\n")
+		}else{""},
+		if(isTRUE(input$ylog) & y){
+			paste0("  scale_y_log10() +\n")
 		}else{""}
 	  )	
 	}
@@ -520,6 +523,9 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
     # RMarkdown Code
     txt_react <- reactive({
       txt <- paste0(
+	    "```{r echo=FALSE} \n",
+		"Sys.time()\n",
+		"```\n",
 	    "* PLOT: ",toString(pt_autofree(plottype()))," \n",
 		"* DATA: ",toString(plotdf())," \n",
 		if(!ptdisabletreex()){
