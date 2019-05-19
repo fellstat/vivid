@@ -32,8 +32,7 @@ test_gizmo_dynamic_ui <- function(ns) {
       tags$script(paste0("var madatatreept = document.createElement('i');
 	    madatatreept.classList.add('fa');madatatreept.classList.add('fa-search');
 	    document.getElementById('",ns(""),"datatreept-search-input').parentNode.insertBefore(
-		madatatreept,document.getElementById('",ns(""),"datatreept-search-input').nextSibling);"))#,
-	  #tags$script(paste0("$('#",ns(""),"datatreept').bind('activate_node.jstree', function (event, data) { if (data.instance.get_checked().length > 1) { data.instance.uncheck_all(); } });"))
+		madatatreept,document.getElementById('",ns(""),"datatreept-search-input').nextSibling);"))
     ),
     tags$br(),
     shinyWidgets::dropdownButton(
@@ -60,8 +59,7 @@ test_gizmo_dynamic_ui <- function(ns) {
       tags$script(paste0("var madatatreedf = document.createElement('i');
 	    madatatreedf.classList.add('fa');madatatreedf.classList.add('fa-search');
 	    document.getElementById('",ns(""),"datatreedf-search-input').parentNode.insertBefore(
-		madatatreedf,document.getElementById('",ns(""),"datatreedf-search-input').nextSibling);"))#,
-	  #tags$script(paste0("$('#",ns(""),"datatreedf').bind('activate_node.jstree', function (event, data) { if (data.instance.get_checked().length > 1) { data.instance.uncheck_all(); } });"))
+		madatatreedf,document.getElementById('",ns(""),"datatreedf-search-input').nextSibling);"))
     ),
     tags$br(),
     shinyWidgets::dropdownButton(
@@ -91,8 +89,7 @@ test_gizmo_dynamic_ui <- function(ns) {
       tags$script(paste0("var madatatreex = document.createElement('i');
 	    madatatreex.classList.add('fa');madatatreex.classList.add('fa-search');
 	    document.getElementById('",ns(""),"datatreex-search-input').parentNode.insertBefore(
-		madatatreex,document.getElementById('",ns(""),"datatreex-search-input').nextSibling);"))#,
-	  #tags$script(paste0("$('#",ns(""),"datatreex').bind('activate_node.jstree', function (event, data) { if (data.instance.get_checked().length > 1) { data.instance.uncheck_all(); } });"))
+		madatatreex,document.getElementById('",ns(""),"datatreex-search-input').nextSibling);"))
     ),
     tags$br(),
     shinyWidgets::dropdownButton(
@@ -122,9 +119,50 @@ test_gizmo_dynamic_ui <- function(ns) {
       tags$script(paste0("var madatatreey = document.createElement('i');
 	    madatatreey.classList.add('fa');madatatreey.classList.add('fa-search');
 	    document.getElementById('",ns(""),"datatreey-search-input').parentNode.insertBefore(
-		madatatreey,document.getElementById('",ns(""),"datatreey-search-input').nextSibling);"))#,
-	  #tags$script(paste0("$('#",ns(""),"datatreey').bind('activate_node.jstree', function (event, data) { if (data.instance.get_checked().length > 1) { data.instance.uncheck_all(); } });"))
+		madatatreey,document.getElementById('",ns(""),"datatreey-search-input').nextSibling);"))
     ),
+    tags$br(),
+	fluidRow(
+      column(3,shinyWidgets::dropdownButton(
+		textInput(ns("title"), "TITLE"),
+        circle = FALSE,
+        icon = icon("gear"),
+        label = "MAIN",
+        inputId = ns("iimain"),
+		up = TRUE, 
+		tags$script(paste0("document.getElementById('",ns(""),"iimain').style.width='100%'")),
+        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iimain').style.maxHeight='400px'")),
+        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iimain').style.minWidth='300px'")),
+        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iimain').style.maxWidth='350px'")),
+        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iimain').style.overflow='auto'"))
+      )),
+      column(3,shinyWidgets::dropdownButton(
+        textInput(ns("xlabel"), "X LABEL"),
+        circle = FALSE,
+        icon = icon("gear"),
+        label = "X AXIS",
+        inputId = ns("iixaxis"),
+		up = TRUE, 
+		tags$script(paste0("document.getElementById('",ns(""),"iixaxis').style.width='100%'")),
+        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iixaxis').style.maxHeight='400px'")),
+        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iixaxis').style.minWidth='300px'")),
+        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iixaxis').style.maxWidth='350px'")),
+        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iixaxis').style.overflow='auto'"))
+      )),
+      column(3,shinyWidgets::dropdownButton(
+        textInput(ns("ylabel"), "Y LABEL"),
+        circle = FALSE,
+        icon = icon("gear"),
+        label = "Y AXIS",
+        inputId = ns("iiyaxis"),
+		up = TRUE, 
+		tags$script(paste0("document.getElementById('",ns(""),"iiyaxis').style.width='100%'")),
+        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iiyaxis').style.maxHeight='400px'")),
+        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iiyaxis').style.minWidth='300px'")),
+        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iiyaxis').style.maxWidth='350px'")),
+        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iiyaxis').style.overflow='auto'"))
+      ))
+	),
     tags$br(),
     # shinyWidgets::dropdownButton(
       # shinyTree::shinyTree(
@@ -211,7 +249,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
     }))
 
    	#input X
-	output$datatreex <- shinyTree::renderTree(filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),ptdisablex()) )
+	output$datatreex <- shinyTree::renderTree(filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old()),outputdatatreex_old()),ptdisablex()) )
 	outputdatatreex_old <- reactiveVal(NAlist())
 	inputdatatreex <- reactiveVal(NAlist())
 	observeEvent(ptdisablex(),{inputdatatreex(filter_dis(outputdatatreex_old(),ptdisablex())) } ,ignoreNULL = FALSE)
@@ -222,21 +260,21 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 			shinyTree::updateTree(session, "datatreex",  outputdatatreex_old() )
 		}else if(length(T)==2){
 		    if(isTRUE(attr(outputdatatreex_old()[[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected'))){
-				outputdatatreex_temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),ptdisablex())
+				outputdatatreex_temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
 				attr(outputdatatreex_temp[[T[[2]][['package']]]][[T[[2]][['data']]]][[T[[2]][['col']]]],'stselected')=TRUE
 				outputdatatreex_old(outputdatatreex_temp)
 			}else{
-				outputdatatreex_temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),ptdisablex())
+				outputdatatreex_temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
 				attr(outputdatatreex_temp[[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected')=TRUE
 				outputdatatreex_old(outputdatatreex_temp)
 			}			
 			shinyTree::updateTree(session, "datatreex",  outputdatatreex_old() )
 		}else if(length(T)==1){
-			outputdatatreex_temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),ptdisablex())
+			outputdatatreex_temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
 			attr(outputdatatreex_temp[[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected')=TRUE
 			outputdatatreex_old(outputdatatreex_temp)
 		}else{
-			outputdatatreex_old(filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),ptdisablex()))
+			outputdatatreex_old(filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE))
 		}
 	} ,ignoreNULL = FALSE)
 	observeEvent(plotdf(),{outputdatatreex_old(NAlist())} ,ignoreNULL = FALSE)
@@ -246,7 +284,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
     }))
 
    	#input Y
-	output$datatreey <- shinyTree::renderTree(filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),ptdisabley()) )
+	output$datatreey <- shinyTree::renderTree(filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old()),outputdatatreey_old()),ptdisabley()) )
 	outputdatatreey_old <- reactiveVal(NAlist())
 	inputdatatreey <- reactiveVal(NAlist())
 	observeEvent(ptdisabley(),{inputdatatreey(filter_dis(outputdatatreey_old(),ptdisabley())) } ,ignoreNULL = FALSE)	
@@ -257,21 +295,21 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 			shinyTree::updateTree(session, "datatreey",  outputdatatreey_old() )
 		}else if(length(T)==2){
 		    if(isTRUE(attr(outputdatatreey_old()[[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected'))){
-				outputdatatreey_temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),ptdisabley())
+				outputdatatreey_temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
 				attr(outputdatatreey_temp[[T[[2]][['package']]]][[T[[2]][['data']]]][[T[[2]][['col']]]],'stselected')=TRUE
 				outputdatatreey_old(outputdatatreey_temp)
 			}else{
-				outputdatatreey_temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),ptdisabley())
+				outputdatatreey_temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
 				attr(outputdatatreey_temp[[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected')=TRUE
 				outputdatatreey_old(outputdatatreey_temp)
 			}			
 			shinyTree::updateTree(session, "datatreey",  outputdatatreey_old() )
 		}else if(length(T)==1){
-			outputdatatreey_temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),ptdisabley())
+			outputdatatreey_temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
 			attr(outputdatatreey_temp[[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected')=TRUE
 			outputdatatreey_old(outputdatatreey_temp)
 		}else{
-			outputdatatreey_old(filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),ptdisabley()))
+			outputdatatreey_old(filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE))
 		}
 	} ,ignoreNULL = FALSE)
 	observeEvent(plotdf(),{outputdatatreey_old(NAlist())} ,ignoreNULL = FALSE)
@@ -381,7 +419,21 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	
 	} ,ignoreNULL = FALSE)
 	
-
+	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
+	
+	get_title_xlabel_ylabel <- function (){
+	  title_xlabel_ylabel <- paste0(
+		if(isTRUE(nchar(input$title)>0)){
+			paste0("  ggtitle(\"",toString(input$title),"\") + \n")
+		}else{""},
+		if(isTRUE(nchar(input$xlabel)>0)){
+			paste0("  xlab(\"",toString(input$xlabel),"\") + \n")
+		}else{""},
+		if(isTRUE(nchar(input$ylabel)>0)){
+			paste0("  ylab(\"",toString(input$ylabel),"\") + \n")
+		}else{""}
+	  )	
+	}
 	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
 
     # RMarkdown Code
@@ -389,9 +441,22 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
       txt <- paste0(
 	    "* PLOT: ",toString(pt_autofree(plottype()))," \n",
 		"* DATA: ",toString(plotdf())," \n",
-	    "* X: ",toString(plotx())," \n",
-		"* Y: ",toString(ploty())," \n",
-		#"* COLOR: ",toString(plotcolor())," \n",
+		if(!ptdisablex()){
+			paste0("* X: ",toString(plotx())," \n")
+		}else{""},
+		if(!ptdisabley()){
+			paste0("* Y: ",toString(ploty())," \n")
+		}else{""},  
+		#"* COLOR: ",toString(plotcolor())," \n",	
+		if(isTRUE(nchar(input$title)>0)){
+			paste0("* TITLE: ",toString(input$title)," \n")
+		}else{""},
+		if(isTRUE(nchar(input$xlabel)>0)){
+			paste0("* X LABEL: ",toString(input$xlabel)," \n")
+		}else{""},
+		if(isTRUE(nchar(input$ylabel)>0)){
+			paste0("* Y LABEL: ",toString(input$ylabel)," \n")
+		}else{""},
 		" \n",
 		" \n",
 		
@@ -403,6 +468,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"(                             "," \n",
 		" ggplot(",toString(plotdf()),", aes(",toString(get_col(plotx())),")) +  "," \n",
 		"  geom_histogram(bins=20) +   "," \n",
+		get_title_xlabel_ylabel(),
 		"  theme_bw()                  "," \n",
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
@@ -413,6 +479,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"(                             "," \n",
 		" ggplot(",toString(plotdf()),", aes(",toString(get_col(plotx())),")) +  "," \n",
 		"  geom_bar() +                "," \n",
+		get_title_xlabel_ylabel(),
 		"  theme_bw()                  "," \n",
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
@@ -424,6 +491,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		" ggplot(",toString(plotdf()),", aes(",toString(get_col(ploty())),", x = \"\")) +  "," \n",
 		"  geom_boxplot() +            "," \n",
 		"  xlab(\"\") +                  "," \n",
+		get_title_xlabel_ylabel(),
 		"  theme_bw()                  "," \n",
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
@@ -438,6 +506,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"  ggplot(aes(x=count, y=",toString(get_col(ploty())),")) +   "," \n",
 		"  geom_point(size=2) +                                       "," \n",
 		"  geom_errorbarh(aes(xmax=count), xmin=0, height=0) +        "," \n",
+		get_title_xlabel_ylabel(),
 		"  theme_bw()                                                 "," \n",
 		") %>% plotly::ggplotly()                                     "," \n"
 		)}else{""},
@@ -448,6 +517,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"(                             "," \n",
 		" ggplot(",toString(plotdf()),", aes(",toString(get_col(plotx())),",",toString(get_col(ploty())),")) +  "," \n",
 		"  geom_point() +              "," \n",
+		get_title_xlabel_ylabel(),
 		"  theme_bw()                  "," \n",
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
@@ -458,6 +528,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"(                             "," \n",
 		" ggplot(",toString(plotdf()),", aes(",toString(get_col(plotx())),",",toString(get_col(ploty())),")) +  "," \n",
 		"  geom_boxplot() +            "," \n",
+		get_title_xlabel_ylabel(),
 		"  theme_bw()                  "," \n",
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
@@ -467,6 +538,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"#(numeric x categorical y)    "," \n",
 		"#(                             "," \n",
 		" ggplot(",toString(plotdf()),", aes(",toString(get_col(plotx())),",",toString(get_col(ploty())),")) +  "," \n",
+		get_title_xlabel_ylabel(),
 		"  ggridges::stat_binline(bins = 50, scale = .7, draw_baseline = FALSE) +     "," \n",
 		"  ggridges::theme_ridges()               "," \n",
 		"#) %>% plotly::ggplotly()      "," \n"
@@ -479,6 +551,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		" ggplot(",toString(plotdf()),", aes(x=seq_along(",toString(get_col(plotx())),"),y=",toString(get_col(ploty())),", fill=stat(count))) +  "," \n",
 		"  stat_bin2d() +              "," \n",
 		"  scale_fill_gradient2() +     "," \n",
+		get_title_xlabel_ylabel(),
 		"  theme_bw()                  "," \n",
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},		
@@ -490,6 +563,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"(                             "," \n",
 		" ggplot(",toString(plotdf()),", aes(x=seq_along(",toString(get_col(plotx())),"),y=",toString(get_col(ploty())),")) +  "," \n",
 		"  geom_line() +            "," \n",
+		get_title_xlabel_ylabel(),
 		"  theme_bw()                  "," \n",
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
@@ -498,6 +572,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"(                             "," \n",
 		" ggplot(",toString(plotdf()),", aes(x=seq_along(",toString(get_col(plotx())),"),y=",toString(get_col(ploty())),")) +  "," \n",
 		"  geom_area() +            "," \n",
+		get_title_xlabel_ylabel(),
 		"  theme_bw()                  "," \n",
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
@@ -615,18 +690,19 @@ NApt <- function(auto=FALSE) {
 
 
 
-filter_df <- function (original, criterias){
+filter_df <- function (original, criterias, reference=NULL){
   Tree0s=NULL
   for (pkg in names(original)) {
     for (dd in names(original[[pkg]])) {
 		for (criteria in criterias){
 			      if(pkg==criteria[["package"]] & dd==criteria[["data"]] ){
+					Tree0s[[pkg]][[dd]] <- original[[pkg]][[dd]]
+					attr(Tree0s[[pkg]][[dd]], "stopened")=TRUE
+					attr(Tree0s[[pkg]], "sttype")="pkg-node"
+					attr(Tree0s[[pkg]], "sticon")="fas fa-box"
+					attr(Tree0s[[pkg]], "stopened")=TRUE
 	        for (slc in names(original[[pkg]][[dd]])) {
-				Tree0s[[pkg]][[dd]] <- original[[pkg]][[dd]]
-				attr(Tree0s[[pkg]][[dd]], "stopened")=TRUE
-				attr(Tree0s[[pkg]], "sttype")="pkg-node"
-				attr(Tree0s[[pkg]], "sticon")="fas fa-box"
-				attr(Tree0s[[pkg]], "stopened")=TRUE
+				try({attr(Tree0s[[pkg]][[dd]][[slc]], "stselected")=attr(reference[[pkg]][[dd]][[slc]], "stselected")}, silent=TRUE)
 			}
 			      }
 
