@@ -53,7 +53,7 @@ ctrlB <- function (ns, ctrlname, ...){
 	    ...,
         circle = FALSE,
         icon = icon("gear"),
-        label = toupper(ctrlname),
+        label = toupper(stringr::str_remove(ctrlname, "-panel")),
         inputId = ns(paste0("ii",ctrlname)),
 		up = TRUE, 
 		tags$script(paste0("document.getElementById('",ns(paste0("ii",ctrlname)),"').style.width='100%'")),
