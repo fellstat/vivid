@@ -138,6 +138,7 @@ test_gizmo_dynamic_ui <- function(ns) {
       )),
       column(3,shinyWidgets::dropdownButton(
         textInput(ns("xlabel"), "X LABEL"),
+		checkboxInput(ns("xlog"), "X AXIS LOG", FALSE),
         circle = FALSE,
         icon = icon("gear"),
         label = "X AXIS",
@@ -151,6 +152,7 @@ test_gizmo_dynamic_ui <- function(ns) {
       )),
       column(3,shinyWidgets::dropdownButton(
         textInput(ns("ylabel"), "Y LABEL"),
+		checkboxInput(ns("ylog"), "Y AXIS LOG", FALSE),
         circle = FALSE,
         icon = icon("gear"),
         label = "Y AXIS",
@@ -434,6 +436,17 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		}else{""}
 	  )	
 	}
+	
+	get_xlog_ylog <- function (x=TRUE,y=TRUE){
+	  title_xlabel_ylabel <- paste0(
+		if(isTRUE(input$xlog) & x){
+			paste0("  scale_x_log10() +\n")
+		}else{""},
+		if(isTRUE(input$ylog) & y){
+			paste0("  scale_y_log10() +\n")
+		}else{""}
+	  )	
+	}
 	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
 
     # RMarkdown Code
@@ -451,11 +464,17 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		if(isTRUE(nchar(input$title)>0)){
 			paste0("* TITLE: ",toString(input$title)," \n")
 		}else{""},
-		if(isTRUE(nchar(input$xlabel)>0)){
+		if(isTRUE(nchar(input$xlabel)>0) & !ptdisablex() ){
 			paste0("* X LABEL: ",toString(input$xlabel)," \n")
 		}else{""},
-		if(isTRUE(nchar(input$ylabel)>0)){
+		if(isTRUE(nchar(input$ylabel)>0) & !ptdisabley() ){
 			paste0("* Y LABEL: ",toString(input$ylabel)," \n")
+		}else{""},
+		if(isTRUE(input$xlog) & !ptdisablex() ){
+			paste0(" X AXIS: scale_x_log10() \n")
+		}else{""},
+		if(isTRUE(input$ylog) & !ptdisabley() ){
+			paste0(" Y AXIS: scale_y_log10() \n")
 		}else{""},
 		" \n",
 		" \n",
@@ -469,6 +488,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		" ggplot(",toString(plotdf()),", aes(",toString(get_col(plotx())),")) +  "," \n",
 		"  geom_histogram(bins=20) +   "," \n",
 		get_title_xlabel_ylabel(),
+		get_xlog_ylog(1,0),
 		"  theme_bw()                  "," \n",
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
@@ -480,6 +500,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		" ggplot(",toString(plotdf()),", aes(",toString(get_col(plotx())),")) +  "," \n",
 		"  geom_bar() +                "," \n",
 		get_title_xlabel_ylabel(),
+		get_xlog_ylog(1,0),
 		"  theme_bw()                  "," \n",
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
@@ -492,6 +513,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"  geom_boxplot() +            "," \n",
 		"  xlab(\"\") +                  "," \n",
 		get_title_xlabel_ylabel(),
+		get_xlog_ylog(0,1),
 		"  theme_bw()                  "," \n",
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
@@ -507,6 +529,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"  geom_point(size=2) +                                       "," \n",
 		"  geom_errorbarh(aes(xmax=count), xmin=0, height=0) +        "," \n",
 		get_title_xlabel_ylabel(),
+		get_xlog_ylog(0,1),
 		"  theme_bw()                                                 "," \n",
 		") %>% plotly::ggplotly()                                     "," \n"
 		)}else{""},
@@ -518,6 +541,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		" ggplot(",toString(plotdf()),", aes(",toString(get_col(plotx())),",",toString(get_col(ploty())),")) +  "," \n",
 		"  geom_point() +              "," \n",
 		get_title_xlabel_ylabel(),
+		get_xlog_ylog(),
 		"  theme_bw()                  "," \n",
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
@@ -529,6 +553,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		" ggplot(",toString(plotdf()),", aes(",toString(get_col(plotx())),",",toString(get_col(ploty())),")) +  "," \n",
 		"  geom_boxplot() +            "," \n",
 		get_title_xlabel_ylabel(),
+		get_xlog_ylog(),
 		"  theme_bw()                  "," \n",
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
@@ -539,6 +564,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"#(                             "," \n",
 		" ggplot(",toString(plotdf()),", aes(",toString(get_col(plotx())),",",toString(get_col(ploty())),")) +  "," \n",
 		get_title_xlabel_ylabel(),
+		get_xlog_ylog(),
 		"  ggridges::stat_binline(bins = 50, scale = .7, draw_baseline = FALSE) +     "," \n",
 		"  ggridges::theme_ridges()               "," \n",
 		"#) %>% plotly::ggplotly()      "," \n"
@@ -552,6 +578,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"  stat_bin2d() +              "," \n",
 		"  scale_fill_gradient2() +     "," \n",
 		get_title_xlabel_ylabel(),
+		get_xlog_ylog(),
 		"  theme_bw()                  "," \n",
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},		
@@ -564,6 +591,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		" ggplot(",toString(plotdf()),", aes(x=seq_along(",toString(get_col(plotx())),"),y=",toString(get_col(ploty())),")) +  "," \n",
 		"  geom_line() +            "," \n",
 		get_title_xlabel_ylabel(),
+		get_xlog_ylog(),
 		"  theme_bw()                  "," \n",
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
@@ -573,6 +601,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		" ggplot(",toString(plotdf()),", aes(x=seq_along(",toString(get_col(plotx())),"),y=",toString(get_col(ploty())),")) +  "," \n",
 		"  geom_area() +            "," \n",
 		get_title_xlabel_ylabel(),
+		get_xlog_ylog(),
 		"  theme_bw()                  "," \n",
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
