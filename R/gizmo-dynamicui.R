@@ -185,7 +185,7 @@ test_gizmo_dynamic_ui <- function(ns) {
 	  )
 	),tags$br(),
 	fluidRow(
-      column(3,shinyWidgets::dropdownButton(
+      column(3,shinyWidgets::dropdown(
 		textInput(ns("title"), "TITLE"),
 		checkboxInput(ns("geom_violin"), "GEOM VIOLIN", FALSE),
 		checkboxInput(ns("stat_summary"), "STAT SUMMARY", FALSE),
@@ -201,7 +201,7 @@ test_gizmo_dynamic_ui <- function(ns) {
         tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iimain').style.maxWidth='350px'")),
         tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iimain').style.overflow='auto'"))
       )),
-      column(3,shinyWidgets::dropdownButton(
+      column(3,shinyWidgets::dropdown(
         textInput(ns("xlabel"), "X LABEL"),
 		checkboxInput(ns("xlog"), "X AXIS LOG", FALSE),
         circle = FALSE,
@@ -215,7 +215,7 @@ test_gizmo_dynamic_ui <- function(ns) {
         tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iixaxis').style.maxWidth='350px'")),
         tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iixaxis').style.overflow='auto'"))
       )),
-      column(3,shinyWidgets::dropdownButton(
+      column(3,shinyWidgets::dropdown(
         textInput(ns("ylabel"), "Y LABEL"),
 		checkboxInput(ns("ylog"), "Y AXIS LOG", FALSE),
         circle = FALSE,
@@ -229,7 +229,7 @@ test_gizmo_dynamic_ui <- function(ns) {
         tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iiyaxis').style.maxWidth='350px'")),
         tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iiyaxis').style.overflow='auto'"))
       )),
-      column(3,shinyWidgets::dropdownButton(
+      column(3,shinyWidgets::dropdown(
         textAreaInput(ns("customized_code"), "CUSTOMIZED CODE", width='100%'),
         circle = FALSE,
         icon = icon("gear"),
@@ -255,6 +255,20 @@ test_gizmo_dynamic_ui <- function(ns) {
         tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iitheme').style.minWidth='300px'")),
         tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iitheme').style.maxWidth='350px'")),
         tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iitheme').style.overflow='auto'"))
+      )),
+	  column(3,shinyWidgets::dropdown(
+	    checkboxInput(ns("histogram"), "HISTOGRAM", FALSE),
+		numericInput(ns("bins"), "BINS", 20, min = 1, max = 100),
+        circle = FALSE,
+        icon = icon("gear"),
+        label = "HISTOGRAM",
+        inputId = ns("iihistogram"),
+		up = TRUE, 
+		tags$script(paste0("document.getElementById('",ns(""),"iihistogram').style.width='100%'")),
+        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iihistogram').style.maxHeight='400px'")),
+        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iihistogram').style.minWidth='300px'")),
+        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iihistogram').style.maxWidth='350px'")),
+        tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iihistogram').style.overflow='auto'"))
       ))
 	),
     tags$br(),
@@ -521,6 +535,21 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	plottreey_ <- reactive(toString(get_col(plottreey())))
 	plottype_ <- reactive(toString(pt_autofree(plottype())))
 	
+	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
+	
+	observeEvent(plottype_(),{
+		if( is.element(plottype_(),c('histogram','histogram2')) ){
+			updateCheckboxInput(session,"histogram", value = TRUE)
+			message("Mission Enforced")
+			message(toString(input$histogram))
+		}else{
+			updateCheckboxInput(session,"histogram", value = FALSE)
+		}
+	})
+	
+	
+
+	
 	
 	observeEvent(input$datatreept,{
 	    temp <- get_selected(outputdatatreept_old(), format = c("names"))
@@ -638,6 +667,12 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	  }else{""}
 	}
 	
+	get_histogram <- function (){
+	  if(isTRUE(input$histogram) ){
+		paste0("  ","geom_histogram",'(',ifelse(as.numeric(input$bins)!=30,paste0("bins = ",as.numeric(input$bins)),""),') + \n')
+	  }else{""}
+	}
+	
 	
 	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
 
@@ -695,7 +730,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"#(numeric x)                  "," \n",
 		"(                             "," \n",
 		" ggplot(",plotdf_(),", aes(",plottreex_(),get_color(),")) +  "," \n",
-		"  geom_histogram(bins=20) +   "," \n",
+		get_histogram(),
 		get_customized_code(),
 		get_geom_violin(),
 		get_stat_summary(),
@@ -703,7 +738,6 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		get_title_xlabel_ylabel(),
 		get_xlog_ylog(),
 		get_facet(),
-		get_theme(),
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
 		
@@ -713,6 +747,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"(                             "," \n",
 		" ggplot(",plotdf_(),", aes(",plottreex_(),get_color(),")) +  "," \n",
 		"  geom_bar() +                "," \n",
+		get_histogram(),
 		get_customized_code(),
 		get_geom_violin(),
 		get_stat_summary(),
@@ -731,6 +766,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		" ggplot(",plotdf_(),", aes(",plottreey_(),", x = \"\"",get_color(),")) +  "," \n",
 		"  geom_boxplot() +            "," \n",
 		"  xlab(\"\") +                  "," \n",
+		get_histogram(),
 		get_customized_code(),
 		get_geom_violin(),
 		get_stat_summary(),
@@ -752,6 +788,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"  ggplot(aes(x=count, y=",plottreey_(),get_color(),")) +   "," \n",
 		"  geom_point(size=2) +                                       "," \n",
 		"  geom_errorbarh(aes(xmax=count), xmin=0, height=0) +        "," \n",
+		get_histogram(),
 		get_customized_code(),
 		get_geom_violin(),
 		get_stat_summary(),
@@ -769,6 +806,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"(                             "," \n",
 		" ggplot(",plotdf_(),", aes(",plottreex_(),",",plottreey_(),get_color(),")) +  "," \n",
 		"  geom_point() +              "," \n",
+		get_histogram(),
 		get_customized_code(),
 		get_geom_violin(),
 		get_stat_summary(),
@@ -786,6 +824,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"(                             "," \n",
 		" ggplot(",plotdf_(),", aes(",plottreex_(),",",plottreey_(),get_color(),")) +  "," \n",
 		"  geom_boxplot() +            "," \n",
+		get_histogram(),
 		get_customized_code(),
 		get_geom_violin(),
 		get_stat_summary(),
@@ -802,6 +841,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"#(numeric x categorical y)    "," \n",
 		"#(                             "," \n",
 		" ggplot(",plotdf_(),", aes(",plottreex_(),",",plottreey_(),get_color(),")) +  "," \n",
+		#get_histogram(),
 		get_customized_code(),
 		get_geom_violin(),
 		get_stat_summary(),
@@ -822,6 +862,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		" ggplot(",plotdf_(),", aes(x=seq_along(",plottreex_(),"),y=",plottreey_(),", fill=stat(count)",get_color(),")) +  "," \n",
 		"  stat_bin2d() +              "," \n",
 		"  scale_fill_gradient2() +     "," \n",
+		get_histogram(),
 		get_customized_code(),
 		get_geom_violin(),
 		get_stat_summary(),
@@ -840,6 +881,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"(                             "," \n",
 		" ggplot(",plotdf_(),", aes(x=seq_along(",plottreex_(),"),y=",plottreey_(),get_color(),")) +  "," \n",
 		"  geom_line() +            "," \n",
+		get_histogram(),
 		get_customized_code(),
 		get_geom_violin(),
 		get_stat_summary(),
@@ -855,6 +897,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"(                             "," \n",
 		" ggplot(",plotdf_(),", aes(x=seq_along(",plottreex_(),"),y=",plottreey_(),get_color(),",)) +  "," \n",
 		"  geom_area() +            "," \n",
+		get_histogram(),
 		get_customized_code(),
 		get_geom_violin(),
 		get_stat_summary(),
