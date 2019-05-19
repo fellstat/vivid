@@ -123,7 +123,7 @@ test_gizmo_dynamic_ui <- function(ns) {
     ),
     tags$br(),
 	fluidRow(
-	  column(3,shinyWidgets::dropdownButton(
+	  column(6,shinyWidgets::dropdownButton(
 		  shinyTree::shinyTree(
 			ns("datatreecolor"),
 			checkbox = TRUE,
@@ -151,6 +151,36 @@ test_gizmo_dynamic_ui <- function(ns) {
 			madatatreecolor.classList.add('fa');madatatreecolor.classList.add('fa-search');
 			document.getElementById('",ns(""),"datatreecolor-search-input').parentNode.insertBefore(
 			madatatreecolor,document.getElementById('",ns(""),"datatreecolor-search-input').nextSibling);"))
+		)
+	  ),
+	  column(6,shinyWidgets::dropdownButton(
+		  shinyTree::shinyTree(
+			ns("datatreefacet"),
+			checkbox = TRUE,
+			search = TRUE,
+			types = "{ 'pkg-node': {'a_attr' : { 'style' : 'color:black' , class: 'no_checkbox'}},
+					   'df-node': {'a_attr' : { 'style' : 'color:black' , class: 'no_checkbox'}}  }"
+		  ),
+		  circle = FALSE,
+		  icon = icon("gear"),
+		  label = textOutput(ns("lbdatatreefacet"), inline = TRUE),
+		  #width = "300px",
+		  inputId = ns("iidatatreefacet"),
+		  tags$i(
+			tags$i(class = "fa fa-tag fa-tag-integer", "integer"),
+			tags$i(class = "fa fa-tag fa-tag-numeric", "numeric"),
+			tags$i(class = "fa fa-tag fa-tag-character", "character"),
+			tags$i(class = "fa fa-tag fa-tag-Date", "Date"),
+			tags$i(class = "fa fa-tag fa-tag-factor", "factor")
+		  ),
+		  tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreefacet').style.maxHeight='400px'")),
+		  tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreefacet').style.minWidth='300px'")),
+		  tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreefacet').style.maxWidth='350px'")),
+		  tags$script(paste0("document.getElementById('dropdown-menu-",ns(""),"iidatatreefacet').style.overflow='auto'")),
+		  tags$script(paste0("var madatatreefacet = document.createElement('i');
+			madatatreefacet.classList.add('fa');madatatreefacet.classList.add('fa-search');
+			document.getElementById('",ns(""),"datatreefacet-search-input').parentNode.insertBefore(
+			madatatreefacet,document.getElementById('",ns(""),"datatreefacet-search-input').nextSibling);"))
 		)
 	  )
 	),tags$br(),
@@ -251,6 +281,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	ptdisabletreex <- reactiveVal(FALSE)
 	ptdisabletreey <- reactiveVal(FALSE)
 	ptdisabletreecolor <- reactiveVal(FALSE)
+	ptdisabletreefacet <- reactiveVal(FALSE)
 
 	#input DATA FRAME
 	output$datatreedf <- shinyTree::renderTree(datadfs())
@@ -389,6 +420,42 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
     }))
 	
 	
+   	#input FACET
+	output$datatreefacet <- shinyTree::renderTree(filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old()),outputdatatreefacet_old()),ptdisabletreefacet()) )
+	outputdatatreefacet_old <- reactiveVal(NAlist())
+	inputdatatreefacet <- reactiveVal(NAlist())
+	observeEvent(ptdisabletreefacet(),{inputdatatreefacet(filter_dis(outputdatatreefacet_old(),ptdisabletreefacet())) } ,ignoreNULL = FALSE)	
+	observeEvent(outputdatatreefacet_old(),{inputdatatreefacet(filter_dis(outputdatatreefacet_old(),ptdisabletreefacet())) } ,ignoreNULL = FALSE)	
+	observeEvent(input$datatreefacet,{
+		T <- extract_local(input$datatreefacet)		
+		if(length(T)>2){
+			shinyTree::updateTree(session, "datatreefacet",  outputdatatreefacet_old() )
+		}else if(length(T)==2){
+		    if(isTRUE(attr(outputdatatreefacet_old()[[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected'))){
+				outputdatatreefacet_temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
+				attr(outputdatatreefacet_temp[[T[[2]][['package']]]][[T[[2]][['data']]]][[T[[2]][['col']]]],'stselected')=TRUE
+				outputdatatreefacet_old(outputdatatreefacet_temp)
+			}else{
+				outputdatatreefacet_temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
+				attr(outputdatatreefacet_temp[[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected')=TRUE
+				outputdatatreefacet_old(outputdatatreefacet_temp)
+			}			
+			shinyTree::updateTree(session, "datatreefacet",  outputdatatreefacet_old() )
+		}else if(length(T)==1){
+			outputdatatreefacet_temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
+			attr(outputdatatreefacet_temp[[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected')=TRUE
+			outputdatatreefacet_old(outputdatatreefacet_temp)
+		}else{
+			outputdatatreefacet_old(filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE))
+		}
+	} ,ignoreNULL = FALSE)
+	observeEvent(plotdf(),{outputdatatreefacet_old(NAlist())} ,ignoreNULL = FALSE)
+	plottreefacet <- reactive(format_local(extract_local(inputdatatreefacet())))
+    output$lbdatatreefacet <- renderText(paste("FACET: ", {
+      toStringB(extract_local(inputdatatreefacet()),ptdisabletreefacet())
+    }))
+	
+	
 	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
 	
 	extract_local <- function(datatreex) {
@@ -518,6 +585,16 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		}else{""}
 	  )	
 	}
+	
+	get_facet <- function (){
+	  facet <- toString(       (plottreefacet())) #facet <- toString(get_col(plottreefacet()))
+	  paste0(
+		if(isTRUE(nchar(facet)>0)){
+			paste0("  facet_wrap(~",facet,") + \n")
+		}else{""}
+	  )	
+	}
+	
 	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
 
     # RMarkdown Code
@@ -537,6 +614,9 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		if(isTRUE(nchar(plottreecolor())>0) & !ptdisabletreecolor()){
 			paste0("* COLOR: ",toString(plottreecolor())," \n")
 		}else{""},  
+		if(isTRUE(nchar(plottreefacet())>0) & !ptdisabletreefacet()){
+			paste0("* FACET: ",toString(plottreefacet())," \n")
+		}else{""}, 
 		if(isTRUE(nchar(input$title)>0)){
 			paste0("* TITLE: ",toString(input$title)," \n")
 		}else{""},
@@ -565,6 +645,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"  geom_histogram(bins=20) +   "," \n",
 		get_title_xlabel_ylabel(),
 		get_xlog_ylog(1,0),
+		get_facet(),
 		"  theme_bw()                  "," \n",
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
@@ -577,6 +658,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"  geom_bar() +                "," \n",
 		get_title_xlabel_ylabel(),
 		get_xlog_ylog(1,0),
+		get_facet(),
 		"  theme_bw()                  "," \n",
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
@@ -590,6 +672,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"  xlab(\"\") +                  "," \n",
 		get_title_xlabel_ylabel(),
 		get_xlog_ylog(0,1),
+		get_facet(),
 		"  theme_bw()                  "," \n",
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
@@ -606,6 +689,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"  geom_errorbarh(aes(xmax=count), xmin=0, height=0) +        "," \n",
 		get_title_xlabel_ylabel(),
 		get_xlog_ylog(0,1),
+		get_facet(),
 		"  theme_bw()                                                 "," \n",
 		") %>% plotly::ggplotly()                                     "," \n"
 		)}else{""},
@@ -618,6 +702,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"  geom_point() +              "," \n",
 		get_title_xlabel_ylabel(),
 		get_xlog_ylog(),
+		get_facet(),
 		"  theme_bw()                  "," \n",
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
@@ -630,6 +715,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"  geom_boxplot() +            "," \n",
 		get_title_xlabel_ylabel(),
 		get_xlog_ylog(),
+		get_facet(),
 		"  theme_bw()                  "," \n",
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
@@ -641,6 +727,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		" ggplot(",toString(plotdf()),", aes(",toString(get_col(plottreex())),",",toString(get_col(plottreey())),get_color(),")) +  "," \n",
 		get_title_xlabel_ylabel(),
 		get_xlog_ylog(),
+		get_facet(),
 		"  ggridges::stat_binline(bins = 50, scale = .7, draw_baseline = FALSE) +     "," \n",
 		"  ggridges::theme_ridges()               "," \n",
 		"#) %>% plotly::ggplotly()      "," \n"
@@ -655,6 +742,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"  scale_fill_gradient2() +     "," \n",
 		get_title_xlabel_ylabel(),
 		get_xlog_ylog(),
+		get_facet(),
 		"  theme_bw()                  "," \n",
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},		
@@ -668,6 +756,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"  geom_line() +            "," \n",
 		get_title_xlabel_ylabel(),
 		get_xlog_ylog(),
+		get_facet(),
 		"  theme_bw()                  "," \n",
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
@@ -678,6 +767,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"  geom_area() +            "," \n",
 		get_title_xlabel_ylabel(),
 		get_xlog_ylog(),
+		get_facet(),
 		"  theme_bw()                  "," \n",
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
