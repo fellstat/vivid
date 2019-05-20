@@ -135,7 +135,8 @@ test_gizmo_dynamic_ui <- function(ns) {
       ctrlB(ns,"stat_binline-panel",
             checkboxInput(ns("stat_binline"), "ggridges::stat_binline"),
 			numericInput(ns("stat_binline_bins"), "BINS", 50, min = 1, max = 100),
-			checkboxInput(ns("stat_binline_draw_baseline"), "DRAW BASELINE", TRUE)),
+			numericInput(ns("stat_binline_scale"), "SCALE", 0.7),
+			checkboxInput(ns("stat_binline_draw_baseline"), "DRAW BASELINE")),
       ctrlB(ns,"theme_ridges-panel",
             checkboxInput(ns("theme_ridges"), "ggridges::theme_ridges")),
       ctrlB(ns,"facet_wrap-panel",
@@ -193,6 +194,7 @@ parameters_list=list(
   ),
   "stat_binline"=structure(list(
     "stat_binline_bins"=structure("ggridges::stat_binline_bins",nme='bins',tp="noquote",deflt=30),
+	"stat_binline_scale"=structure("ggridges::stat_binline_scale",nme='scale',tp="noquote",deflt=Inf),
     "stat_binline_draw_baseline"=structure("ggridges::stat_binline_draw_baseline",nme='draw_baseline',tp="noquote",deflt=0)
   ), alt="ggridges::stat_binline"),
   "facet_wrap"=list(
