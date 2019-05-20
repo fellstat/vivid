@@ -1,8 +1,8 @@
 ctrlJS <- function (...){
   tags$i(
     shinyjs::inlineCSS(".no_checkbox>i.jstree-checkbox { display:none }"),
-    shinyjs::inlineCSS(".fa-tag-integer { color: darkorange }"),
-    shinyjs::inlineCSS(".fa-tag-numeric { color: orange }"),
+    shinyjs::inlineCSS(".fa-tag-integer { color: gold }"),
+    shinyjs::inlineCSS(".fa-tag-numeric { color: darkorange }"),
     shinyjs::inlineCSS(".fa-tag-character { color: green }"),
 	shinyjs::inlineCSS(".fa-tag-Date { color: red }"),
 	shinyjs::inlineCSS(".fa-tag-ts { color: darkred }"),
@@ -82,9 +82,6 @@ test_gizmo_dynamic_ui <- function(ns) {
     ),
     tags$br(),
     fluidRow(
-      ctrlB(ns,"ggtitle-panel",
-            checkboxInput(ns("ggtitle"), "GGTITLE"),
-            textInput(ns("ggtitle_label"), "GGTITLE  LABEL")),
       ctrlB(ns,"ggplot-panel",
             checkboxInput(ns("ggplot"), "GGPLOT"),
             textInput(ns("ggplot_data"), "DATA")),
@@ -94,14 +91,19 @@ test_gizmo_dynamic_ui <- function(ns) {
 			textInput(ns("aes_y"), "AES Y"),
 			textInput(ns("aes_color"), "AES COLOR"),
 			textInput(ns("aes_fill"), "AES FILL")),
-      ctrlB(ns,"x-axis-panel",
-            checkboxInput(ns("xlab"), "X LAB"),
-            textInput(ns("xlab_label"), "X LAB LABEL"),
-            checkboxInput(ns("scale_x_log10"), "SCALE X LOG 10", FALSE)),
-      ctrlB(ns,"y-axis-panel",
-            checkboxInput(ns("ylab"), "Y LAB"),
-            textInput(ns("ylab_label"), "Y LAB LABEL"),
-            checkboxInput(ns("scale_y_log10"), "SCALE Y LOG 10", FALSE)),
+      ctrlB(ns,"ggtitle-panel",
+            checkboxInput(ns("ggtitle"), "GGTITLE"),
+            textInput(ns("ggtitle_label"), "GGTITLE  LABEL")),
+      ctrlB(ns,"xlab-panel",
+            checkboxInput(ns("xlab"), "XLAB"),
+            textInput(ns("xlab_label"), "X LAB LABEL")),
+	  ctrlB(ns,"scale_x_log10-panel",
+            checkboxInput(ns("scale_x_log10"), "SCALE X LOG10")),
+      ctrlB(ns,"ylab-panel",
+            checkboxInput(ns("ylab"), "YLAB"),
+            textInput(ns("ylab_label"), "Y LAB LABEL")),
+	  ctrlB(ns,"scale_y_log10-panel",
+            checkboxInput(ns("scale_y_log10"), "SCALE Y LOG10")),
       ctrlB(ns,"coord_flip-panel",
             checkboxInput(ns("coord_flip"), "COORD FLIP")),
       ctrlB(ns,"theme-panel",
@@ -147,10 +149,12 @@ test_gizmo_dynamic_ui <- function(ns) {
 			checkboxInput(ns("geom_errorbarh"), "GEOM ERRORBARH"),
 			textInput(ns("geom_errorbarh_mapping"), "MAPPING", "aes(xmax=count)"),
 			numericInput(ns("geom_errorbarh_xmin"), "XMIN", 0),
-			numericInput(ns("geom_errorbarh_height"), "HEIGHT", 0)),
-	  ###
+			numericInput(ns("geom_errorbarh_height"), "HEIGHT", 0))
+	),
+	fluidRow(
       ctrlB(ns,"debug-panel",
-            textAreaInput(ns("customized_code"), "CUSTOMIZED CODE", width='100%'))
+	        radioButtons(ns("plotlyoverlay"), label=NULL, choices = c("plotly", "ggplot"), selected = "plotly", inline=TRUE),
+            textAreaInput(ns("customized_code"), "CUSTOMIZED CODE", width='100%'))			
     ),
     tags$br(),
     tags$br()
@@ -158,9 +162,6 @@ test_gizmo_dynamic_ui <- function(ns) {
 }
 
 parameters_list=list(
-  "coord_flip"=list(),
-  "scale_x_log10"=list(),
-  "scale_y_log10"=list(),
   "ggplot"=list(
     "ggplot_data"=structure("ggplot_data",nme='data',tp="noquote",deflt="")
   ),
@@ -170,19 +171,19 @@ parameters_list=list(
     "aes_color"=structure("aes_color",nme='color',tp="noquote",deflt=""),
     "aes_fill"=structure("aes_fill",nme='fill',tp="noquote",deflt="")
   ),
-  "geom_line"=list(),
-  "geom_area"=list(),
-  "stat_bin2d"=list(),
-  "scale_fill_gradient2"=list(),
-  "theme"=list( "theme_fun"=structure("theme_fun",nme='theme_fun',tp="yesquote",deflt="",fun=TRUE),
-                "theme_base_size"=structure("theme_base_size",nme='base_size',tp="noquote",deflt=12)
-  ),
   "ggtitle"=list( "ggtitle_label"=structure("ggtitle_label",nme='label',tp="yesquote",deflt="")
   ),
   "xlab"=list( "xlab_label"=structure("xlab_label",nme='label',tp="yesquote",deflt="")
   ),
+  "scale_x_log10"=list(),
   "ylab"=list( "ylab_label"=structure("ylab_label",nme='label',tp="yesquote",deflt="")
-  ),					  
+  ),
+  "scale_y_log10"=list(),
+  "coord_flip"=list(),
+  "geom_line"=list(),
+  "geom_area"=list(),
+  "stat_bin2d"=list(),
+  "scale_fill_gradient2"=list(),				  
   "geom_violin"=list( "geom_violin_color"=structure("geom_violin_color",nme='size',tp="yesquote",deflt=""),
                       "geom_violin_fill"=structure("geom_violin_fill",nme='size',tp="yesquote",deflt="")
   ),					  
@@ -194,7 +195,6 @@ parameters_list=list(
     "stat_binline_bins"=structure("ggridges::stat_binline_bins",nme='bins',tp="noquote",deflt=30),
     "stat_binline_draw_baseline"=structure("ggridges::stat_binline_draw_baseline",nme='draw_baseline',tp="noquote",deflt=0)
   ), alt="ggridges::stat_binline"),
-  "theme_ridges"=structure(list(), alt="ggridges::theme_ridges"),
   "facet_wrap"=list(
     "facet_wrap_facets"=structure("facet_wrap_facets",nme='facets',tp="noquote",deflt="")
   ),
@@ -206,6 +206,10 @@ parameters_list=list(
     "geom_errorbarh_mapping"=structure("geom_errorbarh_mapping",nme='mapping',tp="noquote",deflt=""),
     "geom_errorbarh_xmin"=structure("geom_errorbarh_xmin",nme='xmin',tp="noquote",deflt=""),
     "geom_errorbarh_height"=structure("geom_errorbarh_height",nme='height',tp="noquote",deflt="")
+  ),
+  "theme_ridges"=structure(list(), alt="ggridges::theme_ridges"),
+  "theme"=list( "theme_fun"=structure("theme_fun",nme='theme_fun',tp="yesquote",deflt="",fun=TRUE),
+                "theme_base_size"=structure("theme_base_size",nme='base_size',tp="noquote",deflt=12)
   )
 )
 
@@ -518,6 +522,14 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	
 	} ,ignoreNULL = FALSE)
 	
+	observeEvent(plottype_(), {
+	  if(plottype_()=="histogram2"){
+		  updatePickerInput(session, "plotlyoverlay", selected = "ggplot")
+	  }else{
+		  updatePickerInput(session, "plotlyoverlay", selected = "plotly")
+	  }	
+	},ignoreNULL = FALSE)
+	
 	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
 	
 	ctrl7 <- function (matchtypes, tocheckbox){
@@ -714,37 +726,39 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		if(isTRUE(input$coord_flip) ){
 		  paste0("*    ALSO: coord_flip() \n")
 		}else{""},
-		" \n",	
-		"```{r} \n",
-		know_auto_means(),
-		"library(ggplot2) \n",		
-		"( \n",
-		get_panel("ggplot"),
-		get_panel("aes"),
-		get_panel("geom_errorbarh"),
-		get_panel("stat_bin2d"),
-		get_panel("geom_line"),
-		get_panel("geom_area"),
-		get_panel("scale_fill_gradient2"),
-		get_panel("geom_point"),
-		get_panel("geom_boxplot"),
-		get_panel("geom_bar"),
-		get_panel("geom_histogram"),		
-		get_panel("geom_violin"),
-		get_panel("stat_summary"),
-		get_panel("coord_flip"),
-		get_panel("ggtitle"),
-		get_panel("xlab"),
-		get_panel("ylab"),
-		get_panel("scale_x_log10"),
-		get_panel("scale_y_log10"),
-		get_panel("facet_wrap"),
-		get_panel("stat_binline"),
-		get_panel("theme",plus=FALSE),
-		get_panel("theme_ridges",plus=FALSE),
-		get_customized_code(),
-		") %>% plotly::ggplotly()\n",
-		"```\n",
+		" \n",			
+		if(nchar(plottype_())>0){paste0(
+			"```{r} \n",
+			know_auto_means(),
+			"library(ggplot2) \n",		
+			if(toString(input$plotlyoverlay)=="plotly"){"( \n"}else{""},
+			get_panel("ggplot"),
+			get_panel("aes"),
+			get_panel("geom_errorbarh"),
+			get_panel("stat_bin2d"),
+			get_panel("geom_line"),
+			get_panel("geom_area"),
+			get_panel("scale_fill_gradient2"),
+			get_panel("geom_point"),
+			get_panel("geom_boxplot"),
+			get_panel("geom_bar"),
+			get_panel("geom_histogram"),		
+			get_panel("geom_violin"),
+			get_panel("stat_summary"),
+			get_panel("coord_flip"),
+			get_panel("ggtitle"),
+			get_panel("xlab"),
+			get_panel("ylab"),
+			get_panel("scale_x_log10"),
+			get_panel("scale_y_log10"),
+			get_panel("facet_wrap"),
+			get_panel("stat_binline"),
+			get_panel("theme",plus=FALSE),
+			get_panel("theme_ridges",plus=FALSE),
+			get_customized_code(),
+			if(toString(input$plotlyoverlay)=="plotly"){") %>% plotly::ggplotly()\n"}else{""},
+			"```\n"
+		)}else{""},		
 		" \n"
 	  )
 	  txt
