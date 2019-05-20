@@ -79,25 +79,41 @@ test_gizmo_dynamic_ui <- function(ns) {
 	),
 	tags$br(),
 	fluidRow(
-      ctrlB(ns,"main-panel",
-		textInput(ns("title"), "TITLE"),
-		checkboxInput(ns("geom_violin"), "GEOM VIOLIN", FALSE),
-		checkboxInput(ns("stat_summary"), "STAT SUMMARY", FALSE),
-		checkboxInput(ns("coord_flip"), "COORD FLIP", FALSE)),
-      ctrlB(ns,"xaxis-panel",
-        textInput(ns("xlabel"), "X LABEL"),
-		checkboxInput(ns("xlog"), "X AXIS LOG", FALSE)),
-      ctrlB(ns,"yaxis-panel",
-        textInput(ns("ylabel"), "Y LABEL"),
-		checkboxInput(ns("ylog"), "Y AXIS LOG", FALSE)),
+      ctrlB(ns,"general-panel",
+	    checkboxInput(ns("ggtitle"), "GGTITLE"),
+		textInput(ns("ggtitle_label"), "GGTITLE  LABEL"),
+		checkboxInput(ns("stat_summary"), "STAT SUMMARY", FALSE)),
+      ctrlB(ns,"x-axis-panel",
+	    checkboxInput(ns("xlab"), "X LAB"),
+        textInput(ns("xlab_label"), "X LAB LABEL"),
+		checkboxInput(ns("scale_x_log10"), "SCALE X LOG 10", FALSE)),
+      ctrlB(ns,"y-axis-panel",
+	    checkboxInput(ns("ylab"), "Y LAB"),
+        textInput(ns("ylab_label"), "Y LAB LABEL"),
+		checkboxInput(ns("scale_y_log10"), "SCALE Y LOG 10", FALSE)),
+	  ctrlB(ns,"coord_flip-panel",
+	    checkboxInput(ns("coord_flip"), "COORD FLIP")),
       ctrlB(ns,"debug-panel",
         textAreaInput(ns("customized_code"), "CUSTOMIZED CODE", width='100%')),
 	  ctrlB(ns,"theme-panel",
-        pickerInput(ns("theme"), label = "SELECT THEME ...", choices = theme_choices(), selected = "theme_bw" ), 
-		numericInput(ns("base_size"), "BASE SIZE", 12, min = 1, max = 100)),
-	  ctrlB(ns,"histogram-panel",
-	    checkboxInput(ns("histogram"), "HISTOGRAM", FALSE),
-		numericInput(ns("bins"), "BINS", 20, min = 1, max = 100))
+	    checkboxInput(ns("theme"), "THEME", TRUE),
+        pickerInput(ns("theme_fun"), label = "THEME FUN", choices = theme_choices(), selected = "theme_bw" ), 
+		numericInput(ns("theme_base_size"), "THEME BASE SIZE", 12, min = 1, max = 100)),
+	  ctrlB(ns,"geom_violin-panel",
+	    checkboxInput(ns("geom_violin"), "VIOLIN"),
+		textInput(ns("geom_violin_color"), "VIOLIN COLOR", "white"),
+		textInput(ns("geom_violin_fill"), "VIOLIN FILL", "grey90")),
+	  ctrlB(ns,"geom_histogram-panel",
+	    checkboxInput(ns("geom_histogram"), "HISTOGRAM"),
+		numericInput(ns("geom_histogram_bins"), "BINS", 20, min = 1, max = 100)),
+	  ctrlB(ns,"geom_bar-panel",
+	    checkboxInput(ns("geom_bar"), "BAR")),
+	  ctrlB(ns,"geom_boxplot-panel",
+	    checkboxInput(ns("geom_boxplot"), "BOXPLOT")),
+	  ctrlB(ns,"geom_point-panel",
+	    checkboxInput(ns("geom_point"), "POINT"),
+		numericInput(ns("geom_point_size"), "POINT SIZE", 2, min = 1, max = 100)
+		)
 	),
     tags$br(),
 	tags$br()
@@ -364,20 +380,24 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	plottype_ <- reactive(toString(pt_autofree(plottype())))
 	
 	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
-	
-	observeEvent(plottype_(),{
-		if( is.element(plottype_(),c('histogram','histogram2')) ){
-			updateCheckboxInput(session,"histogram", value = TRUE)
-			message("Mission Enforced")
-			message(toString(input$histogram))
-		}else{
-			updateCheckboxInput(session,"histogram", value = FALSE)
-		}
-	})
-	
-	
 
 	
+	ctrl7 <- function (matchtypes, tocheckbox){
+		observeEvent(plottype_(),{
+			if( is.element(plottype_(),matchtypes) ){
+				updateCheckboxInput(session, tocheckbox, value = TRUE)
+			}else{
+				updateCheckboxInput(session, tocheckbox, value = FALSE)
+			}
+		})
+	}
+	
+	ctrl7(c('histogram'),"geom_histogram")
+	ctrl7(c('bar'),"geom_bar")
+	ctrl7(c('box','box2'),"geom_boxplot")
+	ctrl7(c('bar2','scatter'),"geom_point")
+	
+	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
 	
 	observeEvent(input$datatreept,{
 	    temp <- get_selected(outputdatatreept_old(), format = c("names"))
@@ -412,31 +432,71 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	
 	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
 	
-	get_title_xlabel_ylabel <- function (){
-	  paste0(
-		if(isTRUE(nchar(input$title)>0)){
-			paste0("  ggtitle(\"",toString(input$title),"\") + \n")
-		}else{""},
-		if(isTRUE(nchar(input$xlabel)>0)){
-			paste0("  xlab(\"",toString(input$xlabel),"\") + \n")
-		}else{""},
-		if(isTRUE(nchar(input$ylabel)>0)){
-			paste0("  ylab(\"",toString(input$ylabel),"\") + \n")
-		}else{""}
-	  )	
-	}
+	parameters_list=list(
+		"coord_flip"=list(),
+		"scale_x_log10"=list(),
+		"scale_y_log10"=list(),
+		"theme"=list( "theme_fun"=structure("theme_fun",nme='theme_fun',tp="character",deflt="",fun=TRUE),
+					  "theme_base_size"=structure("theme_base_size",nme='base_size',tp="numeric",deflt=12)
+						  ),
+		"ggtitle"=list( "ggtitle_label"=structure("ggtitle_label",nme='label',tp="character",deflt="")
+						  ),
+		"xlab"=list( "xlab_label"=structure("xlab_label",nme='label',tp="character",deflt="")
+						  ),
+		"ylab"=list( "ylab_label"=structure("ylab_label",nme='label',tp="character",deflt="")
+						  ),					  
+		"geom_violin"=list( "geom_violin_color"=structure("geom_violin_color",nme='size',tp="character",deflt=""),
+							"geom_violin_fill"=structure("geom_violin_fill",nme='size',tp="character",deflt="")
+						  ),					  
+		"geom_point"=list( "geom_point_size"=structure("geom_point_size",nme='size',tp="numeric",deflt=2)
+						  ),
+		"geom_histogram"=list( "geom_histogram_bins"=structure("geom_histogram_bins",nme='bins',tp="numeric",deflt=20)
+						  )
 	
-	get_xlog_ylog <- function (){
-	  paste0(
-		if(isTRUE(input$xlog)  ){
-			paste0("  scale_x_log10() +\n")
-		}else{""},
-		if(isTRUE(input$ylog)  ){
-			paste0("  scale_y_log10() +\n")
-		}else{""}
-	  )	
-	}
+	)
 	
+	get_panel <- function (region_property, plus = TRUE){
+		result <- "";
+	    if(isTRUE(input[[region_property]]) ){
+		  result <- paste0("  ",region_property,"(")
+		  {
+			      first_parameter <- TRUE	  
+				  for (parameter in names(parameters_list[[region_property]]) ){
+					user_input <- input[[parameter]]
+					deflt_input <- attr(parameters_list[[region_property]][[parameter]], 'deflt')
+					nme <- attr(parameters_list[[region_property]][[parameter]], 'nme')
+					tp <- attr(parameters_list[[region_property]][[parameter]], 'tp')
+					fun <- attr(parameters_list[[region_property]][[parameter]], 'fun')
+					if (isTRUE(fun)){
+						result <- paste0("  ",user_input,"(")
+						first_parameter <- TRUE	
+					}else if (isTRUE(user_input!=deflt_input)){
+						if (!first_parameter){
+							result <- paste0(result, ", ")
+						}else{
+							first_parameter <- FALSE
+						}	
+						result <- paste0(result, nme)
+						result <- paste0(result, " = ")
+						if (tp=='numeric'){
+							result <- paste0(result, user_input)
+						}else{
+							result <- paste0(result, "\"",user_input, "\"")
+						}	
+					}	
+				  }		  
+		  
+		  }
+		  result <- paste0(result, ")")
+		  if (isTRUE(plus)){
+			result <- paste0(result, " + \n")
+		  }else{
+			result <- paste0(result, "   \n")
+		  }
+	    }
+		result
+	}
+
 	get_color <- function (){
 	  color <- toString(       (plottreecolor())) #color <- toString(get_col(plottreecolor()))
 	  paste0(
@@ -455,14 +515,6 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	  )	
 	}
 	
-	get_geom_violin <- function (){
-	  paste0(
-		if(isTRUE(input$geom_violin) ){
-            paste0("  geom_violin(color=\"white\",fill=\"grey90\") + \n")
-		}else{""}
-	  )	
-	}     
-	
 	get_stat_summary <- function (){
 	  paste0(
 	    if(isTRUE(input$stat_summary) ){
@@ -475,32 +527,11 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	  )	
 	}
 	
-	get_coord_flip <- function (){
-	  paste0(
-	    if(isTRUE(input$coord_flip) ){
-			paste0("  coord_flip() + \n")
-		}else{""}
-	  )	
-	}
-	
 	get_customized_code <- function (){
 	  if(isTRUE(nchar(input$customized_code)>0) ){
 		paste0(toString(input$customized_code),'\n')
 	  }else{""}
 	}
-	
-	get_theme <- function (){
-	  if(isTRUE(nchar(input$theme)>0) ){
-		paste0("  ",toString(input$theme),'(',ifelse(as.numeric(input$base_size)!=12,paste0("base_size = ",as.numeric(input$base_size)),""),') \n')
-	  }else{""}
-	}
-	
-	get_histogram <- function (){
-	  if(isTRUE(input$histogram) ){
-		paste0("  ","geom_histogram",'(',ifelse(as.numeric(input$bins)!=30,paste0("bins = ",as.numeric(input$bins)),""),') + \n')
-	  }else{""}
-	}
-	
 	
 	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
 
@@ -524,19 +555,19 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		if(isTRUE(nchar(plottreefacet())>0) & !ptdisabletreefacet()){
 			paste0("* FACET: ",toString(plottreefacet())," \n")
 		}else{""}, 
-		if(isTRUE(nchar(input$title)>0)){
-			paste0("* TITLE: ",toString(input$title)," \n")
+		if(isTRUE(nchar(input$ggtitle)>0)){
+			paste0("* TITLE: ",toString(input$ggtitle)," \n")
 		}else{""},
-		if(isTRUE(nchar(input$xlabel)>0)  ){
-			paste0("* X LABEL: ",toString(input$xlabel)," \n")
+		if(isTRUE(nchar(input$xlab_label)>0)  ){
+			paste0("* X LABEL: ",toString(input$xlab_label)," \n")
 		}else{""},
-		if(isTRUE(nchar(input$ylabel)>0)  ){
-			paste0("* Y LABEL: ",toString(input$ylabel)," \n")
+		if(isTRUE(nchar(input$ylab_label)>0)  ){
+			paste0("* Y LABEL: ",toString(input$ylab_label)," \n")
 		}else{""},
-		if(isTRUE(input$xlog) ){
+		if(isTRUE(input$scale_x_log10) ){
 			paste0("* X AXIS: scale_x_log10() \n")
 		}else{""},
-		if(isTRUE(input$ylog) ){
+		if(isTRUE(input$scale_y_log10) ){
 			paste0("* Y AXIS: scale_y_log10() \n")
 		}else{""},
 		if(isTRUE(input$geom_violin)  ){ # & !ptdisabletreey()
@@ -558,14 +589,18 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"#(numeric x)                  "," \n",
 		"(                             "," \n",
 		" ggplot(",plotdf_(),", aes(",plottreex_(),get_color(),")) +  "," \n",
-		get_histogram(),
+		get_panel("geom_point"),
+		get_panel("geom_boxplot"),
+		get_panel("geom_bar"),
+		get_panel("geom_histogram"),
 		get_customized_code(),
-		get_geom_violin(),
+		get_panel("geom_violin"),
 		get_stat_summary(),
-		get_coord_flip(),
-		get_title_xlabel_ylabel(),
-		get_xlog_ylog(),
+		get_panel("coord_flip"),
+		get_panel("ggtitle"),get_panel("xlab"),get_panel("ylab"),
+		get_panel("scale_x_log10"),get_panel("scale_y_log10"),
 		get_facet(),
+		get_panel("theme",plus=FALSE),
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
 		
@@ -574,16 +609,18 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"#(categorical x)              "," \n",
 		"(                             "," \n",
 		" ggplot(",plotdf_(),", aes(",plottreex_(),get_color(),")) +  "," \n",
-		"  geom_bar() +                "," \n",
-		get_histogram(),
+		get_panel("geom_point"),
+		get_panel("geom_boxplot"),
+		get_panel("geom_bar"),
+		get_panel("geom_histogram"),
 		get_customized_code(),
-		get_geom_violin(),
+		get_panel("geom_violin"),
 		get_stat_summary(),
-		get_coord_flip(),
-		get_title_xlabel_ylabel(),
-		get_xlog_ylog(),
+		get_panel("coord_flip"),
+		get_panel("ggtitle"),get_panel("xlab"),get_panel("ylab"),
+		get_panel("scale_x_log10"),get_panel("scale_y_log10"),
 		get_facet(),
-		get_theme(),
+		get_panel("theme",plus=FALSE),
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
 		
@@ -592,17 +629,18 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"#(numeric y)                  "," \n",
 		"(                             "," \n",
 		" ggplot(",plotdf_(),", aes(",plottreey_(),", x = \"\"",get_color(),")) +  "," \n",
-		"  geom_boxplot() +            "," \n",
-		"  xlab(\"\") +                  "," \n",
-		get_histogram(),
+		get_panel("geom_point"),
+		get_panel("geom_boxplot"),
+		get_panel("geom_bar"),
+		get_panel("geom_histogram"),
 		get_customized_code(),
-		get_geom_violin(),
+		get_panel("geom_violin"),
 		get_stat_summary(),
-		get_coord_flip(),
-		get_title_xlabel_ylabel(),
-		get_xlog_ylog(),
+		get_panel("coord_flip"),
+		get_panel("ggtitle"),get_panel("xlab"),get_panel("ylab"),
+		get_panel("scale_x_log10"),get_panel("scale_y_log10"),
 		get_facet(),
-		get_theme(),
+		get_panel("theme",plus=FALSE),
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
 		
@@ -614,17 +652,19 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"  dplyr::group_by(",plottreey_(),") %>%        "," \n",
 		"  dplyr::summarise( count= dplyr::n()) %>%                   "," \n",
 		"  ggplot(aes(x=count, y=",plottreey_(),get_color(),")) +   "," \n",
-		"  geom_point(size=2) +                                       "," \n",
 		"  geom_errorbarh(aes(xmax=count), xmin=0, height=0) +        "," \n",
-		get_histogram(),
+		get_panel("geom_point"),
+		get_panel("geom_boxplot"),
+		get_panel("geom_bar"),
+		get_panel("geom_histogram"),
 		get_customized_code(),
-		get_geom_violin(),
+		get_panel("geom_violin"),
 		get_stat_summary(),
-		get_coord_flip(),
-		get_title_xlabel_ylabel(),
-		get_xlog_ylog(),
+		get_panel("coord_flip"),
+		get_panel("ggtitle"),get_panel("xlab"),get_panel("ylab"),
+		get_panel("scale_x_log10"),get_panel("scale_y_log10"),
 		get_facet(),
-		get_theme(),
+		get_panel("theme",plus=FALSE),
 		") %>% plotly::ggplotly()                                     "," \n"
 		)}else{""},
 		
@@ -633,16 +673,18 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"#(numeric x and y)            "," \n",
 		"(                             "," \n",
 		" ggplot(",plotdf_(),", aes(",plottreex_(),",",plottreey_(),get_color(),")) +  "," \n",
-		"  geom_point() +              "," \n",
-		get_histogram(),
+		get_panel("geom_point"),
+		get_panel("geom_boxplot"),
+		get_panel("geom_bar"),
+		get_panel("geom_histogram"),
 		get_customized_code(),
-		get_geom_violin(),
+		get_panel("geom_violin"),
 		get_stat_summary(),
-		get_coord_flip(),
-		get_title_xlabel_ylabel(),
-		get_xlog_ylog(),
+		get_panel("coord_flip"),
+		get_panel("ggtitle"),get_panel("xlab"),get_panel("ylab"),
+		get_panel("scale_x_log10"),get_panel("scale_y_log10"),
 		get_facet(),
-		get_theme(),
+		get_panel("theme",plus=FALSE),
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
 		
@@ -651,16 +693,18 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"#(categorical x numeric y)    "," \n",
 		"(                             "," \n",
 		" ggplot(",plotdf_(),", aes(",plottreex_(),",",plottreey_(),get_color(),")) +  "," \n",
-		"  geom_boxplot() +            "," \n",
-		get_histogram(),
+		get_panel("geom_point"),
+		get_panel("geom_boxplot"),
+		get_panel("geom_bar"),
+		get_panel("geom_histogram"),
 		get_customized_code(),
-		get_geom_violin(),
+		get_panel("geom_violin"),
 		get_stat_summary(),
-		get_coord_flip(),
-		get_title_xlabel_ylabel(),
-		get_xlog_ylog(),
+		get_panel("coord_flip"),
+		get_panel("ggtitle"),get_panel("xlab"),get_panel("ylab"),
+		get_panel("scale_x_log10"),get_panel("scale_y_log10"),
 		get_facet(),
-		get_theme(),
+		get_panel("theme",plus=FALSE),
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
 		
@@ -669,15 +713,18 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"#(numeric x categorical y)    "," \n",
 		"#(                             "," \n",
 		" ggplot(",plotdf_(),", aes(",plottreex_(),",",plottreey_(),get_color(),")) +  "," \n",
-		#get_histogram(),
+		get_panel("geom_point"),
+		get_panel("geom_boxplot"),
+		get_panel("geom_bar"),
+		get_panel("geom_histogram"),
 		get_customized_code(),
-		get_geom_violin(),
+		get_panel("geom_violin"),
 		get_stat_summary(),
-		get_coord_flip(),
-		get_title_xlabel_ylabel(),
-		get_xlog_ylog(),
+		get_panel("coord_flip"),
+		get_panel("ggtitle"),get_panel("xlab"),get_panel("ylab"),
+		get_panel("scale_x_log10"),get_panel("scale_y_log10"),
 		get_facet(),
-		#get_theme(),
+		#get_panel("theme",plus=FALSE),
 		"  ggridges::stat_binline(bins = 50, scale = .7, draw_baseline = FALSE) +     "," \n",
 		"  ggridges::theme_ridges()               "," \n",
 		"#) %>% plotly::ggplotly()      "," \n"
@@ -690,15 +737,18 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		" ggplot(",plotdf_(),", aes(x=seq_along(",plottreex_(),"),y=",plottreey_(),", fill=stat(count)",get_color(),")) +  "," \n",
 		"  stat_bin2d() +              "," \n",
 		"  scale_fill_gradient2() +     "," \n",
-		get_histogram(),
+		get_panel("geom_point"),
+		get_panel("geom_boxplot"),
+		get_panel("geom_bar"),
+		get_panel("geom_histogram"),
 		get_customized_code(),
-		get_geom_violin(),
+		get_panel("geom_violin"),
 		get_stat_summary(),
-		get_coord_flip(),
-		get_title_xlabel_ylabel(),
-		get_xlog_ylog(),
+		get_panel("coord_flip"),
+		get_panel("ggtitle"),get_panel("xlab"),get_panel("ylab"),
+		get_panel("scale_x_log10"),get_panel("scale_y_log10"),
 		get_facet(),
-		get_theme(),
+		get_panel("theme",plus=FALSE),
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},		
 		
@@ -709,15 +759,18 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"(                             "," \n",
 		" ggplot(",plotdf_(),", aes(x=seq_along(",plottreex_(),"),y=",plottreey_(),get_color(),")) +  "," \n",
 		"  geom_line() +            "," \n",
-		get_histogram(),
+		get_panel("geom_point"),
+		get_panel("geom_boxplot"),
+		get_panel("geom_bar"),
+		get_panel("geom_histogram"),
 		get_customized_code(),
-		get_geom_violin(),
+		get_panel("geom_violin"),
 		get_stat_summary(),
-		get_coord_flip(),
-		get_title_xlabel_ylabel(),
-		get_xlog_ylog(),
+		get_panel("coord_flip"),
+		get_panel("ggtitle"),get_panel("xlab"),get_panel("ylab"),
+		get_panel("scale_x_log10"),get_panel("scale_y_log10"),
 		get_facet(),
-		get_theme(),
+		get_panel("theme",plus=FALSE),
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
 
@@ -725,15 +778,18 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"(                             "," \n",
 		" ggplot(",plotdf_(),", aes(x=seq_along(",plottreex_(),"),y=",plottreey_(),get_color(),",)) +  "," \n",
 		"  geom_area() +            "," \n",
-		get_histogram(),
+		get_panel("geom_point"),
+		get_panel("geom_boxplot"),
+		get_panel("geom_bar"),
+		get_panel("geom_histogram"),
 		get_customized_code(),
-		get_geom_violin(),
+		get_panel("geom_violin"),
 		get_stat_summary(),
-		get_coord_flip(),
-		get_title_xlabel_ylabel(),
-		get_xlog_ylog(),
+		get_panel("coord_flip"),
+		get_panel("ggtitle"),get_panel("xlab"),get_panel("ylab"),
+		get_panel("scale_x_log10"),get_panel("scale_y_log10"),
 		get_facet(),
-		get_theme(),
+		get_panel("theme",plus=FALSE),
 		") %>% plotly::ggplotly()      "," \n"
 		)}else{""},
 
