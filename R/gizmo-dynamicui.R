@@ -697,8 +697,8 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		if(isTRUE(nchar(plottreefacet())>0) & !ptdisabletreefacet()){
 		  paste0("* FACET: ",toString(plottreefacet())," \n")
 		}else{""}, 
-		if(isTRUE(nchar(input$ggtitle)>0)){
-		  paste0("* TITLE: ",toString(input$ggtitle)," \n")
+		if(isTRUE(nchar(input$ggtitle_label)>0)){
+		  paste0("* TITLE: ",toString(input$ggtitle_label)," \n")
 		}else{""},
 		if(isTRUE(nchar(input$xlab_label)>0)  ){
 		  paste0("* X LABEL: ",toString(input$xlab_label)," \n")
