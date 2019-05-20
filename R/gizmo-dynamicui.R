@@ -67,58 +67,95 @@ ctrlB <- function (ns, ctrlname, ...){
 
 test_gizmo_dynamic_ui <- function(ns) {
   fluidPage(
-	ctrlJS(),
-	ctrlA(ns,"datatreept"),tags$br(),
-	ctrlA(ns,"datatreedf"),tags$br(),
-	ctrlA(ns,"datatreex"),tags$br(),
-	ctrlA(ns,"datatreey"),tags$br(),
+    ctrlJS(),
+    ctrlA(ns,"datatreept"),tags$br(),
+    ctrlA(ns,"datatreedf"),tags$br(),
+    ctrlA(ns,"datatreex"),tags$br(),
+    ctrlA(ns,"datatreey"),tags$br(),
     tags$br(),
-	fluidRow(
-	  column(6,ctrlA(ns,"datatreecolor")),
-	  column(6,ctrlA(ns,"datatreefacet"))
-	),
-	tags$br(),
-	fluidRow(
+    fluidRow(
+      column(6,ctrlA(ns,"datatreecolor")),
+      column(6,ctrlA(ns,"datatreefacet"))
+    ),
+    tags$br(),
+    fluidRow(
       ctrlB(ns,"general-panel",
-	    checkboxInput(ns("ggtitle"), "GGTITLE"),
-		textInput(ns("ggtitle_label"), "GGTITLE  LABEL"),
-		checkboxInput(ns("stat_summary"), "STAT SUMMARY", FALSE)),
+            checkboxInput(ns("ggtitle"), "GGTITLE"),
+            textInput(ns("ggtitle_label"), "GGTITLE  LABEL"),
+            checkboxInput(ns("stat_summary"), "STAT SUMMARY", FALSE)),
       ctrlB(ns,"x-axis-panel",
-	    checkboxInput(ns("xlab"), "X LAB"),
-        textInput(ns("xlab_label"), "X LAB LABEL"),
-		checkboxInput(ns("scale_x_log10"), "SCALE X LOG 10", FALSE)),
+            checkboxInput(ns("xlab"), "X LAB"),
+            textInput(ns("xlab_label"), "X LAB LABEL"),
+            checkboxInput(ns("scale_x_log10"), "SCALE X LOG 10", FALSE)),
       ctrlB(ns,"y-axis-panel",
-	    checkboxInput(ns("ylab"), "Y LAB"),
-        textInput(ns("ylab_label"), "Y LAB LABEL"),
-		checkboxInput(ns("scale_y_log10"), "SCALE Y LOG 10", FALSE)),
-	  ctrlB(ns,"coord_flip-panel",
-	    checkboxInput(ns("coord_flip"), "COORD FLIP")),
+            checkboxInput(ns("ylab"), "Y LAB"),
+            textInput(ns("ylab_label"), "Y LAB LABEL"),
+            checkboxInput(ns("scale_y_log10"), "SCALE Y LOG 10", FALSE)),
+      ctrlB(ns,"coord_flip-panel",
+            checkboxInput(ns("coord_flip"), "COORD FLIP")),
       ctrlB(ns,"debug-panel",
-        textAreaInput(ns("customized_code"), "CUSTOMIZED CODE", width='100%')),
-	  ctrlB(ns,"theme-panel",
-	    checkboxInput(ns("theme"), "THEME", TRUE),
-        pickerInput(ns("theme_fun"), label = "THEME FUN", choices = theme_choices(), selected = "theme_bw" ), 
-		numericInput(ns("theme_base_size"), "THEME BASE SIZE", 12, min = 1, max = 100)),
-	  ctrlB(ns,"geom_violin-panel",
-	    checkboxInput(ns("geom_violin"), "VIOLIN"),
-		textInput(ns("geom_violin_color"), "VIOLIN COLOR", "white"),
-		textInput(ns("geom_violin_fill"), "VIOLIN FILL", "grey90")),
-	  ctrlB(ns,"geom_histogram-panel",
-	    checkboxInput(ns("geom_histogram"), "HISTOGRAM"),
-		numericInput(ns("geom_histogram_bins"), "BINS", 20, min = 1, max = 100)),
-	  ctrlB(ns,"geom_bar-panel",
-	    checkboxInput(ns("geom_bar"), "BAR")),
-	  ctrlB(ns,"geom_boxplot-panel",
-	    checkboxInput(ns("geom_boxplot"), "BOXPLOT")),
-	  ctrlB(ns,"geom_point-panel",
-	    checkboxInput(ns("geom_point"), "POINT"),
-		numericInput(ns("geom_point_size"), "POINT SIZE", 2, min = 1, max = 100)
-		)
-	),
+            textAreaInput(ns("customized_code"), "CUSTOMIZED CODE", width='100%')),
+      ctrlB(ns,"theme-panel",
+            checkboxInput(ns("theme"), "THEME", TRUE),
+            pickerInput(ns("theme_fun"), label = "THEME FUN", choices = theme_choices(), selected = "theme_bw" ), 
+            numericInput(ns("theme_base_size"), "THEME BASE SIZE", 12, min = 1, max = 100)),
+      ctrlB(ns,"geom_violin-panel",
+            checkboxInput(ns("geom_violin"), "VIOLIN"),
+            textInput(ns("geom_violin_color"), "VIOLIN COLOR", "white"),
+            textInput(ns("geom_violin_fill"), "VIOLIN FILL", "grey90")),
+      ctrlB(ns,"geom_histogram-panel",
+            checkboxInput(ns("geom_histogram"), "HISTOGRAM"),
+            numericInput(ns("geom_histogram_bins"), "BINS", 20, min = 1, max = 100)),
+      ctrlB(ns,"geom_bar-panel",
+            checkboxInput(ns("geom_bar"), "BAR")),
+      ctrlB(ns,"geom_boxplot-panel",
+            checkboxInput(ns("geom_boxplot"), "BOXPLOT")),
+      ctrlB(ns,"geom_point-panel",
+            checkboxInput(ns("geom_point"), "POINT"),
+            numericInput(ns("geom_point_size"), "POINT SIZE", 2, min = 1, max = 100)),
+      ctrlB(ns,"geom_line-panel",
+            checkboxInput(ns("geom_line"), "LINE")),
+      ctrlB(ns,"geom_area-panel",
+            checkboxInput(ns("geom_area"), "AREA")),
+      ctrlB(ns,"stat_bin2d-panel",
+            checkboxInput(ns("stat_bin2d"), "BIN2D")),
+      ctrlB(ns,"scale_fill_gradient2-panel",
+            checkboxInput(ns("scale_fill_gradient2"), "SCALE FILL GRADIENT2"))
+			
+    ),
     tags$br(),
-	tags$br()
+    tags$br()
   )
 }
+
+parameters_list=list(
+  "coord_flip"=list(),
+  "scale_x_log10"=list(),
+  "scale_y_log10"=list(),
+  "geom_line"=list(),
+  "geom_area"=list(),
+  "stat_bin2d"=list(),
+  "scale_fill_gradient2"=list(),
+  "theme"=list( "theme_fun"=structure("theme_fun",nme='theme_fun',tp="character",deflt="",fun=TRUE),
+                "theme_base_size"=structure("theme_base_size",nme='base_size',tp="numeric",deflt=12)
+  ),
+  "ggtitle"=list( "ggtitle_label"=structure("ggtitle_label",nme='label',tp="character",deflt="")
+  ),
+  "xlab"=list( "xlab_label"=structure("xlab_label",nme='label',tp="character",deflt="")
+  ),
+  "ylab"=list( "ylab_label"=structure("ylab_label",nme='label',tp="character",deflt="")
+  ),					  
+  "geom_violin"=list( "geom_violin_color"=structure("geom_violin_color",nme='size',tp="character",deflt=""),
+                      "geom_violin_fill"=structure("geom_violin_fill",nme='size',tp="character",deflt="")
+  ),					  
+  "geom_point"=list( "geom_point_size"=structure("geom_point_size",nme='size',tp="numeric",deflt=2)
+  ),
+  "geom_histogram"=list( "geom_histogram_bins"=structure("geom_histogram_bins",nme='bins',tp="numeric",deflt=20)
+  )
+  
+)
+	
+
 
 test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 
@@ -396,6 +433,10 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	ctrl7(c('bar'),"geom_bar")
 	ctrl7(c('box','box2'),"geom_boxplot")
 	ctrl7(c('bar2','scatter'),"geom_point")
+	ctrl7(c('grid'),"stat_bin2d")
+	ctrl7(c('line'),"geom_line")
+	ctrl7(c('area'),"geom_area")
+	ctrl7(c('grid'),"scale_fill_gradient2")
 	
 	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
 	
@@ -432,29 +473,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	
 	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
 	
-	parameters_list=list(
-		"coord_flip"=list(),
-		"scale_x_log10"=list(),
-		"scale_y_log10"=list(),
-		"theme"=list( "theme_fun"=structure("theme_fun",nme='theme_fun',tp="character",deflt="",fun=TRUE),
-					  "theme_base_size"=structure("theme_base_size",nme='base_size',tp="numeric",deflt=12)
-						  ),
-		"ggtitle"=list( "ggtitle_label"=structure("ggtitle_label",nme='label',tp="character",deflt="")
-						  ),
-		"xlab"=list( "xlab_label"=structure("xlab_label",nme='label',tp="character",deflt="")
-						  ),
-		"ylab"=list( "ylab_label"=structure("ylab_label",nme='label',tp="character",deflt="")
-						  ),					  
-		"geom_violin"=list( "geom_violin_color"=structure("geom_violin_color",nme='size',tp="character",deflt=""),
-							"geom_violin_fill"=structure("geom_violin_fill",nme='size',tp="character",deflt="")
-						  ),					  
-		"geom_point"=list( "geom_point_size"=structure("geom_point_size",nme='size',tp="numeric",deflt=2)
-						  ),
-		"geom_histogram"=list( "geom_histogram_bins"=structure("geom_histogram_bins",nme='bins',tp="numeric",deflt=20)
-						  )
-	
-	)
-	
+
 	get_panel <- function (region_property, plus = TRUE){
 		result <- "";
 	    if(isTRUE(input[[region_property]]) ){
@@ -609,6 +628,10 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"#(categorical x)              "," \n",
 		"(                             "," \n",
 		" ggplot(",plotdf_(),", aes(",plottreex_(),get_color(),")) +  "," \n",
+		get_panel("stat_bin2d"),
+		get_panel("geom_line"),
+		get_panel("geom_area"),
+		get_panel("scale_fill_gradient2"),
 		get_panel("geom_point"),
 		get_panel("geom_boxplot"),
 		get_panel("geom_bar"),
@@ -653,6 +676,10 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"  dplyr::summarise( count= dplyr::n()) %>%                   "," \n",
 		"  ggplot(aes(x=count, y=",plottreey_(),get_color(),")) +   "," \n",
 		"  geom_errorbarh(aes(xmax=count), xmin=0, height=0) +        "," \n",
+		get_panel("stat_bin2d"),
+		get_panel("geom_line"),
+		get_panel("geom_area"),
+		get_panel("scale_fill_gradient2"),
 		get_panel("geom_point"),
 		get_panel("geom_boxplot"),
 		get_panel("geom_bar"),
@@ -673,6 +700,10 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"#(numeric x and y)            "," \n",
 		"(                             "," \n",
 		" ggplot(",plotdf_(),", aes(",plottreex_(),",",plottreey_(),get_color(),")) +  "," \n",
+		get_panel("stat_bin2d"),
+		get_panel("geom_line"),
+		get_panel("geom_area"),
+		get_panel("scale_fill_gradient2"),
 		get_panel("geom_point"),
 		get_panel("geom_boxplot"),
 		get_panel("geom_bar"),
@@ -693,6 +724,10 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"#(categorical x numeric y)    "," \n",
 		"(                             "," \n",
 		" ggplot(",plotdf_(),", aes(",plottreex_(),",",plottreey_(),get_color(),")) +  "," \n",
+		get_panel("stat_bin2d"),
+		get_panel("geom_line"),
+		get_panel("geom_area"),
+		get_panel("scale_fill_gradient2"),
 		get_panel("geom_point"),
 		get_panel("geom_boxplot"),
 		get_panel("geom_bar"),
@@ -713,6 +748,10 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"#(numeric x categorical y)    "," \n",
 		"#(                             "," \n",
 		" ggplot(",plotdf_(),", aes(",plottreex_(),",",plottreey_(),get_color(),")) +  "," \n",
+		get_panel("stat_bin2d"),
+		get_panel("geom_line"),
+		get_panel("geom_area"),
+		get_panel("scale_fill_gradient2"),
 		get_panel("geom_point"),
 		get_panel("geom_boxplot"),
 		get_panel("geom_bar"),
@@ -735,8 +774,10 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"#(categorical x categorical y)"," \n",
 		"(                             "," \n",
 		" ggplot(",plotdf_(),", aes(x=seq_along(",plottreex_(),"),y=",plottreey_(),", fill=stat(count)",get_color(),")) +  "," \n",
-		"  stat_bin2d() +              "," \n",
-		"  scale_fill_gradient2() +     "," \n",
+		get_panel("stat_bin2d"),
+		get_panel("geom_line"),
+		get_panel("geom_area"),
+		get_panel("scale_fill_gradient2"),
 		get_panel("geom_point"),
 		get_panel("geom_boxplot"),
 		get_panel("geom_bar"),
@@ -758,7 +799,10 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		if (plottype_()=="line" & plottreex_()!="" & plottreey_()!="" ){paste0(
 		"(                             "," \n",
 		" ggplot(",plotdf_(),", aes(x=seq_along(",plottreex_(),"),y=",plottreey_(),get_color(),")) +  "," \n",
-		"  geom_line() +            "," \n",
+		get_panel("stat_bin2d"),
+		get_panel("geom_line"),
+		get_panel("geom_area"),
+		get_panel("scale_fill_gradient2"),
 		get_panel("geom_point"),
 		get_panel("geom_boxplot"),
 		get_panel("geom_bar"),
@@ -777,7 +821,10 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		if (plottype_()=="area" & plottreex_()!="" & plottreey_()!="" ){paste0(
 		"(                             "," \n",
 		" ggplot(",plotdf_(),", aes(x=seq_along(",plottreex_(),"),y=",plottreey_(),get_color(),",)) +  "," \n",
-		"  geom_area() +            "," \n",
+		get_panel("stat_bin2d"),
+		get_panel("geom_line"),
+		get_panel("geom_area"),
+		get_panel("scale_fill_gradient2"),
 		get_panel("geom_point"),
 		get_panel("geom_boxplot"),
 		get_panel("geom_bar"),
