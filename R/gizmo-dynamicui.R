@@ -1,12 +1,12 @@
 ctrlJS <- function (...){
   tags$i(
     shinyjs::inlineCSS(".no_checkbox>i.jstree-checkbox { display:none }"),
-    shinyjs::inlineCSS(".fa-tag-integer { color: brown }"),
+    shinyjs::inlineCSS(".fa-tag-integer { color: darkorange }"),
     shinyjs::inlineCSS(".fa-tag-numeric { color: orange }"),
     shinyjs::inlineCSS(".fa-tag-character { color: green }"),
 	shinyjs::inlineCSS(".fa-tag-Date { color: red }"),
-	shinyjs::inlineCSS(".fa-tag-ts { color: red }"),
-	shinyjs::inlineCSS(".fa-tag-orderedfactor { color: purple }"),
+	shinyjs::inlineCSS(".fa-tag-ts { color: darkred }"),
+	shinyjs::inlineCSS(".fa-tag-orderedfactor { color: darkorchid }"),
 	shinyjs::inlineCSS(".fa-tag-factor { color: purple }"),
     shinyjs::inlineCSS(".jstree-anchor>.fa-tag-black { color: black }")
   )
@@ -31,10 +31,13 @@ ctrlA <- function (ns, ctrlname, ...){
         tags$i(class = "fa fa-tags", "data.frame"),
 		tags$br(),
         tags$i(class = "fa fa-tag fa-tag-integer", "integer"),
-        tags$i(class = "fa fa-tag fa-tag-numeric", "numeric"),
-        tags$i(class = "fa fa-tag fa-tag-character", "character"),		
+        tags$i(class = "fa fa-tag fa-tag-numeric", "numeric"),		
 		tags$i(class = "fa fa-tag fa-tag-Date", "Date"),
-	    tags$i(class = "fa fa-tag fa-tag-factor", "factor")
+		tags$i(class = "fa fa-tag fa-tag-ts", "ts"),
+		tags$br(),
+        tags$i(class = "fa fa-tag fa-tag-character", "character"),
+	    tags$i(class = "fa fa-tag fa-tag-factor", "factor"),
+		tags$i(class = "fa fa-tag fa-tag-orderedfactor", "orderedfactor")
       ),
       tags$script(paste0("document.getElementById('",paste0("dropdown-menu-",ns(paste0("ii",ctrlname))),"').style.maxHeight='400px'")),
 	  tags$script(paste0("document.getElementById('",paste0("dropdown-menu-",ns(paste0("ii",ctrlname))),"').style.minWidth='300px'")),
@@ -159,13 +162,13 @@ parameters_list=list(
   "scale_x_log10"=list(),
   "scale_y_log10"=list(),
   "ggplot"=list(
-	"ggplot_data"=structure("ggplot_data",nme='data',tp="noquote",deflt="")
+    "ggplot_data"=structure("ggplot_data",nme='data',tp="noquote",deflt="")
   ),
   "aes"=list(
-	"aes_x"=structure("aes_x",nme='x',tp="noquote",deflt=""),
-	"aes_y"=structure("aes_y",nme='y',tp="noquote",deflt=""),
-	"aes_color"=structure("aes_color",nme='color',tp="noquote",deflt=""),
-	"aes_fill"=structure("aes_fill",nme='fill',tp="noquote",deflt="")
+    "aes_x"=structure("aes_x",nme='x',tp="noquote",deflt=""),
+    "aes_y"=structure("aes_y",nme='y',tp="noquote",deflt=""),
+    "aes_color"=structure("aes_color",nme='color',tp="noquote",deflt=""),
+    "aes_fill"=structure("aes_fill",nme='fill',tp="noquote",deflt="")
   ),
   "geom_line"=list(),
   "geom_area"=list(),
@@ -188,26 +191,23 @@ parameters_list=list(
   "geom_histogram"=list( "geom_histogram_bins"=structure("geom_histogram_bins",nme='bins',tp="noquote",deflt=Inf)
   ),
   "stat_binline"=structure(list(
-	"stat_binline_bins"=structure("ggridges::stat_binline_bins",nme='bins',tp="noquote",deflt=30),
-	"stat_binline_draw_baseline"=structure("ggridges::stat_binline_draw_baseline",nme='draw_baseline',tp="noquote",deflt=0)
+    "stat_binline_bins"=structure("ggridges::stat_binline_bins",nme='bins',tp="noquote",deflt=30),
+    "stat_binline_draw_baseline"=structure("ggridges::stat_binline_draw_baseline",nme='draw_baseline',tp="noquote",deflt=0)
   ), alt="ggridges::stat_binline"),
   "theme_ridges"=structure(list(), alt="ggridges::theme_ridges"),
   "facet_wrap"=list(
-	"facet_wrap_facets"=structure("facet_wrap_facets",nme='facets',tp="noquote",deflt="")
+    "facet_wrap_facets"=structure("facet_wrap_facets",nme='facets',tp="noquote",deflt="")
   ),
   "stat_summary"=list(
-	"stat_summary_fun_data"=structure("stat_summary_fun_data",nme='fun.data',tp="noquote",deflt=""),
-	"stat_summary_color"=structure("stat_summary_color",nme='color',tp="yesquote",deflt="")
+    "stat_summary_fun_data"=structure("stat_summary_fun_data",nme='fun.data',tp="noquote",deflt=""),
+    "stat_summary_color"=structure("stat_summary_color",nme='color',tp="yesquote",deflt="")
   ),
   "geom_errorbarh"=list(
-	"geom_errorbarh_mapping"=structure("geom_errorbarh_mapping",nme='mapping',tp="noquote",deflt=""),
-	"geom_errorbarh_xmin"=structure("geom_errorbarh_xmin",nme='xmin',tp="noquote",deflt=""),
-	"geom_errorbarh_height"=structure("geom_errorbarh_height",nme='height',tp="noquote",deflt="")
+    "geom_errorbarh_mapping"=structure("geom_errorbarh_mapping",nme='mapping',tp="noquote",deflt=""),
+    "geom_errorbarh_xmin"=structure("geom_errorbarh_xmin",nme='xmin',tp="noquote",deflt=""),
+    "geom_errorbarh_height"=structure("geom_errorbarh_height",nme='height',tp="noquote",deflt="")
   )
 )
-	
-
-
 
 test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 
@@ -468,10 +468,9 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	plottreey_ <- reactive(toString(get_col(plottreey())))
 	plottreecolor_ <- reactive(toString(plottreecolor()))
 	plottreefacet_ <- reactive(toString(plottreefacet()))
-	
-	
 	plottype_ <- reactive(toString(pt_autofree(plottype())))
 	
+	#-------LOGICAL SEPERATION-------------------------------------------------------------------#	
 	
 	observeEvent(c(plotdf_(),plottype_(),plottreey_()), { 
 	    if(plottype_()=="bar2"){
@@ -509,8 +508,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	
 	observeEvent(plottreecolor_(),{ updateTextInput(session, "aes_color", value = plottreecolor_() ) } ,ignoreNULL = FALSE)	
 	
-	observeEvent(plottreefacet_(),{ 
-	
+	observeEvent(plottreefacet_(),{ 	
 		updateTextInput(session, "facet_wrap_facets", value = plottreefacet_() ) 
 		if(nchar(plottreefacet_())>0){
 		  updateCheckboxInput(session,"facet_wrap", value=TRUE)
@@ -520,21 +518,16 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	
 	} ,ignoreNULL = FALSE)
 	
-
-	
-	
-	
 	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
-
 	
 	ctrl7 <- function (matchtypes, tocheckbox){
-		observeEvent(plottype_(),{
-			if( is.element(plottype_(),matchtypes) ){
-				updateCheckboxInput(session, tocheckbox, value = TRUE)
-			}else{
-				updateCheckboxInput(session, tocheckbox, value = FALSE)
-			}
-		})
+	  observeEvent(plottype_(),{
+		if( is.element(plottype_(),matchtypes) ){
+		  updateCheckboxInput(session, tocheckbox, value = TRUE)
+		}else{
+		  updateCheckboxInput(session, tocheckbox, value = FALSE)
+		}
+	  })
 	}
 
 	ctrl7(c('auto','area','bar','bar2','box','box2','grid','histogram','histogram2','line','scatter'),"ggplot")
@@ -945,7 +938,7 @@ judge_numeric <- function (res){
   !judge_categorical(res)
 }
 judge_categorical <- function (res){
-  is.element(res['dt'],c('orderedfactor','factor','character'))
+  is.element(res['dt'],c('character','factor','orderedfactor'))
 }
 #Date ts are unknown type
 
