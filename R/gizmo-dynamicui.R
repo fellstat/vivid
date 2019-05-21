@@ -151,7 +151,7 @@ test_gizmo_dynamic_ui <- function(ns) {
     ctrlA(ns,"datatreept"),tags$br(),    
 	ctrlA(ns,"treex"),tags$br(),
 	ctrlA(ns,"treey"),tags$br(),
-	ctrlA(ns,"treecolour"),tags$br(),
+	ctrlA(ns,"treecolor"),tags$br(),
 	ctrlA(ns,"treefacet"),tags$br(),
     tags$br(),
     fluidRow(
@@ -299,7 +299,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		plot_[[MEXICO]] <- reactive(toString(format_local(extract_local(inputdata[[MEXICO]]))))
 		plot__[[MEXICO]] <- reactive(toString(get_col(format_local(extract_local(inputdata[[MEXICO]])))))
 	}
-	for ( MEXICO in c( "treex", "treey", "treecolour", "treefacet") ){
+	for ( MEXICO in c( "treex", "treey", "treecolor", "treefacet") ){
 		CtrlN(MEXICO)
 	}
 	
@@ -361,7 +361,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	
 	observeEvent(plot__[['treey']](),{ updateTextInput(session, "aes_y", value = plot__[['treey']]() ) } ,ignoreNULL = FALSE)
 	
-	observeEvent(plot_[["treecolour"]](),{ updateTextInput(session, "aes_color", value = plot_[["treecolour"]]() );} ,ignoreNULL = FALSE)	
+	observeEvent(plot_[["treecolor"]](),{ updateTextInput(session, "aes_color", value = plot_[["treecolor"]]() );} ,ignoreNULL = FALSE)	
 	
 	observeEvent(plot_[['treefacet']](),{ 	
 		updateTextInput(session, "facet_wrap_facets", value = plot_[['treefacet']]() ) 
@@ -550,8 +550,8 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		  paste0("* Y: ",toString(plot[['treey']]())," \n")
 		}else{""},  
 		
-		if(isTRUE(nchar(plot[["treecolour"]]())>0) & !ptdisable[["treecolour"]]){
-		  paste0("* COLOR: ",toString(plot[["treecolour"]]())," \n")
+		if(isTRUE(nchar(plot[["treecolor"]]())>0) & !ptdisable[["treecolor"]]){
+		  paste0("* COLOR: ",toString(plot[["treecolor"]]())," \n")
 		}else{""},  
 		if(isTRUE(nchar(plot[['treefacet']]())>0) & !ptdisable[['treefacet']]){
 		  paste0("* FACET: ",toString(plot[['treefacet']]())," \n")
