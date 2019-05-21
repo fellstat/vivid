@@ -50,7 +50,7 @@ ctrlA <- function (ns, ctrlname, ...){
     )
 }
 
-ctrlKB <- function (ns, ctrlname, ...){
+ctrlKD <- function (ns, ctrlname, ...){
   shiny::column(3,shinyWidgets::dropdown(
 	    ...,
         circle = FALSE,
@@ -124,7 +124,7 @@ parameters_list=list(
 CtrlK <- function(ns){
   AA=list();
   for (region_property in names(parameters_list)){
-    BB=tags$div(ctrlKB(ns,paste0(region_property,"-panel"), {
+    BB=tags$div(ctrlKD(ns,paste0(region_property,"-panel"), {
       CC=list(tags$div(checkboxInput(ns(region_property), toupper(region_property))));
       for (parameter in names(parameters_list[[region_property]]) ){
         DD=NULL        
@@ -147,31 +147,25 @@ CtrlK <- function(ns){
 test_gizmo_dynamic_ui <- function(ns) {
   fluidPage(
     ctrlJS(),
-    ctrlA(ns,"datatreept"),tags$br(),
-    ctrlA(ns,"datatreedf"),tags$br(),
-    ctrlA(ns,"datatreex"),tags$br(),
-    ctrlA(ns,"datatreey"),tags$br(),
-    tags$br(),
-    fluidRow(
-      column(6,ctrlA(ns,"datatreecolor")),
-      column(6,ctrlA(ns,"datatreefacet"))
-    ),
-	ctrlA(ns,"treeUSA"),tags$br(),
+	ctrlA(ns,"datatreedf"),tags$br(),
+    ctrlA(ns,"datatreept"),tags$br(),    
+	ctrlA(ns,"treex"),tags$br(),
+	ctrlA(ns,"treey"),tags$br(),
+	ctrlA(ns,"treecolour"),tags$br(),
+	ctrlA(ns,"treefacet"),tags$br(),
     tags$br(),
     fluidRow(
       CtrlK(ns)
     ),
     tags$br(),
     fluidRow(
-      ctrlKB(ns,"debug-panel",
+      ctrlKD(ns,"debug-panel",
             radioButtons(ns("plotlyoverlay"), label=NULL, choices = c("plotly", "ggplot"), selected = "plotly", inline=TRUE),
             textAreaInput(ns("customized_code"), "CUSTOMIZED CODE", width='100%'))			
     ),
     tags$br()
   )
 }
-
-
 
 test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 
@@ -188,11 +182,6 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
       datasets(obj$Tree0s)
 	  datadfs (obj$Traa0s)
     })
-
-	ptdisabletreex <- reactiveVal(FALSE)
-	ptdisabletreey <- reactiveVal(FALSE)
-	ptdisabletreecolor <- reactiveVal(FALSE)
-	ptdisabletreefacet <- reactiveVal(FALSE)
 
 	#input DATA FRAME
 	output$datatreedf <- shinyTree::renderTree(datadfs())
@@ -219,220 +208,14 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		}else{
 			outputdatatreedf_old(datadfs())
 		}		
-	})	
-    plotdf <- reactive( format_local2(extract_local2(outputdatatreedf_old())) )
-    output$lbdatatreedf <- renderText(paste("DATA FRAME: ", {
+	})
+	output$lbdatatreedf <- renderText(paste("DATA FRAME: ", {
       toStringB(extract_local2(outputdatatreedf_old()))
     }))
-
-   	#input X
-	output$datatreex <- shinyTree::renderTree(filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old()),outputdatatreex_old()),ptdisabletreex()) )
-	outputdatatreex_old <- reactiveVal(NAlist())
-	inputdatatreex <- reactiveVal(NAlist())
-	observeEvent(ptdisabletreex(),{inputdatatreex(filter_dis(outputdatatreex_old(),ptdisabletreex())) } ,ignoreNULL = FALSE)
-	observeEvent(outputdatatreex_old(),{inputdatatreex(filter_dis(outputdatatreex_old(),ptdisabletreex())) } ,ignoreNULL = FALSE)	
-	observeEvent(input$datatreex,{
-		T <- extract_local(input$datatreex)		
-		if(length(T)>2){
-			shinyTree::updateTree(session, "datatreex",  outputdatatreex_old() )
-		}else if(length(T)==2){
-		    if(isTRUE(attr(outputdatatreex_old()[[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected'))){
-				outputdatatreex_temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
-				attr(outputdatatreex_temp[[T[[2]][['package']]]][[T[[2]][['data']]]][[T[[2]][['col']]]],'stselected')=TRUE
-				outputdatatreex_old(outputdatatreex_temp)
-			}else{
-				outputdatatreex_temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
-				attr(outputdatatreex_temp[[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected')=TRUE
-				outputdatatreex_old(outputdatatreex_temp)
-			}			
-			shinyTree::updateTree(session, "datatreex",  outputdatatreex_old() )
-		}else if(length(T)==1){
-			outputdatatreex_temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
-			attr(outputdatatreex_temp[[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected')=TRUE
-			outputdatatreex_old(outputdatatreex_temp)
-		}else{
-			outputdatatreex_old(filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE))
-		}
-	} ,ignoreNULL = FALSE)
-	observeEvent(plotdf(),{outputdatatreex_old(NAlist())} ,ignoreNULL = FALSE)
-	plottreex <- reactive(format_local(extract_local(inputdatatreex())))
-    output$lbdatatreex <- renderText(paste("X: ", {
-      toStringB(extract_local(inputdatatreex()),ptdisabletreex())
-    }))
-
-   	#input Y
-	output$datatreey <- shinyTree::renderTree(filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old()),outputdatatreey_old()),ptdisabletreey()) )
-	outputdatatreey_old <- reactiveVal(NAlist())
-	inputdatatreey <- reactiveVal(NAlist())
-	observeEvent(ptdisabletreey(),{inputdatatreey(filter_dis(outputdatatreey_old(),ptdisabletreey())) } ,ignoreNULL = FALSE)	
-	observeEvent(outputdatatreey_old(),{inputdatatreey(filter_dis(outputdatatreey_old(),ptdisabletreey())) } ,ignoreNULL = FALSE)	
-	observeEvent(input$datatreey,{
-		T <- extract_local(input$datatreey)		
-		if(length(T)>2){
-			shinyTree::updateTree(session, "datatreey",  outputdatatreey_old() )
-		}else if(length(T)==2){
-		    if(isTRUE(attr(outputdatatreey_old()[[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected'))){
-				outputdatatreey_temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
-				attr(outputdatatreey_temp[[T[[2]][['package']]]][[T[[2]][['data']]]][[T[[2]][['col']]]],'stselected')=TRUE
-				outputdatatreey_old(outputdatatreey_temp)
-			}else{
-				outputdatatreey_temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
-				attr(outputdatatreey_temp[[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected')=TRUE
-				outputdatatreey_old(outputdatatreey_temp)
-			}			
-			shinyTree::updateTree(session, "datatreey",  outputdatatreey_old() )
-		}else if(length(T)==1){
-			outputdatatreey_temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
-			attr(outputdatatreey_temp[[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected')=TRUE
-			outputdatatreey_old(outputdatatreey_temp)
-		}else{
-			outputdatatreey_old(filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE))
-		}
-	} ,ignoreNULL = FALSE)
-	observeEvent(plotdf(),{outputdatatreey_old(NAlist())} ,ignoreNULL = FALSE)
-	plottreey <- reactive(format_local(extract_local(inputdatatreey())))
-    output$lbdatatreey <- renderText(paste("Y: ", {
-      toStringB(extract_local(inputdatatreey()),ptdisabletreey())
-    }))
-
-   	#input COLOR
-	output$datatreecolor <- shinyTree::renderTree(filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old()),outputdatatreecolor_old()),ptdisabletreecolor()) )
-	outputdatatreecolor_old <- reactiveVal(NAlist())
-	inputdatatreecolor <- reactiveVal(NAlist())
-	observeEvent(ptdisabletreecolor(),{inputdatatreecolor(filter_dis(outputdatatreecolor_old(),ptdisabletreecolor())) } ,ignoreNULL = FALSE)	
-	observeEvent(outputdatatreecolor_old(),{inputdatatreecolor(filter_dis(outputdatatreecolor_old(),ptdisabletreecolor())) } ,ignoreNULL = FALSE)	
-	observeEvent(input$datatreecolor,{
-		T <- extract_local(input$datatreecolor)		
-		if(length(T)>2){
-			shinyTree::updateTree(session, "datatreecolor",  outputdatatreecolor_old() )
-		}else if(length(T)==2){
-		    if(isTRUE(attr(outputdatatreecolor_old()[[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected'))){
-				outputdatatreecolor_temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
-				attr(outputdatatreecolor_temp[[T[[2]][['package']]]][[T[[2]][['data']]]][[T[[2]][['col']]]],'stselected')=TRUE
-				outputdatatreecolor_old(outputdatatreecolor_temp)
-			}else{
-				outputdatatreecolor_temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
-				attr(outputdatatreecolor_temp[[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected')=TRUE
-				outputdatatreecolor_old(outputdatatreecolor_temp)
-			}			
-			shinyTree::updateTree(session, "datatreecolor",  outputdatatreecolor_old() )
-		}else if(length(T)==1){
-			outputdatatreecolor_temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
-			attr(outputdatatreecolor_temp[[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected')=TRUE
-			outputdatatreecolor_old(outputdatatreecolor_temp)
-		}else{
-			outputdatatreecolor_old(filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE))
-		}
-	} ,ignoreNULL = FALSE)
-	observeEvent(plotdf(),{outputdatatreecolor_old(NAlist())} ,ignoreNULL = FALSE)
-	plottreecolor <- reactive(format_local(extract_local(inputdatatreecolor())))
-    output$lbdatatreecolor <- renderText(paste("COLOR: ", {
-      toStringB(extract_local(inputdatatreecolor()),ptdisabletreecolor())
-    }))
+	plotdf <- reactive( format_local2(extract_local2(outputdatatreedf_old())) )
+	plotdf_ <- reactive(toString(plotdf()))
 	
 	
-   	#input FACET
-	output$datatreefacet <- shinyTree::renderTree(filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old()),outputdatatreefacet_old()),ptdisabletreefacet()) )
-	outputdatatreefacet_old <- reactiveVal(NAlist())
-	inputdatatreefacet <- reactiveVal(NAlist())
-	observeEvent(ptdisabletreefacet(),{inputdatatreefacet(filter_dis(outputdatatreefacet_old(),ptdisabletreefacet())) } ,ignoreNULL = FALSE)	
-	observeEvent(outputdatatreefacet_old(),{inputdatatreefacet(filter_dis(outputdatatreefacet_old(),ptdisabletreefacet())) } ,ignoreNULL = FALSE)	
-	observeEvent(input$datatreefacet,{
-		T <- extract_local(input$datatreefacet)		
-		if(length(T)>2){
-			shinyTree::updateTree(session, "datatreefacet",  outputdatatreefacet_old() )
-		}else if(length(T)==2){
-		    if(isTRUE(attr(outputdatatreefacet_old()[[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected'))){
-				outputdatatreefacet_temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
-				attr(outputdatatreefacet_temp[[T[[2]][['package']]]][[T[[2]][['data']]]][[T[[2]][['col']]]],'stselected')=TRUE
-				outputdatatreefacet_old(outputdatatreefacet_temp)
-			}else{
-				outputdatatreefacet_temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
-				attr(outputdatatreefacet_temp[[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected')=TRUE
-				outputdatatreefacet_old(outputdatatreefacet_temp)
-			}			
-			shinyTree::updateTree(session, "datatreefacet",  outputdatatreefacet_old() )
-		}else if(length(T)==1){
-			outputdatatreefacet_temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
-			attr(outputdatatreefacet_temp[[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected')=TRUE
-			outputdatatreefacet_old(outputdatatreefacet_temp)
-		}else{
-			outputdatatreefacet_old(filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE))
-		}
-	} ,ignoreNULL = FALSE)
-	observeEvent(plotdf(),{outputdatatreefacet_old(NAlist())} ,ignoreNULL = FALSE)
-	plottreefacet <- reactive(format_local(extract_local(inputdatatreefacet())))
-    output$lbdatatreefacet <- renderText(paste("FACET: ", {
-      toStringB(extract_local(inputdatatreefacet()),ptdisabletreefacet())
-    }))
-	
-	#-------DOING-------------------------------------------------------------------#
-
-	ptdisable <- reactiveValues()
-	output_old <- reactiveValues()
-	inputdata <- reactiveValues()
-	plot <- reactiveValues()
-	
-	ptdisable[['treeUSA']] <- FALSE
-	output_old[['treeUSA']] <- NAlist()
-	inputdata[['treeUSA']] <- NAlist()
-	output[['treeUSA']] <- shinyTree::renderTree(filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old()),output_old[['treeUSA']]),ptdisable[['treeUSA']]) )
-	observeEvent(ptdisable[['treeUSA']],{inputdata[['treeUSA']]<-(filter_dis(output_old[['treeUSA']],ptdisable[['treeUSA']])) } ,ignoreNULL = FALSE)	
-	observeEvent(output_old[['treeUSA']],{inputdata[['treeUSA']]<-(filter_dis(output_old[['treeUSA']],ptdisable[['treeUSA']])) } ,ignoreNULL = FALSE)	
-	observeEvent(input[['treeUSA']],{
-		T <- extract_local(input[['treeUSA']])		
-		if(length(T)>2){
-			shinyTree::updateTree(session, "treeUSA", output_old[['treeUSA']] )
-		}else if(length(T)==2){
-		    if(isTRUE(attr(output_old[['treeUSA']][[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected'))){
-				temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
-				attr(temp[[T[[2]][['package']]]][[T[[2]][['data']]]][[T[[2]][['col']]]],'stselected')=TRUE
-				output_old[['treeUSA']]<-(temp)
-			}else{
-				temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
-				attr(temp[[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected')=TRUE
-				output_old[['treeUSA']]<-(temp)
-			}			
-			shinyTree::updateTree(session, "treeUSA",  output_old[['treeUSA']] )
-		}else if(length(T)==1){
-			temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
-			attr(temp[[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected')=TRUE
-			output_old[['treeUSA']]<-(temp)
-		}else{
-			output_old[['treeUSA']]<-(filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE))
-		}
-	} ,ignoreNULL = FALSE)
-	observeEvent(plotdf(),{output_old[['treeUSA']]<-(NAlist())} ,ignoreNULL = FALSE)
-	plot[['treeUSA']] <- reactive(format_local(extract_local(inputdata[['treeUSA']])))
-    output[[paste0('lb','treeUSA')]] <- renderText(paste0(toupper('treeUSA'), ": ", {
-      toStringB(extract_local(inputdata[['treeUSA']]),ptdisable[['treeUSA']])
-    }))
-	
-	
-	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
-	
-	extract_local <- function(datatreez) {
-	  resu <- list()
-	  try(for (pkg in names(datatreez)) {
-		for (dd in names(datatreez[[pkg]])) {
-		  for (slc in names(datatreez[[pkg]][[dd]])) {
-			try(if (attr(datatreez[[pkg]][[dd]][[slc]], "stselected")) {
-			  resu <- append(resu, list(c(
-				package = pkg,
-				data = dd,
-				col = slc,
-				dt = attr(datasets()[[pkg]][[dd]][[slc]], "dt")
-			  )))
-			}, silent = TRUE)
-		  }
-		}
-	  },silent = TRUE)
-	  resu
-	}
-		
-
-	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
-
    	#input PLOT TYPE
 	output$datatreept <- shinyTree::renderTree(NApt(TRUE))
 	outputdatatreept_old <- reactiveVal(NApt(TRUE))
@@ -460,27 +243,91 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 			attr(outputdatatreept_temp[['auto']],'stselected')=TRUE
 			outputdatatreept_old(outputdatatreept_temp)
 			shinyTree::updateTree(session, "datatreept",  outputdatatreept_old() )
-			#outputdatatreept_old(NApt())
 		}
-	} ,ignoreNULL = FALSE)
-	#observeEvent(outputdatatreedf_old(),{outputdatatreept_old(NApt())} ,ignoreNULL = FALSE)
-    plottype <- reactive(  filter_pt(get_selected(outputdatatreept_old(), format = c("names")),extract_local(inputdatatreex()),extract_local(inputdatatreey())))
+	} ,ignoreNULL = FALSE)   
     output$lbdatatreept <- renderText(paste("PLOT TYPE: ", {
       toStringB(plottype())
-    }))
-	
-	plotdf_ <- reactive(toString(plotdf()))
-	plottreex_ <- reactive(toString(get_col(plottreex())))
-	plottreey_ <- reactive(toString(get_col(plottreey())))
-	plottreecolor_ <- reactive(toString(plottreecolor()))
-	plottreefacet_ <- reactive(toString(plottreefacet()))
+    })) 
+	plottype <- reactive(  filter_pt(get_selected(outputdatatreept_old(), format = c("names")),extract_local(inputdata[['treex']]),extract_local(inputdata[['treey']])))
 	plottype_ <- reactive(toString(pt_autofree(plottype())))
+	
+
+	#-------DOING-------------------------------------------------------------------#
+
+	ptdisable <- reactiveValues()
+	output_old <- reactiveValues()
+	inputdata <- reactiveValues()
+	plot <- reactiveValues()
+	plot_ <- reactiveValues()
+	
+	CtrlN <- function (MEXICO){
+		ptdisable[[MEXICO]] <- FALSE
+		output_old[[MEXICO]] <- NAlist()
+		inputdata[[MEXICO]] <- NAlist()
+		output[[MEXICO]] <- shinyTree::renderTree({output_old[[MEXICO]]<-filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old()),output_old[[MEXICO]]),ptdisable[[MEXICO]]);output_old[[MEXICO]]} )
+		observeEvent(ptdisable[[MEXICO]],{inputdata[[MEXICO]]<-(filter_dis(output_old[[MEXICO]],ptdisable[[MEXICO]])) } ,ignoreNULL = FALSE)	
+		observeEvent(output_old[[MEXICO]],{inputdata[[MEXICO]]<-(filter_dis(output_old[[MEXICO]],ptdisable[[MEXICO]])) } ,ignoreNULL = FALSE)	
+		observeEvent(input[[MEXICO]],{
+			T <- extract_local(input[[MEXICO]])		
+			if(length(T)>2){
+				shinyTree::updateTree(session, MEXICO, output_old[[MEXICO]] )
+			}else if(length(T)==2){
+				if(isTRUE(attr(output_old[[MEXICO]][[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected'))){
+					temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
+					attr(temp[[T[[2]][['package']]]][[T[[2]][['data']]]][[T[[2]][['col']]]],'stselected')=TRUE
+					output_old[[MEXICO]]<-(temp)
+				}else{
+					temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
+					attr(temp[[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected')=TRUE
+					output_old[[MEXICO]]<-(temp)
+				}			
+				shinyTree::updateTree(session, MEXICO,  output_old[[MEXICO]] )
+			}else if(length(T)==1){
+				temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
+				attr(temp[[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected')=TRUE
+				output_old[[MEXICO]]<-(temp)
+			}else{
+				output_old[[MEXICO]]<-(filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE))
+			}
+		} ,ignoreNULL = FALSE)
+		observeEvent(plotdf(),{output_old[[MEXICO]]<-(NAlist())} ,ignoreNULL = FALSE)		
+		output[[paste0('lb',MEXICO)]] <- renderText(paste0(toupper(MEXICO), ": ", {
+		  toStringB(extract_local(inputdata[[MEXICO]]),ptdisable[[MEXICO]])
+		}))
+		plot[[MEXICO]] <- reactive(format_local(extract_local(inputdata[[MEXICO]])))
+		plot_[[MEXICO]] <- reactive(toString(format_local(extract_local(inputdata[[MEXICO]]))))
+	}
+	for ( MEXICO in c( "treex", "treey", "treecolour", "treefacet") ){
+		CtrlN(MEXICO)
+	}
+	
+	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
+	
+	extract_local <- function(datatreez) {
+	  resu <- list()
+	  try(for (pkg in names(datatreez)) {
+		for (dd in names(datatreez[[pkg]])) {
+		  for (slc in names(datatreez[[pkg]][[dd]])) {
+			try(if (attr(datatreez[[pkg]][[dd]][[slc]], "stselected")) {
+			  resu <- append(resu, list(c(
+				package = pkg,
+				data = dd,
+				col = slc,
+				dt = attr(datasets()[[pkg]][[dd]][[slc]], "dt")
+			  )))
+			}, silent = TRUE)
+		  }
+		}
+	  },silent = TRUE)
+	  resu
+	}
+		
 	
 	#-------LOGICAL SEPERATION-------------------------------------------------------------------#	
 	
-	observeEvent(c(plotdf_(),plottype_(),plottreey_()), { 
+	observeEvent(c(plotdf_(),plottype_(),plot_[['treey']]()), { 
 	    if(plottype_()=="bar2"){
-		    updateTextInput(session, "ggplot_data", value = paste0(plotdf_(), " %>% dplyr::group_by(",plottreey_(),") %>% dplyr::summarise(count= dplyr::n())" ) )
+		    updateTextInput(session, "ggplot_data", value = paste0(plotdf_(), " %>% dplyr::group_by(",plot_[['treey']](),") %>% dplyr::summarise(count= dplyr::n())" ) )
 		}else{
 			updateTextInput(session, "ggplot_data", value = plotdf_() ) 
 		}	
@@ -494,29 +341,29 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		}
 	} ,ignoreNULL = FALSE)
 	
-    observeEvent(c(plottreex_(),plottype_()), { 
+    observeEvent(c(plot_[['treex']](),plottype_()), { 
 		if(plottype_()=="box"){
 			updateTextInput(session, "aes_x", value = "\"\"" )
 		}else if(plottype_()=="grid"){
-			updateTextInput(session, "aes_x", value = paste0("seq_along(",plottreex_(),")") )
+			updateTextInput(session, "aes_x", value = paste0("seq_along(",plot_[['treex']](),")") )
 		}else if(plottype_()=="line"){
-			updateTextInput(session, "aes_x", value = paste0("seq_along(",plottreex_(),")") )
+			updateTextInput(session, "aes_x", value = paste0("seq_along(",plot_[['treex']](),")") )
 		}else if(plottype_()=="area"){
-			updateTextInput(session, "aes_x", value = paste0("seq_along(",plottreex_(),")") )
+			updateTextInput(session, "aes_x", value = paste0("seq_along(",plot_[['treex']](),")") )
 		}else if(plottype_()=="bar2"){
 			updateTextInput(session, "aes_x", value = "count" )
 		}else{
-			updateTextInput(session, "aes_x", value = plottreex_() )
+			updateTextInput(session, "aes_x", value = plot_[['treex']]() )
 		}	
 	} ,ignoreNULL = FALSE)
 	
-	observeEvent(plottreey_(),{ updateTextInput(session, "aes_y", value = plottreey_() ) } ,ignoreNULL = FALSE)
+	observeEvent(plot_[['treey']](),{ updateTextInput(session, "aes_y", value = plot_[['treey']]() ) } ,ignoreNULL = FALSE)
 	
-	observeEvent(plottreecolor_(),{ updateTextInput(session, "aes_color", value = plottreecolor_() ) } ,ignoreNULL = FALSE)	
+	observeEvent(plot_[["treecolour"]](),{ updateTextInput(session, "aes_color", value = plot_[["treecolour"]]() );} ,ignoreNULL = FALSE)	
 	
-	observeEvent(plottreefacet_(),{ 	
-		updateTextInput(session, "facet_wrap_facets", value = plottreefacet_() ) 
-		if(nchar(plottreefacet_())>0){
+	observeEvent(plot_[['treefacet']](),{ 	
+		updateTextInput(session, "facet_wrap_facets", value = plot_[['treefacet']]() ) 
+		if(nchar(plot_[['treefacet']]())>0){
 		  updateCheckboxInput(session,"facet_wrap", value=TRUE)
 		}else{
 		  updateCheckboxInput(session,"facet_wrap", value=FALSE)
@@ -577,17 +424,17 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 				
 				if(is.element("line", temp)) {disablex=FALSE;disabley=FALSE}
 				if(is.element("area", temp)) {disablex=FALSE;disabley=FALSE}
-				ptdisabletreex(disablex)
-				ptdisabletreey(disabley)
+				ptdisable[['treex']]=(disablex)
+				ptdisable[['treey']]=(disabley)
 			}else{
 				disablex=FALSE;disabley=FALSE				
-				ptdisabletreex(disablex)
-				ptdisabletreey(disabley)
+				ptdisable[['treex']]=(disablex)
+				ptdisable[['treey']]=(disabley)
 			}
 		}else{
 				disablex=FALSE;disabley=FALSE				
-				ptdisabletreex(disablex)
-				ptdisabletreey(disabley)
+				ptdisable[['treex']]=(disablex)
+				ptdisable[['treey']]=(disabley)
 		}
 	} ,ignoreNULL = FALSE)
 	
@@ -650,35 +497,35 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	
 	know_auto_means <- function(){
 	  paste0(
-		if (plottype_()=="histogram" & plottreex_()!="" ){paste0(
+		if (plottype_()=="histogram" & plot_[['treex']]()!="" ){paste0(
 		 "#(numeric x) \n"
 		)}else{""},
 		
-		if (plottype_()=="bar" & plottreex_()!="" ){paste0(
+		if (plottype_()=="bar" & plot_[['treex']]()!="" ){paste0(
 		 "#(categorical x) \n"
 		)}else{""},
 		
-		if (plottype_()=="box" & plottreey_()!="" ){paste0(
+		if (plottype_()=="box" & plot_[['treey']]()!="" ){paste0(
 		 "#(numeric y) \n"
 		)}else{""},
 		
-		if (plottype_()=="bar2" & plottreey_()!="" ){paste0(
+		if (plottype_()=="bar2" & plot_[['treey']]()!="" ){paste0(
 		 "#(categorical y) \n"
 		)}else{""},
 		
-		if (plottype_()=="scatter" & plottreex_()!="" & plottreey_()!="" ){paste0(
+		if (plottype_()=="scatter" & plot_[['treex']]()!="" & plot_[['treey']]()!="" ){paste0(
 		 "#(numeric x and y) \n"
 		)}else{""},
 		
-		if (plottype_()=="box2" & plottreex_()!="" & plottreey_()!="" ){paste0(
+		if (plottype_()=="box2" & plot_[['treex']]()!="" & plot_[['treey']]()!="" ){paste0(
 		 "#(categorical x numeric y) \n"
 		)}else{""},	
 		
-		if (plottype_()=="histogram2" & plottreex_()!="" & plottreey_()!="" ){paste0(
+		if (plottype_()=="histogram2" & plot_[['treex']]()!="" & plot_[['treey']]()!="" ){paste0(
 		 "#(numeric x categorical y) \n"
 		)}else{""},	
 		
-		if (plottype_()=="grid" & plottreex_()!="" & plottreey_()!="" ){paste0(
+		if (plottype_()=="grid" & plot_[['treex']]()!="" & plot_[['treey']]()!="" ){paste0(
 		 "#(categorical x categorical y) \n"
 		)}else{""}		
 	  )
@@ -694,17 +541,18 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"```\n",
 		"* PLOT: ",plottype_()," \n",
 		"* DATA: ",plotdf_()," \n",
-		if(!ptdisabletreex()){
-		  paste0("* X: ",toString(plottreex())," \n")
+		if(!ptdisable[['treex']]){
+		  paste0("* X: ",toString(plot[['treex']]())," \n")
 		}else{""},
-		if(!ptdisabletreey()){
-		  paste0("* Y: ",toString(plottreey())," \n")
+		if(!ptdisable[['treey']]){
+		  paste0("* Y: ",toString(plot[['treey']]())," \n")
 		}else{""},  
-		if(isTRUE(nchar(plottreecolor())>0) & !ptdisabletreecolor()){
-		  paste0("* COLOR: ",toString(plottreecolor())," \n")
+		
+		if(isTRUE(nchar(plot[["treecolour"]]())>0) & !ptdisable[["treecolour"]]){
+		  paste0("* COLOR: ",toString(plot[["treecolour"]]())," \n")
 		}else{""},  
-		if(isTRUE(nchar(plottreefacet())>0) & !ptdisabletreefacet()){
-		  paste0("* FACET: ",toString(plottreefacet())," \n")
+		if(isTRUE(nchar(plot[['treefacet']]())>0) & !ptdisable[['treefacet']]){
+		  paste0("* FACET: ",toString(plot[['treefacet']]())," \n")
 		}else{""}, 
 		if(isTRUE(nchar(input$ggtitle_label)>0)){
 		  paste0("* TITLE: ",toString(input$ggtitle_label)," \n")
@@ -721,17 +569,17 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		if(isTRUE(input$scale_y_log10) ){
 		  paste0("* Y AXIS: scale_y_log10() \n")
 		}else{""},
-		if(isTRUE(input$geom_violin)  ){ # & !ptdisabletreey()
+		if(isTRUE(input$geom_violin)  ){ # & !ptdisable[['treey']]()
 		  paste0("*    ALSO: geom_violin( ) \n")
 		}else{""},
-		if(isTRUE(input$stat_summary)  ){ # & !ptdisabletreey()
+		if(isTRUE(input$stat_summary)  ){ # & !ptdisable[['treey']]()
 		  paste0("*    ALSO: stat_summary( ) \n")
 		}else{""},
 		if(isTRUE(input$coord_flip) ){
 		  paste0("*    ALSO: coord_flip() \n")
 		}else{""},
 		" \n",			
-		if(nchar(plottype_())>0 & isTRUE(plottype_()!='auto')){paste0(
+		if({nchar(plottype_())>0} & isTRUE(plottype_()!='auto')){paste0(
 			"```{r} \n",
 			know_auto_means(),
 			"library(ggplot2) \n",		
