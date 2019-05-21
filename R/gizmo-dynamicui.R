@@ -156,6 +156,7 @@ test_gizmo_dynamic_ui <- function(ns) {
       column(6,ctrlA(ns,"datatreecolor")),
       column(6,ctrlA(ns,"datatreefacet"))
     ),
+	ctrlA(ns,"treeUSA"),tags$br(),
     tags$br(),
     fluidRow(
       CtrlK(ns)
@@ -363,6 +364,48 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	plottreefacet <- reactive(format_local(extract_local(inputdatatreefacet())))
     output$lbdatatreefacet <- renderText(paste("FACET: ", {
       toStringB(extract_local(inputdatatreefacet()),ptdisabletreefacet())
+    }))
+	
+	#-------DOING-------------------------------------------------------------------#
+
+	ptdisable <- reactiveValues()
+	output_old <- reactiveValues()
+	inputdata <- reactiveValues()
+	plot <- reactiveValues()
+	
+	ptdisable[['treeUSA']] <- FALSE
+	output_old[['treeUSA']] <- NAlist()
+	inputdata[['treeUSA']] <- NAlist()
+	output[['treeUSA']] <- shinyTree::renderTree(filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old()),output_old[['treeUSA']]),ptdisable[['treeUSA']]) )
+	observeEvent(ptdisable[['treeUSA']],{inputdata[['treeUSA']]<-(filter_dis(output_old[['treeUSA']],ptdisable[['treeUSA']])) } ,ignoreNULL = FALSE)	
+	observeEvent(output_old[['treeUSA']],{inputdata[['treeUSA']]<-(filter_dis(output_old[['treeUSA']],ptdisable[['treeUSA']])) } ,ignoreNULL = FALSE)	
+	observeEvent(input[['treeUSA']],{
+		T <- extract_local(input[['treeUSA']])		
+		if(length(T)>2){
+			shinyTree::updateTree(session, "treeUSA", output_old[['treeUSA']] )
+		}else if(length(T)==2){
+		    if(isTRUE(attr(output_old[['treeUSA']][[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected'))){
+				temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
+				attr(temp[[T[[2]][['package']]]][[T[[2]][['data']]]][[T[[2]][['col']]]],'stselected')=TRUE
+				output_old[['treeUSA']]<-(temp)
+			}else{
+				temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
+				attr(temp[[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected')=TRUE
+				output_old[['treeUSA']]<-(temp)
+			}			
+			shinyTree::updateTree(session, "treeUSA",  output_old[['treeUSA']] )
+		}else if(length(T)==1){
+			temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
+			attr(temp[[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected')=TRUE
+			output_old[['treeUSA']]<-(temp)
+		}else{
+			output_old[['treeUSA']]<-(filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE))
+		}
+	} ,ignoreNULL = FALSE)
+	observeEvent(plotdf(),{output_old[['treeUSA']]<-(NAlist())} ,ignoreNULL = FALSE)
+	plot[['treeUSA']] <- reactive(format_local(extract_local(inputdata[['treeUSA']])))
+    output[[paste0('lb','treeUSA')]] <- renderText(paste0(toupper('treeUSA'), ": ", {
+      toStringB(extract_local(inputdata[['treeUSA']]),ptdisable[['treeUSA']])
     }))
 	
 	
