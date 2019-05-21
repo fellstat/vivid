@@ -146,6 +146,213 @@ CtrlK <- function(ns){
   AA
 }
 
+
+extract_local2 <- function(datatreex) {
+  library(shinyTree)
+  resu <- list()
+  try(for (pkg in names(datatreex)) {
+    for (dd in names(datatreex[[pkg]])) {
+        try(if (attr(datatreex[[pkg]][[dd]], "stselected")) {
+          resu <- append(resu, list(c(
+            package = pkg,
+            data = dd
+          )))
+        }, silent = TRUE)
+    }
+  },
+  silent = TRUE)
+  resu
+}
+
+format_local <- function(resu) {
+  result <- NULL
+  for (res in resu) {
+	result <- append(result, list(
+	  structure(
+		paste0(
+			ifelse(res[["package"]]=='.GlobalEnv','.GlobalEnv$',paste0(res[["package"]],"::") ),
+			res[["data"]],"$",res[["col"]]
+		)
+	  ,package=ifelse(res[["package"]]=='.GlobalEnv','.GlobalEnv$',paste0(res[["package"]],"::") )
+	  ,data=res[["data"]]
+	  ,col=res[["col"]]
+	  )
+	))
+  }
+  result
+}
+
+format_local2 <- function(resu) {
+  result <- NULL
+  for (res in resu) {
+	result <- append(result, list(c(
+		paste0(
+			ifelse(res[["package"]]=='.GlobalEnv','.GlobalEnv$',paste0(res[["package"]],"::") ),
+			res[["data"]]
+		)
+	)))
+  }
+  result
+}
+
+toStringB <- function(resu, disable=FALSE){
+  zeromessage <- "Select...     "
+  if(disable)zeromessage <- "Not Required"
+  if (length(resu) == 0) {
+    zeromessage
+  } else if (toString(resu) == "") {
+    zeromessage
+  } else {
+    toString(resu)
+  }
+}
+
+NApt <- function(auto=FALSE){
+	structure(list(
+	  'auto'=structure('auto',sticon=' fa fa-oil-can ',stselected=auto),
+	  'area'=structure('area',sticon=' fa fa-area-chart ',stselected=FALSE),
+	  'bar'=structure('bar',sticon=' fas fa-tachometer-alt ',stselected=FALSE),
+	  'bar2'=structure('bar2',sticon=' fas fa-tachometer-alt fa-tag-numeric ',stselected=FALSE),
+	  'box'=structure('box',sticon=' fas fa-inbox ',stselected=FALSE),
+	  'box2'=structure('box2',sticon=' fas fa-inbox  fa-tag-numeric ',stselected=FALSE),
+	  'grid'=structure('grid',sticon=' fas fa-car-battery ',stselected=FALSE),
+	  'histogram'=structure('histogram',sticon=' fa fa-bar-chart ',stselected=FALSE),
+	  'histogram2'=structure('histogram2',sticon=' fa fa-bar-chart  fa-tag-numeric ',stselected=FALSE),
+	  'line'=structure('line',sticon=' fa fa-line-chart ',stselected=FALSE),
+	  'scatter'=structure('scatter',sticon=' fas fa-braille ',stselected=FALSE)
+	),stopened=TRUE)
+}
+
+filter_df <- function (original, criterias, reference=NULL){
+  Tree0s <- NULL
+  for (pkg in names(original)) {
+    for (dd in names(original[[pkg]])) {
+      for (criteria in criterias){
+        if(pkg==criteria[["package"]] & dd==criteria[["data"]] ){
+          Tree0s[[pkg]][[dd]] <- original[[pkg]][[dd]]
+          attr(Tree0s[[pkg]][[dd]], "stopened") <- TRUE
+          attr(Tree0s[[pkg]], "sttype") <- "pkg-node"
+          attr(Tree0s[[pkg]], "sticon") <- "fas fa-box"
+          attr(Tree0s[[pkg]], "stopened") <- TRUE
+          for (slc in names(original[[pkg]][[dd]])) {
+            try({attr(Tree0s[[pkg]][[dd]][[slc]], "stselected") <- attr(reference[[pkg]][[dd]][[slc]], "stselected")}, silent=TRUE)
+          }
+        }
+        
+      }
+    }
+  }
+  if(is.null(Tree0s)){
+    NAlist()
+  } else {
+    Tree0s
+  }
+}
+
+NAlist <- function ( ){
+  list("NA" = structure("NA",sttype='pkg-node',sticon = ' fa fa-warning'))
+}
+
+filter_pt <- function (original,x,y){
+  if(!is.element('auto', original) & length(original) > 0) {
+    original
+  }else{
+    decide_pt(x,y)
+  }
+}
+
+decide_pt <- function (xx,yy){
+  result <- NULL
+  if(!length(xx)&!length(yy)){
+    result <- list( structure("auto",implied='unknown'))
+  }else if( length(xx)&!length(yy)){
+    for (xxx in xx){
+      result <- c(result, 
+		  if( judge_numeric(xxx) ){
+			structure("auto histogram",implied='histogram')
+		  }else if( judge_categorical(xxx) ){
+			structure("auto bar",implied='bar')
+		  }else{
+			structure("auto",implied='unknown')
+		  }      
+      )
+    }
+  }else if(!length(xx)& length(yy)){
+    for (yyy in yy){
+      result <- c(result, 
+		  if( judge_numeric(yyy) ){
+			structure("auto box",implied='box')
+		  }else if( judge_categorical(yyy) ){
+			structure("auto bar2",implied='bar2')
+		  }else{
+			structure("auto",implied='unknown')
+		  }      
+      )
+    }
+  }else{
+    for (xxx in xx){
+      for (yyy in yy){
+        result<-c(result, 
+			if( judge_numeric(xxx) & judge_numeric(yyy) ){
+			  structure("auto scatter",implied='scatter')
+			}else if( judge_categorical(xxx) & judge_numeric(yyy) ){
+			  structure("auto box2",implied='box2')
+			}else if( judge_numeric(xxx) & judge_categorical(yyy) ){
+			  structure("auto histogram2",implied='histogram2')
+			}else if( judge_categorical(xxx) & judge_categorical(yyy) ){
+			  structure("auto grid",implied='grid')
+			}else{
+			  structure("auto",implied='unknown')
+			}
+        )
+      }
+    }
+  }
+  result  
+}    #original <- c(original,   list('auto numeric'=structure("auto numeric",implied='numeric')))
+
+
+judge_numeric <- function (res){
+  #is.element(res['dt'],c('numeric','integer','Date','ts'))
+  !judge_categorical(res)
+}
+
+judge_categorical <- function (res){
+  is.element(res['dt'],c('character','factor','orderedfactor'))
+}
+
+pt_autofree <- function(resu) {
+  result <- NULL
+  for (res in resu){
+    if (substr(res,1,5)=="auto "){
+      result <- c(result, substr(res,6,1000) )
+    }else{
+      result <- c(result, res )
+    }
+  }
+  result
+}
+
+get_col <- function(resu) {
+  result <- NULL
+  for (res in resu){
+    result <- c(result, attr(res,"col") )
+  }
+  result
+} #result=sapply(c(resu), FUN=function(res){attr(res,"col")})
+
+filter_dis <- function(resu, disabled=FALSE, fill=NAlist()) {
+  if(disabled){
+    fill
+  }else{
+    resu
+  }
+}
+
+theme_choices <- function(){
+  list("theme_grey", "theme_gray", "theme_bw", "theme_linedraw", "theme_light", "theme_dark", "theme_minimal", "theme_classic", "theme_void", "theme_test")
+}
+
 test_gizmo_dynamic_ui <- function(ns) {
   fluidPage(
     ctrlJS(),
@@ -185,6 +392,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	datadfs  <- reactiveVal(NAlist())
 
     remote_eval(vivid:::texasCi(), function(obj) {
+	  message("data retrived")
       datasets(obj$Tree0s)
 	  datadfs (obj$Traa0s)
     })
@@ -619,7 +827,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
     }
     list(code = txt_react,
          get_state = get_state)
-  }
+}
 
 
 .globals$gizmos$dynamicui <- list(
@@ -631,209 +839,3 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 
 run_dynamic_ui <- function()
   run_standalone("dynamicui")
-
-extract_local2 <- function(datatreex) {
-  library(shinyTree)
-  resu <- list()
-  try(for (pkg in names(datatreex)) {
-    for (dd in names(datatreex[[pkg]])) {
-        try(if (attr(datatreex[[pkg]][[dd]], "stselected")) {
-          resu <- append(resu, list(c(
-            package = pkg,
-            data = dd
-          )))
-        }, silent = TRUE)
-    }
-  },
-  silent = TRUE)
-  resu
-}
-
-format_local <- function(resu) {
-  result <- NULL
-  for (res in resu) {
-	result <- append(result, list(
-	  structure(
-		paste0(
-			ifelse(res[["package"]]=='.GlobalEnv','.GlobalEnv$',paste0(res[["package"]],"::") ),
-			res[["data"]],"$",res[["col"]]
-		)
-	  ,package=ifelse(res[["package"]]=='.GlobalEnv','.GlobalEnv$',paste0(res[["package"]],"::") )
-	  ,data=res[["data"]]
-	  ,col=res[["col"]]
-	  )
-	))
-  }
-  result
-}
-
-format_local2 <- function(resu) {
-  result <- NULL
-  for (res in resu) {
-	result <- append(result, list(c(
-		paste0(
-			ifelse(res[["package"]]=='.GlobalEnv','.GlobalEnv$',paste0(res[["package"]],"::") ),
-			res[["data"]]
-		)
-	)))
-  }
-  result
-}
-
-toStringB <- function(resu, disable=FALSE){
-  zeromessage <- "Select...     "
-  if(disable)zeromessage <- "Not Required"
-  if (length(resu) == 0) {
-    zeromessage
-  } else if (toString(resu) == "") {
-    zeromessage
-  } else {
-    toString(resu)
-  }
-}
-
-NApt <- function(auto=FALSE){
-	structure(list(
-	  'auto'=structure('auto',sticon=' fa fa-oil-can ',stselected=auto),
-	  'area'=structure('area',sticon=' fa fa-area-chart ',stselected=FALSE),
-	  'bar'=structure('bar',sticon=' fas fa-tachometer-alt ',stselected=FALSE),
-	  'bar2'=structure('bar2',sticon=' fas fa-tachometer-alt fa-tag-numeric ',stselected=FALSE),
-	  'box'=structure('box',sticon=' fas fa-inbox ',stselected=FALSE),
-	  'box2'=structure('box2',sticon=' fas fa-inbox  fa-tag-numeric ',stselected=FALSE),
-	  'grid'=structure('grid',sticon=' fas fa-car-battery ',stselected=FALSE),
-	  'histogram'=structure('histogram',sticon=' fa fa-bar-chart ',stselected=FALSE),
-	  'histogram2'=structure('histogram2',sticon=' fa fa-bar-chart  fa-tag-numeric ',stselected=FALSE),
-	  'line'=structure('line',sticon=' fa fa-line-chart ',stselected=FALSE),
-	  'scatter'=structure('scatter',sticon=' fas fa-braille ',stselected=FALSE)
-	),stopened=TRUE)
-}
-
-filter_df <- function (original, criterias, reference=NULL){
-  Tree0s <- NULL
-  for (pkg in names(original)) {
-    for (dd in names(original[[pkg]])) {
-      for (criteria in criterias){
-        if(pkg==criteria[["package"]] & dd==criteria[["data"]] ){
-          Tree0s[[pkg]][[dd]] <- original[[pkg]][[dd]]
-          attr(Tree0s[[pkg]][[dd]], "stopened") <- TRUE
-          attr(Tree0s[[pkg]], "sttype") <- "pkg-node"
-          attr(Tree0s[[pkg]], "sticon") <- "fas fa-box"
-          attr(Tree0s[[pkg]], "stopened") <- TRUE
-          for (slc in names(original[[pkg]][[dd]])) {
-            try({attr(Tree0s[[pkg]][[dd]][[slc]], "stselected") <- attr(reference[[pkg]][[dd]][[slc]], "stselected")}, silent=TRUE)
-          }
-        }
-        
-      }
-    }
-  }
-  if(is.null(Tree0s)){
-    NAlist()
-  } else {
-    Tree0s
-  }
-}
-
-NAlist <- function ( ){
-  list("NA" = structure("NA",sttype='pkg-node',sticon = ' fa fa-warning'))
-}
-
-filter_pt <- function (original,x,y){
-  if(!is.element('auto', original) & length(original) > 0) {
-    original
-  }else{
-    decide_pt(x,y)
-  }
-}
-
-decide_pt <- function (xx,yy){
-  result <- NULL
-  if(!length(xx)&!length(yy)){
-    result <- list( structure("auto",implied='unknown'))
-  }else if( length(xx)&!length(yy)){
-    for (xxx in xx){
-      result <- c(result, 
-		  if( judge_numeric(xxx) ){
-			structure("auto histogram",implied='histogram')
-		  }else if( judge_categorical(xxx) ){
-			structure("auto bar",implied='bar')
-		  }else{
-			structure("auto",implied='unknown')
-		  }      
-      )
-    }
-  }else if(!length(xx)& length(yy)){
-    for (yyy in yy){
-      result <- c(result, 
-		  if( judge_numeric(yyy) ){
-			structure("auto box",implied='box')
-		  }else if( judge_categorical(yyy) ){
-			structure("auto bar2",implied='bar2')
-		  }else{
-			structure("auto",implied='unknown')
-		  }      
-      )
-    }
-  }else{
-    for (xxx in xx){
-      for (yyy in yy){
-        result<-c(result, 
-			if( judge_numeric(xxx) & judge_numeric(yyy) ){
-			  structure("auto scatter",implied='scatter')
-			}else if( judge_categorical(xxx) & judge_numeric(yyy) ){
-			  structure("auto box2",implied='box2')
-			}else if( judge_numeric(xxx) & judge_categorical(yyy) ){
-			  structure("auto histogram2",implied='histogram2')
-			}else if( judge_categorical(xxx) & judge_categorical(yyy) ){
-			  structure("auto grid",implied='grid')
-			}else{
-			  structure("auto",implied='unknown')
-			}
-        )
-      }
-    }
-  }
-  result  
-}    #original <- c(original,   list('auto numeric'=structure("auto numeric",implied='numeric')))
-
-
-judge_numeric <- function (res){
-  #is.element(res['dt'],c('numeric','integer','Date','ts'))
-  !judge_categorical(res)
-}
-
-judge_categorical <- function (res){
-  is.element(res['dt'],c('character','factor','orderedfactor'))
-}
-
-pt_autofree <- function(resu) {
-  result <- NULL
-  for (res in resu){
-    if (substr(res,1,5)=="auto "){
-      result <- c(result, substr(res,6,1000) )
-    }else{
-      result <- c(result, res )
-    }
-  }
-  result
-}
-
-get_col <- function(resu) {
-  result <- NULL
-  for (res in resu){
-    result <- c(result, attr(res,"col") )
-  }
-  result
-} #result=sapply(c(resu), FUN=function(res){attr(res,"col")})
-
-filter_dis <- function(resu, disabled=FALSE, fill=NAlist()) {
-  if(disabled){
-    fill
-  }else{
-    resu
-  }
-}
-
-theme_choices <- function(){
-  list("theme_grey", "theme_gray", "theme_bw", "theme_linedraw", "theme_light", "theme_dark", "theme_minimal", "theme_classic", "theme_void", "theme_test")
-}
