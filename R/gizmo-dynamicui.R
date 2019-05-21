@@ -50,6 +50,21 @@ ctrlA <- function (ns, ctrlname, ...){
     )
 }
 
+ctrlB1 <- function (ns, ctrlname, RR){
+  shiny::column(3,shinyWidgets::dropdown(
+	    unlist(RR),
+        circle = FALSE,
+        icon = icon("gear"),
+        label = toupper(stringr::str_remove(ctrlname, "-panel")),
+        inputId = ns(paste0("ii",ctrlname)),
+		up = TRUE, 
+		tags$script(paste0("document.getElementById('",ns(paste0("ii",ctrlname)),"').style.width='100%'")),
+        tags$script(paste0("document.getElementById('",paste0("dropdown-menu-",ns(paste0("ii",ctrlname))),"').style.maxHeight='400px'")),
+        tags$script(paste0("document.getElementById('",paste0("dropdown-menu-",ns(paste0("ii",ctrlname))),"').style.minWidth='300px'")),
+        tags$script(paste0("document.getElementById('",paste0("dropdown-menu-",ns(paste0("ii",ctrlname))),"').style.maxWidth='350px'")),
+        tags$script(paste0("document.getElementById('",paste0("dropdown-menu-",ns(paste0("ii",ctrlname))),"').style.overflow='auto'"))
+      ))
+}
 
 ctrlB <- function (ns, ctrlname, ...){
   shiny::column(3,shinyWidgets::dropdown(
@@ -67,6 +82,83 @@ ctrlB <- function (ns, ctrlname, ...){
       ))
 }
 
+parameters_list=list(
+  "ggplot"=list(
+    "ggplot_data"=structure("ggplot_data",nme='data',tp="noquote",deflt="")
+  ),
+  "aes"=list(
+    "aes_x"=structure("aes_x",nme='x',tp="noquote",deflt=""),
+    "aes_y"=structure("aes_y",nme='y',tp="noquote",deflt=""),
+    "aes_color"=structure("aes_color",nme='color',tp="noquote",deflt=""),
+    "aes_fill"=structure("aes_fill",nme='fill',tp="noquote",deflt="")
+  ),
+  "ggtitle"=list( "ggtitle_label"=structure("ggtitle_label",nme='label',tp="yesquote",deflt="",alwyshow=TRUE)
+  ),
+  "xlab"=list( "xlab_label"=structure("xlab_label",nme='label',tp="yesquote",deflt="",alwyshow=TRUE)
+  ),
+  "scale_x_log10"=list(),
+  "ylab"=list( "ylab_label"=structure("ylab_label",nme='label',tp="yesquote",deflt="",alwyshow=TRUE)
+  ),
+  "scale_y_log10"=list(),
+  "coord_flip"=list(),
+  "geom_line"=list(),
+  "geom_area"=list(),
+  "geom_bar"=list(),
+  "geom_boxplot"=list(),
+  "stat_bin2d"=list(),
+  "scale_fill_gradient2"=list(),				  
+  "geom_violin"=list( "geom_violin_color"=structure("geom_violin_color",nme='size',tp="yesquote",deflt="white",alwyshow=TRUE),
+                      "geom_violin_fill"=structure("geom_violin_fill",nme='size',tp="yesquote",deflt="grey90",alwyshow=TRUE)
+  ),					  
+  "geom_point"=list( "geom_point_size"=structure("geom_point_size",nme='size',tp="noquote",deflt=2)
+  ),
+  "geom_histogram"=list( "geom_histogram_bins"=structure("geom_histogram_bins",nme='bins',tp="noquote",deflt=20,alwyshow=TRUE)
+  ),
+  "stat_binline"=structure(list(
+    "stat_binline_bins"=structure("ggridges::stat_binline_bins",nme='bins',tp="noquote",deflt=50,alwyshow=TRUE),
+	"stat_binline_scale"=structure("ggridges::stat_binline_scale",nme='scale',tp="noquote",deflt=0.7,alwyshow=TRUE),
+    "stat_binline_draw_baseline"=structure("ggridges::stat_binline_draw_baseline",nme='draw_baseline',tp="noquote",deflt=FALSE,alwyshow=TRUE)
+  ), alt="ggridges::stat_binline"),
+  "facet_wrap"=list(
+    "facet_wrap_facets"=structure("facet_wrap_facets",nme='facets',tp="noquote",deflt="")
+  ),
+  "stat_summary"=list(
+    "stat_summary_fun_data"=structure("stat_summary_fun_data",nme='fun.data',tp="noquote",deflt="function(x)\n    data.frame( y=mean(x, na.rm=TRUE),\n    ymin=mean(x, na.rm=TRUE)-sd(x,na.rm=TRUE),\n    ymax=mean(x, na.rm=TRUE)+sd(x,na.rm=TRUE))\n    "),
+    "stat_summary_color"=structure("stat_summary_color",nme='color',tp="yesquote",deflt="red")
+  ),
+  "geom_errorbarh"=list(
+    "geom_errorbarh_mapping"=structure("geom_errorbarh_mapping",nme='mapping',tp="noquote",deflt="aes(xmax=count)",alwyshow=TRUE),
+    "geom_errorbarh_xmin"=structure("geom_errorbarh_xmin",nme='xmin',tp="noquote",deflt="0",alwyshow=TRUE),
+    "geom_errorbarh_height"=structure("geom_errorbarh_height",nme='height',tp="noquote",deflt="0",alwyshow=TRUE)
+  ),
+  "theme_ridges"=structure(list(), alt="ggridges::theme_ridges"),
+  "theme"=list( "theme_fun"=structure("theme_fun",nme='theme_fun',tp="yesquote",deflt="theme_bw",fun=TRUE),
+                "theme_base_size"=structure("theme_base_size",nme='base_size',tp="noquote",deflt=12)
+  )
+)
+
+CtrlK <- function(ns){
+	AA=list();
+	for (region_property in names(parameters_list)){
+		BB=tags$div(ctrlB(ns,paste0(region_property,"-panel"), {
+		    CC=list(tags$div(checkboxInput(ns(region_property), toupper(region_property))));
+			for (parameter in names(parameters_list[[region_property]]) ){
+				DD=NULL
+				
+					deflt <- attr(parameters_list[[region_property]][[parameter]], 'deflt')
+					nme <- attr(parameters_list[[region_property]][[parameter]], 'nme')
+					tp <- attr(parameters_list[[region_property]][[parameter]], 'tp')
+					fun <- attr(parameters_list[[region_property]][[parameter]], 'fun')
+					
+				DD=tags$div(textInput(ns(parameter), toupper(parameter), value = deflt))
+				CC=c(CC,list(tags$div(DD)))
+			}
+			tags$div(CC)
+		}))
+		AA=c(AA,list(BB))
+	}
+	AA
+}
 
 test_gizmo_dynamic_ui <- function(ns) {
   fluidPage(
@@ -81,139 +173,20 @@ test_gizmo_dynamic_ui <- function(ns) {
       column(6,ctrlA(ns,"datatreefacet"))
     ),
     tags$br(),
-    fluidRow(
-      ctrlB(ns,"ggplot-panel",
-            checkboxInput(ns("ggplot"), "GGPLOT"),
-            textInput(ns("ggplot_data"), "DATA")),
-      ctrlB(ns,"aes-panel",
-            checkboxInput(ns("aes"), "AES"),
-            textInput(ns("aes_x"), "AES X"),
-			textInput(ns("aes_y"), "AES Y"),
-			textInput(ns("aes_color"), "AES COLOR"),
-			textInput(ns("aes_fill"), "AES FILL")),
-      ctrlB(ns,"ggtitle-panel",
-            checkboxInput(ns("ggtitle"), "GGTITLE"),
-            textInput(ns("ggtitle_label"), "GGTITLE  LABEL")),
-      ctrlB(ns,"xlab-panel",
-            checkboxInput(ns("xlab"), "XLAB"),
-            textInput(ns("xlab_label"), "X LAB LABEL")),
-	  ctrlB(ns,"scale_x_log10-panel",
-            checkboxInput(ns("scale_x_log10"), "SCALE X LOG10")),
-      ctrlB(ns,"ylab-panel",
-            checkboxInput(ns("ylab"), "YLAB"),
-            textInput(ns("ylab_label"), "Y LAB LABEL")),
-	  ctrlB(ns,"scale_y_log10-panel",
-            checkboxInput(ns("scale_y_log10"), "SCALE Y LOG10")),
-      ctrlB(ns,"coord_flip-panel",
-            checkboxInput(ns("coord_flip"), "COORD FLIP")),
-      ctrlB(ns,"theme-panel",
-            checkboxInput(ns("theme"), "THEME"),
-            pickerInput(ns("theme_fun"), label = "THEME FUN", choices = theme_choices(), selected = "theme_bw" ), 
-            numericInput(ns("theme_base_size"), "THEME BASE SIZE", 12, min = 1, max = 100)),
-      ctrlB(ns,"geom_violin-panel",
-            checkboxInput(ns("geom_violin"), "VIOLIN"),
-            textInput(ns("geom_violin_color"), "VIOLIN COLOR", "white"),
-            textInput(ns("geom_violin_fill"), "VIOLIN FILL", "grey90")),
-      ctrlB(ns,"geom_histogram-panel",
-            checkboxInput(ns("geom_histogram"), "HISTOGRAM"),
-            numericInput(ns("geom_histogram_bins"), "BINS", 20, min = 1, max = 100)),
-      ctrlB(ns,"geom_bar-panel",
-            checkboxInput(ns("geom_bar"), "BAR")),
-      ctrlB(ns,"geom_boxplot-panel",
-            checkboxInput(ns("geom_boxplot"), "BOXPLOT")),
-      ctrlB(ns,"geom_point-panel",
-            checkboxInput(ns("geom_point"), "POINT"),
-            numericInput(ns("geom_point_size"), "POINT SIZE", 2, min = 1, max = 100)),
-      ctrlB(ns,"geom_line-panel",
-            checkboxInput(ns("geom_line"), "LINE")),
-      ctrlB(ns,"geom_area-panel",
-            checkboxInput(ns("geom_area"), "AREA")),
-      ctrlB(ns,"stat_bin2d-panel",
-            checkboxInput(ns("stat_bin2d"), "BIN2D")),
-      ctrlB(ns,"scale_fill_gradient2-panel",
-            checkboxInput(ns("scale_fill_gradient2"), "SCALE FILL GRADIENT2")),
-      ctrlB(ns,"stat_binline-panel",
-            checkboxInput(ns("stat_binline"), "ggridges::stat_binline"),
-			numericInput(ns("stat_binline_bins"), "BINS", 50, min = 1, max = 100),
-			numericInput(ns("stat_binline_scale"), "SCALE", 0.7),
-			checkboxInput(ns("stat_binline_draw_baseline"), "DRAW BASELINE")),
-      ctrlB(ns,"theme_ridges-panel",
-            checkboxInput(ns("theme_ridges"), "ggridges::theme_ridges")),
-      ctrlB(ns,"facet_wrap-panel",
-            checkboxInput(ns("facet_wrap"), "FACET WRAP"),
-			textInput(ns("facet_wrap_facets"), "FACETS", "")),
-      ctrlB(ns,"stat_summary-panel",
-            checkboxInput(ns("stat_summary"), "STAT_SUMMARY"),
-			textAreaInput(ns("stat_summary_fun_data"), "FUN DATA", "function(x)\n    data.frame( y=mean(x, na.rm=TRUE),\n    ymin=mean(x, na.rm=TRUE)-sd(x,na.rm=TRUE),\n    ymax=mean(x, na.rm=TRUE)+sd(x,na.rm=TRUE))\n    "),
-			textInput(ns("stat_summary_color"), "COLOR", "red")),
-	  ctrlB(ns,"geom_errorbarh-panel",		
-			checkboxInput(ns("geom_errorbarh"), "GEOM ERRORBARH"),
-			textInput(ns("geom_errorbarh_mapping"), "MAPPING", "aes(xmax=count)"),
-			numericInput(ns("geom_errorbarh_xmin"), "XMIN", 0),
-			numericInput(ns("geom_errorbarh_height"), "HEIGHT", 0))
+	fluidRow(
+		CtrlK(ns)
 	),
+    tags$br(),
 	fluidRow(
       ctrlB(ns,"debug-panel",
 	        radioButtons(ns("plotlyoverlay"), label=NULL, choices = c("plotly", "ggplot"), selected = "plotly", inline=TRUE),
             textAreaInput(ns("customized_code"), "CUSTOMIZED CODE", width='100%'))			
     ),
-    tags$br(),
     tags$br()
   )
 }
 
-parameters_list=list(
-  "ggplot"=list(
-    "ggplot_data"=structure("ggplot_data",nme='data',tp="noquote",deflt="")
-  ),
-  "aes"=list(
-    "aes_x"=structure("aes_x",nme='x',tp="noquote",deflt=""),
-    "aes_y"=structure("aes_y",nme='y',tp="noquote",deflt=""),
-    "aes_color"=structure("aes_color",nme='color',tp="noquote",deflt=""),
-    "aes_fill"=structure("aes_fill",nme='fill',tp="noquote",deflt="")
-  ),
-  "ggtitle"=list( "ggtitle_label"=structure("ggtitle_label",nme='label',tp="yesquote",deflt="")
-  ),
-  "xlab"=list( "xlab_label"=structure("xlab_label",nme='label',tp="yesquote",deflt="")
-  ),
-  "scale_x_log10"=list(),
-  "ylab"=list( "ylab_label"=structure("ylab_label",nme='label',tp="yesquote",deflt="")
-  ),
-  "scale_y_log10"=list(),
-  "coord_flip"=list(),
-  "geom_line"=list(),
-  "geom_area"=list(),
-  "stat_bin2d"=list(),
-  "scale_fill_gradient2"=list(),				  
-  "geom_violin"=list( "geom_violin_color"=structure("geom_violin_color",nme='size',tp="yesquote",deflt=""),
-                      "geom_violin_fill"=structure("geom_violin_fill",nme='size',tp="yesquote",deflt="")
-  ),					  
-  "geom_point"=list( "geom_point_size"=structure("geom_point_size",nme='size',tp="noquote",deflt=2)
-  ),
-  "geom_histogram"=list( "geom_histogram_bins"=structure("geom_histogram_bins",nme='bins',tp="noquote",deflt=Inf)
-  ),
-  "stat_binline"=structure(list(
-    "stat_binline_bins"=structure("ggridges::stat_binline_bins",nme='bins',tp="noquote",deflt=30),
-	"stat_binline_scale"=structure("ggridges::stat_binline_scale",nme='scale',tp="noquote",deflt=Inf),
-    "stat_binline_draw_baseline"=structure("ggridges::stat_binline_draw_baseline",nme='draw_baseline',tp="noquote",deflt=0)
-  ), alt="ggridges::stat_binline"),
-  "facet_wrap"=list(
-    "facet_wrap_facets"=structure("facet_wrap_facets",nme='facets',tp="noquote",deflt="")
-  ),
-  "stat_summary"=list(
-    "stat_summary_fun_data"=structure("stat_summary_fun_data",nme='fun.data',tp="noquote",deflt=""),
-    "stat_summary_color"=structure("stat_summary_color",nme='color',tp="yesquote",deflt="")
-  ),
-  "geom_errorbarh"=list(
-    "geom_errorbarh_mapping"=structure("geom_errorbarh_mapping",nme='mapping',tp="noquote",deflt=""),
-    "geom_errorbarh_xmin"=structure("geom_errorbarh_xmin",nme='xmin',tp="noquote",deflt=""),
-    "geom_errorbarh_height"=structure("geom_errorbarh_height",nme='height',tp="noquote",deflt="")
-  ),
-  "theme_ridges"=structure(list(), alt="ggridges::theme_ridges"),
-  "theme"=list( "theme_fun"=structure("theme_fun",nme='theme_fun',tp="yesquote",deflt="",fun=TRUE),
-                "theme_base_size"=structure("theme_base_size",nme='base_size',tp="noquote",deflt=12)
-  )
-)
+
 
 test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 
@@ -551,6 +524,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	ctrl7(c('box','box2'),"geom_boxplot")
 	ctrl7(c('bar2','scatter'),"geom_point")
 	ctrl7(c('grid'),"stat_bin2d")
+	ctrl7(c('grid'),"scale_fill_gradient2")
 	ctrl7(c('line'),"geom_line")
 	ctrl7(c('area'),"geom_area")
 	ctrl7(c('histogram2'),"stat_binline")
@@ -606,14 +580,15 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		  first_parameter <- TRUE	  
 		  for (parameter in names(parameters_list[[region_property]]) ){
 			user_input <- input[[parameter]]
-			deflt_input <- attr(parameters_list[[region_property]][[parameter]], 'deflt')
+			deflt <- attr(parameters_list[[region_property]][[parameter]], 'deflt')
 			nme <- attr(parameters_list[[region_property]][[parameter]], 'nme')
 			tp <- attr(parameters_list[[region_property]][[parameter]], 'tp')
 			fun <- attr(parameters_list[[region_property]][[parameter]], 'fun')
+			alwyshow <- attr(parameters_list[[region_property]][[parameter]], 'alwyshow')
 			if (isTRUE(fun)){
 			  result <- paste0(user_input,"(")
 			  first_parameter <- TRUE	
-			}else if (isTRUE(user_input!=deflt_input)){
+			}else if (isTRUE(user_input!=deflt)|isTRUE(alwyshow)){
 			  if (!first_parameter){
 				result <- paste0(result, ", ")
 			  }else{
