@@ -50,22 +50,6 @@ ctrlA <- function (ns, ctrlname, ...){
     )
 }
 
-ctrlB1 <- function (ns, ctrlname, RR){
-  shiny::column(3,shinyWidgets::dropdown(
-	    unlist(RR),
-        circle = FALSE,
-        icon = icon("gear"),
-        label = toupper(stringr::str_remove(ctrlname, "-panel")),
-        inputId = ns(paste0("ii",ctrlname)),
-		up = TRUE, 
-		tags$script(paste0("document.getElementById('",ns(paste0("ii",ctrlname)),"').style.width='100%'")),
-        tags$script(paste0("document.getElementById('",paste0("dropdown-menu-",ns(paste0("ii",ctrlname))),"').style.maxHeight='400px'")),
-        tags$script(paste0("document.getElementById('",paste0("dropdown-menu-",ns(paste0("ii",ctrlname))),"').style.minWidth='300px'")),
-        tags$script(paste0("document.getElementById('",paste0("dropdown-menu-",ns(paste0("ii",ctrlname))),"').style.maxWidth='350px'")),
-        tags$script(paste0("document.getElementById('",paste0("dropdown-menu-",ns(paste0("ii",ctrlname))),"').style.overflow='auto'"))
-      ))
-}
-
 ctrlB <- function (ns, ctrlname, ...){
   shiny::column(3,shinyWidgets::dropdown(
 	    ...,
