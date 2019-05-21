@@ -1,3 +1,59 @@
+parameters_list=list(
+  "ggplot"=list(
+    "ggplot_data"=structure("ggplot_data",nme='data',deflt="")
+  ),
+  "aes"=list(
+    "aes_x"=structure("aes_x",nme='x',deflt=""),
+    "aes_y"=structure("aes_y",nme='y',deflt=""),
+    "aes_color"=structure("aes_color",nme='color',deflt=""),
+    "aes_fill"=structure("aes_fill",nme='fill',deflt="")
+  ),
+  "geom_errorbarh"=list(
+    "geom_errorbarh_mapping"=structure("geom_errorbarh_mapping",nme='mapping',deflt="aes(xmax=count)",alwyshow='show'),
+    "geom_errorbarh_xmin"=structure("geom_errorbarh_xmin",nme='xmin',deflt="0",alwyshow='show'),
+    "geom_errorbarh_height"=structure("geom_errorbarh_height",nme='height',deflt="0",alwyshow='show')
+  ),
+  "stat_bin2d"=list(),
+  "geom_line"=list(),
+  "geom_area"=list(),
+  "scale_fill_gradient2"=list(),	
+  "geom_point"=list("geom_point_size"=structure("geom_point_size",nme='size',deflt=2)
+  ),
+  "geom_boxplot"=list(),
+  "geom_bar"=list(),
+  "geom_histogram"=list("geom_histogram_bins"=structure("geom_histogram_bins",nme='bins',deflt=20,alwyshow='show')
+  ),
+  "geom_violin"=list("geom_violin_color"=structure("geom_violin_color",nme='color',tp="quote",deflt="white",alwyshow='show'),
+                     "geom_violin_fill"=structure("geom_violin_fill",nme='color',tp="quote",deflt="grey90",alwyshow='show')
+  ),	
+  "stat_summary"=list(
+    "stat_summary_fun_data"=structure("stat_summary_fun_data",nme='fun.data',deflt="function(x)\n    data.frame( y=mean(x, na.rm=TRUE),\n    ymin=mean(x, na.rm=TRUE)-sd(x,na.rm=TRUE),\n    ymax=mean(x, na.rm=TRUE)+sd(x,na.rm=TRUE))\n    "),
+    "stat_summary_color"=structure("stat_summary_color",nme='color',tp="quote",deflt="red")
+  ),
+  "coord_flip"=list(),
+  "ggtitle"=list("ggtitle_label"=structure("ggtitle_label",nme='label',tp="quote",deflt="",alwyshow='show')
+  ),
+  "xlab"=list("xlab_label"=structure("xlab_label",nme='label',tp="quote",deflt="",alwyshow='show')
+  ),
+  
+  "ylab"=list("ylab_label"=structure("ylab_label",nme='label',tp="quote",deflt="",alwyshow='show')
+  ),
+  "scale_x_log10"=list(),
+  "scale_y_log10"=list(),
+  "facet_wrap"=list(
+    "facet_wrap_facets"=structure("facet_wrap_facets",nme='facets',deflt="")
+  ),
+  "stat_binline"=structure(list(
+    "stat_binline_bins"=structure("ggridges::stat_binline_bins",nme='bins',deflt=50,alwyshow='show'),
+    "stat_binline_scale"=structure("ggridges::stat_binline_scale",nme='scale',deflt=0.7,alwyshow='show'),
+    "stat_binline_draw_baseline"=structure("ggridges::stat_binline_draw_baseline",nme='draw_baseline',deflt=FALSE,alwyshow='show')
+  ), alt="ggridges::stat_binline"),
+  "theme"=list( "theme_fun"=structure("theme_fun",nme='theme_fun',tp="quote",deflt="theme_bw",fun=TRUE),
+                "theme_base_size"=structure("theme_base_size",nme='base_size',deflt=12)
+  ),
+  "theme_ridges"=structure(list(),alt="ggridges::theme_ridges")
+)
+
 ctrlJS <- function (...){
   tags$i(
     shinyjs::inlineCSS(".no_checkbox>i.jstree-checkbox { display:none }"),
@@ -52,82 +108,26 @@ ctrlA <- function (ns, ctrlname, ...){
 
 ctrlKD <- function (ns, ctrlname, ...){
   shiny::column(3,shinyWidgets::dropdown(
-	    ...,
-        circle = FALSE,
-        icon = icon("gear"),
-        label = toupper(stringr::str_remove(ctrlname, "-panel")),
-        inputId = ns(paste0("ii",ctrlname)),
-		up = TRUE, 
-		tags$script(paste0("document.getElementById('",ns(paste0("ii",ctrlname)),"').style.width='100%'")),
-        tags$script(paste0("document.getElementById('",paste0("sw-content-",ns(paste0("ii",ctrlname))),"').style.maxHeight='300px'")),
-        tags$script(paste0("document.getElementById('",paste0("sw-content-",ns(paste0("ii",ctrlname))),"').style.minWidth='300px'")),
-        tags$script(paste0("document.getElementById('",paste0("sw-content-",ns(paste0("ii",ctrlname))),"').style.maxWidth='350px'")),
-        tags$script(paste0("document.getElementById('",paste0("sw-content-",ns(paste0("ii",ctrlname))),"').style.overflow='auto'"))
-      ))
+    ...,
+    circle = FALSE,
+    icon = icon("gear"),
+    label = toupper(stringr::str_remove(ctrlname, "-panel")),
+    inputId = ns(paste0("ii",ctrlname)),
+    up = TRUE, 
+    tags$script(paste0("document.getElementById('",ns(paste0("ii",ctrlname)),"').style.width='100%'")),
+    tags$script(paste0("document.getElementById('",paste0("sw-content-",ns(paste0("ii",ctrlname))),"').style.maxHeight='300px'")),
+    tags$script(paste0("document.getElementById('",paste0("sw-content-",ns(paste0("ii",ctrlname))),"').style.minWidth='300px'")),
+    tags$script(paste0("document.getElementById('",paste0("sw-content-",ns(paste0("ii",ctrlname))),"').style.maxWidth='350px'")),
+    tags$script(paste0("document.getElementById('",paste0("sw-content-",ns(paste0("ii",ctrlname))),"').style.overflow='auto'"))
+  ))
 }
-
-parameters_list=list(
-  "ggplot"=list(
-    "ggplot_data"=structure("ggplot_data",nme='data',deflt="")
-  ),
-  "aes"=list(
-    "aes_x"=structure("aes_x",nme='x',deflt=""),
-    "aes_y"=structure("aes_y",nme='y',deflt=""),
-    "aes_color"=structure("aes_color",nme='color',deflt=""),
-    "aes_fill"=structure("aes_fill",nme='fill',deflt="")
-  ),
-  "ggtitle"=list( "ggtitle_label"=structure("ggtitle_label",nme='label',tp="quote",deflt="",alwyshow='show')
-  ),
-  "xlab"=list( "xlab_label"=structure("xlab_label",nme='label',tp="quote",deflt="",alwyshow='show')
-  ),
-  "scale_x_log10"=list(),
-  "ylab"=list( "ylab_label"=structure("ylab_label",nme='label',tp="quote",deflt="",alwyshow='show')
-  ),
-  "scale_y_log10"=list(),
-  "coord_flip"=list(),
-  "geom_line"=list(),
-  "geom_area"=list(),
-  "geom_bar"=list(),
-  "geom_boxplot"=list(),
-  "stat_bin2d"=list(),
-  "scale_fill_gradient2"=list(),				  
-  "geom_violin"=list( "geom_violin_color"=structure("geom_violin_color",nme='color',tp="quote",deflt="white",alwyshow='show'),
-                      "geom_violin_fill"=structure("geom_violin_fill",nme='color',tp="quote",deflt="grey90",alwyshow='show')
-  ),					  
-  "geom_point"=list( "geom_point_size"=structure("geom_point_size",nme='size',deflt=2)
-  ),
-  "geom_histogram"=list( "geom_histogram_bins"=structure("geom_histogram_bins",nme='bins',deflt=20,alwyshow='show')
-  ),
-  "stat_binline"=structure(list(
-    "stat_binline_bins"=structure("ggridges::stat_binline_bins",nme='bins',deflt=50,alwyshow='show'),
-	"stat_binline_scale"=structure("ggridges::stat_binline_scale",nme='scale',deflt=0.7,alwyshow='show'),
-    "stat_binline_draw_baseline"=structure("ggridges::stat_binline_draw_baseline",nme='draw_baseline',deflt=FALSE,alwyshow='show')
-  ), alt="ggridges::stat_binline"),
-  "facet_wrap"=list(
-    "facet_wrap_facets"=structure("facet_wrap_facets",nme='facets',deflt="")
-  ),
-  "stat_summary"=list(
-    "stat_summary_fun_data"=structure("stat_summary_fun_data",nme='fun.data',deflt="function(x)\n    data.frame( y=mean(x, na.rm=TRUE),\n    ymin=mean(x, na.rm=TRUE)-sd(x,na.rm=TRUE),\n    ymax=mean(x, na.rm=TRUE)+sd(x,na.rm=TRUE))\n    "),
-    "stat_summary_color"=structure("stat_summary_color",nme='color',tp="quote",deflt="red")
-  ),
-  "geom_errorbarh"=list(
-    "geom_errorbarh_mapping"=structure("geom_errorbarh_mapping",nme='mapping',deflt="aes(xmax=count)",alwyshow='show'),
-    "geom_errorbarh_xmin"=structure("geom_errorbarh_xmin",nme='xmin',deflt="0",alwyshow='show'),
-    "geom_errorbarh_height"=structure("geom_errorbarh_height",nme='height',deflt="0",alwyshow='show')
-  ),
-  "theme_ridges"=structure(list(), alt="ggridges::theme_ridges"),
-  "theme"=list( "theme_fun"=structure("theme_fun",nme='theme_fun',tp="quote",deflt="theme_bw",fun=TRUE),
-                "theme_base_size"=structure("theme_base_size",nme='base_size',deflt=12)
-  )
-)
 
 CtrlK <- function(ns){
   AA=list();
   for (region_property in names(parameters_list)){
     BB=tags$div(ctrlKD(ns,paste0(region_property,"-panel"), {
       CC=list(tags$div(checkboxInput(ns(region_property), toupper(region_property))));
-      for (parameter in names(parameters_list[[region_property]]) ){
-        DD=NULL        
+      for (parameter in names(parameters_list[[region_property]]) ){      
         deflt <- attr(parameters_list[[region_property]][[parameter]], 'deflt')
         nme <- attr(parameters_list[[region_property]][[parameter]], 'nme')
         tp <- attr(parameters_list[[region_property]][[parameter]], 'tp')
@@ -242,7 +242,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 			outputdatatreept_temp <- NApt()
 			attr(outputdatatreept_temp[['auto']],'stselected')=TRUE
 			outputdatatreept_old(outputdatatreept_temp)
-			shinyTree::updateTree(session, "datatreept",  outputdatatreept_old() )
+			shinyTree::updateTree(session, "datatreept", outputdatatreept_old() )
 		}
 	} ,ignoreNULL = FALSE)   
     output$lbdatatreept <- renderText(paste("PLOT TYPE: ", {
@@ -252,8 +252,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	plottype_ <- reactive(toString(pt_autofree(plottype())))
 	
 
-	#-------DOING-------------------------------------------------------------------#
-
+	#input STANDARD SELECTION
 	ptdisable <- reactiveValues()
 	output_old <- reactiveValues()
 	inputdata <- reactiveValues()
@@ -282,7 +281,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 					attr(temp[[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected')=TRUE
 					output_old[[MEXICO]]<-(temp)
 				}			
-				shinyTree::updateTree(session, MEXICO,  output_old[[MEXICO]] )
+				shinyTree::updateTree(session, MEXICO, output_old[[MEXICO]] )
 			}else if(length(T)==1){
 				temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
 				attr(temp[[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected')=TRUE
@@ -323,7 +322,6 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	  },silent = TRUE)
 	  resu
 	}
-		
 	
 	#-------LOGICAL SEPERATION-------------------------------------------------------------------#	
 	
@@ -441,9 +439,25 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	} ,ignoreNULL = FALSE)
 	
 	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
-	
 
-	get_panel <- function (region_property, plus = TRUE){
+	get_panels <- function (){
+	  result <- ""
+	  first_parameter <- TRUE
+	  for (region_property in names(parameters_list) ){
+		panel <- get_panel(region_property)
+		if(isTRUE(nchar(panel)>0) ){
+		    if(!first_parameter){
+				result <- paste0(result, " + \n")
+			}else{
+				first_parameter=FALSE
+			}
+			result <- paste0(result, panel)
+		}
+	  }	
+	  result <- paste0(result, "  \n")
+	} 
+
+	get_panel <- function (region_property){
 	  result <- "";
 	  if(isTRUE(input[[region_property]]) ){
 		alt <- attr(parameters_list[[region_property]],"alt")
@@ -479,17 +493,19 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 			  }	
 			}	
 		  }		  
-		  
 		}
 		result <- paste0("  ",result, ")")
-		if (isTRUE(plus)){
-		  result <- paste0(result, " + \n")
-		}else{
-		  result <- paste0(result, "   \n")
-		}
 	  }
 	  result
 	}	
+	
+	get_time <- function(){
+	  paste0(		
+		"```{r echo=FALSE} \n",
+		"Sys.time()\n",
+		"```\n"
+	  )	
+	}
 	
 	get_customized_code <- function (){
 	  if(isTRUE(nchar(input$customized_code)>0) ){
@@ -497,36 +513,29 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	  }else{""}
 	}
 	
-	know_auto_means <- function(){
+	what_auto_means <- function(){
 	  paste0(
 		if (plottype_()=="histogram" & plot__[['treex']]()!="" ){paste0(
 		 "#(numeric x) \n"
-		)}else{""},
-		
+		)}else{""},		
 		if (plottype_()=="bar" & plot__[['treex']]()!="" ){paste0(
 		 "#(categorical x) \n"
-		)}else{""},
-		
+		)}else{""},		
 		if (plottype_()=="box" & plot__[['treey']]()!="" ){paste0(
 		 "#(numeric y) \n"
-		)}else{""},
-		
+		)}else{""},		
 		if (plottype_()=="bar2" & plot__[['treey']]()!="" ){paste0(
 		 "#(categorical y) \n"
-		)}else{""},
-		
+		)}else{""},		
 		if (plottype_()=="scatter" & plot__[['treex']]()!="" & plot__[['treey']]()!="" ){paste0(
 		 "#(numeric x and y) \n"
-		)}else{""},
-		
+		)}else{""},		
 		if (plottype_()=="box2" & plot__[['treex']]()!="" & plot__[['treey']]()!="" ){paste0(
 		 "#(categorical x numeric y) \n"
-		)}else{""},	
-		
+		)}else{""},			
 		if (plottype_()=="histogram2" & plot__[['treex']]()!="" & plot__[['treey']]()!="" ){paste0(
 		 "#(numeric x categorical y) \n"
-		)}else{""},	
-		
+		)}else{""},			
 		if (plottype_()=="grid" & plot__[['treex']]()!="" & plot__[['treey']]()!="" ){paste0(
 		 "#(categorical x categorical y) \n"
 		)}else{""}		
@@ -538,9 +547,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
     # RMarkdown Code
 	txt_react <- reactive({
 	  txt <- paste0(
-		"```{r echo=FALSE} \n",
-		"Sys.time()\n",
-		"```\n",
+		get_time(),
 		"* PLOT: ",plottype_()," \n",
 		"* DATA: ",plotdf_()," \n",
 		if(!ptdisable[['treex']]){
@@ -548,8 +555,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		}else{""},
 		if(!ptdisable[['treey']]){
 		  paste0("* Y: ",toString(plot[['treey']]())," \n")
-		}else{""},  
-		
+		}else{""},  		
 		if(isTRUE(nchar(plot[["treecolor"]]())>0) & !ptdisable[["treecolor"]]){
 		  paste0("* COLOR: ",toString(plot[["treecolor"]]())," \n")
 		}else{""},  
@@ -571,44 +577,16 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		if(isTRUE(input$scale_y_log10) ){
 		  paste0("* Y AXIS: scale_y_log10() \n")
 		}else{""},
-		if(isTRUE(input$geom_violin)  ){ # & !ptdisable[['treey']]()
-		  paste0("*    ALSO: geom_violin( ) \n")
-		}else{""},
-		if(isTRUE(input$stat_summary)  ){ # & !ptdisable[['treey']]()
-		  paste0("*    ALSO: stat_summary( ) \n")
-		}else{""},
 		if(isTRUE(input$coord_flip) ){
 		  paste0("*    ALSO: coord_flip() \n")
 		}else{""},
 		" \n",			
 		if({nchar(plottype_())>0} & isTRUE(plottype_()!='auto')){paste0(
 			"```{r} \n",
-			know_auto_means(),
+			what_auto_means(),
 			"library(ggplot2) \n",		
 			if(toString(input$plotlyoverlay)=="plotly"){"( \n"}else{""},
-			get_panel("ggplot"),
-			get_panel("aes"),
-			get_panel("geom_errorbarh"),
-			get_panel("stat_bin2d"),
-			get_panel("geom_line"),
-			get_panel("geom_area"),
-			get_panel("scale_fill_gradient2"),
-			get_panel("geom_point"),
-			get_panel("geom_boxplot"),
-			get_panel("geom_bar"),
-			get_panel("geom_histogram"),		
-			get_panel("geom_violin"),
-			get_panel("stat_summary"),
-			get_panel("coord_flip"),
-			get_panel("ggtitle"),
-			get_panel("xlab"),
-			get_panel("ylab"),
-			get_panel("scale_x_log10"),
-			get_panel("scale_y_log10"),
-			get_panel("facet_wrap"),
-			get_panel("stat_binline"),
-			get_panel("theme",plus=FALSE),
-			get_panel("theme_ridges",plus=FALSE),
+			get_panels(),
 			get_customized_code(),
 			if(toString(input$plotlyoverlay)=="plotly"){") %>% plotly::ggplotly()\n"}else{""},
 			"```\n"
@@ -685,9 +663,9 @@ format_local2 <- function(resu) {
   result
 }
 
-toStringB <- function(resu,disable=FALSE) {
-  zeromessage="Select...     "
-  if(disable)zeromessage="Not Required"
+toStringB <- function(resu, disable=FALSE){
+  zeromessage <- "Select...     "
+  if(disable)zeromessage <- "Not Required"
   if (length(resu) == 0) {
     zeromessage
   } else if (toString(resu) == "") {
@@ -697,7 +675,7 @@ toStringB <- function(resu,disable=FALSE) {
   }
 }
 
-NApt <- function(auto=FALSE) {
+NApt <- function(auto=FALSE){
 	structure(list(
 	  'auto'=structure('auto',sticon=' fa fa-oil-can ',stselected=auto),
 	  'area'=structure('area',sticon=' fa fa-area-chart ',stselected=FALSE),
@@ -750,54 +728,55 @@ filter_pt <- function (original,x,y){
     decide_pt(x,y)
   }
 }
+
 decide_pt <- function (xx,yy){
   result <- NULL
   if(!length(xx)&!length(yy)){
     result <- list( structure("auto",implied='unknown'))
   }else if( length(xx)&!length(yy)){
     for (xxx in xx){
-      result<-c(result, if( judge_numeric(xxx) ){
-        structure("auto histogram",implied='histogram')
-      }else if( judge_categorical(xxx) ){
-        structure("auto bar",implied='bar')
-      }else{
-        structure("auto",implied='unknown')
-      }
-      
+      result <- c(result, 
+		  if( judge_numeric(xxx) ){
+			structure("auto histogram",implied='histogram')
+		  }else if( judge_categorical(xxx) ){
+			structure("auto bar",implied='bar')
+		  }else{
+			structure("auto",implied='unknown')
+		  }      
       )
     }
   }else if(!length(xx)& length(yy)){
     for (yyy in yy){
-      result<-c(result, if( judge_numeric(yyy) ){
-        structure("auto box",implied='box')
-      }else if( judge_categorical(yyy) ){
-        structure("auto bar2",implied='bar2')
-      }else{
-        structure("auto",implied='unknown')
-      }
-      
+      result <- c(result, 
+		  if( judge_numeric(yyy) ){
+			structure("auto box",implied='box')
+		  }else if( judge_categorical(yyy) ){
+			structure("auto bar2",implied='bar2')
+		  }else{
+			structure("auto",implied='unknown')
+		  }      
       )
     }
   }else{
     for (xxx in xx){
       for (yyy in yy){
-        result<-c(result, if( judge_numeric(xxx) & judge_numeric(yyy) ){
-          structure("auto scatter",implied='scatter')
-        }else if( judge_categorical(xxx) & judge_numeric(yyy) ){
-          structure("auto box2",implied='box2')
-        }else if( judge_numeric(xxx) & judge_categorical(yyy) ){
-          structure("auto histogram2",implied='histogram2')
-        }else if( judge_categorical(xxx) & judge_categorical(yyy) ){
-          structure("auto grid",implied='grid')
-        }else{
-          structure("auto",implied='unknown')
-        }
+        result<-c(result, 
+			if( judge_numeric(xxx) & judge_numeric(yyy) ){
+			  structure("auto scatter",implied='scatter')
+			}else if( judge_categorical(xxx) & judge_numeric(yyy) ){
+			  structure("auto box2",implied='box2')
+			}else if( judge_numeric(xxx) & judge_categorical(yyy) ){
+			  structure("auto histogram2",implied='histogram2')
+			}else if( judge_categorical(xxx) & judge_categorical(yyy) ){
+			  structure("auto grid",implied='grid')
+			}else{
+			  structure("auto",implied='unknown')
+			}
         )
       }
     }
   }
-  result
-  
+  result  
 }    #original <- c(original,   list('auto numeric'=structure("auto numeric",implied='numeric')))
 
 
@@ -805,10 +784,10 @@ judge_numeric <- function (res){
   #is.element(res['dt'],c('numeric','integer','Date','ts'))
   !judge_categorical(res)
 }
+
 judge_categorical <- function (res){
   is.element(res['dt'],c('character','factor','orderedfactor'))
 }
-#Date ts are unknown type
 
 pt_autofree <- function(resu) {
   result <- NULL
