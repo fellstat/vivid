@@ -1,57 +1,56 @@
 parameters_list=list(
-  "ggplot"=list(
+  "ggplot"=structure(list(
     "ggplot_data"=structure("ggplot_data",nme='data',deflt="")
-  ),
-  "aes"=list(
+  ),ctrl8=c('auto','area','bar','bar2','box','box2','grid','histogram','histogram2','line','scatter')),
+  "aes"=structure(list(
     "aes_x"=structure("aes_x",nme='x',deflt=""),
     "aes_y"=structure("aes_y",nme='y',deflt=""),
     "aes_color"=structure("aes_color",nme='color',deflt=""),
     "aes_fill"=structure("aes_fill",nme='fill',deflt="")
-  ),
-  "geom_errorbarh"=list(
+  ),ctrl8=c('auto','area','bar','bar2','box','box2','grid','histogram','histogram2','line','scatter')),
+  "geom_errorbarh"=structure(list(
     "geom_errorbarh_mapping"=structure("geom_errorbarh_mapping",nme='mapping',deflt="aes(xmax=count)",alwyshow='show'),
     "geom_errorbarh_xmin"=structure("geom_errorbarh_xmin",nme='xmin',deflt="0",alwyshow='show'),
     "geom_errorbarh_height"=structure("geom_errorbarh_height",nme='height',deflt="0",alwyshow='show')
-  ),
-  "stat_bin2d"=list(),
-  "geom_line"=list(),
-  "geom_area"=list(),
-  "scale_fill_gradient2"=list(),	
-  "geom_point"=list("geom_point_size"=structure("geom_point_size",nme='size',deflt=2)
-  ),
-  "geom_boxplot"=list(),
-  "geom_bar"=list(),
-  "geom_histogram"=list("geom_histogram_bins"=structure("geom_histogram_bins",nme='bins',deflt=20,alwyshow='show')
-  ),
-  "geom_violin"=list("geom_violin_color"=structure("geom_violin_color",nme='color',tp="quote",deflt="white",alwyshow='show'),
+  ),ctrl8=c('bar2')),
+  "stat_bin2d"=structure(list(),ctrl8=c('grid')),
+  "geom_line"=structure(list(),ctrl8=c('line')),
+  "geom_area"=structure(list(),ctrl8=c('area')),
+  "scale_fill_gradient2"=structure(list(),ctrl8=c('grid')),	
+  "geom_point"=structure(list("geom_point_size"=structure("geom_point_size",nme='size',deflt=2)
+  ),ctrl8=c('bar2','scatter')),
+  "geom_boxplot"=structure(list(),ctrl8=c('box','box2')),
+  "geom_bar"=structure(list(),ctrl8=c('bar')),
+  "geom_histogram"=structure(list("geom_histogram_bins"=structure("geom_histogram_bins",nme='bins',deflt=20,alwyshow='show')
+  ),ctrl8=c('histogram')),
+  "geom_violin"=structure(list("geom_violin_color"=structure("geom_violin_color",nme='color',tp="quote",deflt="white",alwyshow='show'),
                      "geom_violin_fill"=structure("geom_violin_fill",nme='color',tp="quote",deflt="grey90",alwyshow='show')
-  ),	
-  "stat_summary"=list(
+  )),	
+  "stat_summary"=structure(list(
     "stat_summary_fun_data"=structure("stat_summary_fun_data",nme='fun.data',deflt="function(x)\n    data.frame( y=mean(x, na.rm=TRUE),\n    ymin=mean(x, na.rm=TRUE)-sd(x,na.rm=TRUE),\n    ymax=mean(x, na.rm=TRUE)+sd(x,na.rm=TRUE))\n    "),
     "stat_summary_color"=structure("stat_summary_color",nme='color',tp="quote",deflt="red")
-  ),
-  "coord_flip"=list(),
-  "ggtitle"=list("ggtitle_label"=structure("ggtitle_label",nme='label',tp="quote",deflt="",alwyshow='show')
-  ),
-  "xlab"=list("xlab_label"=structure("xlab_label",nme='label',tp="quote",deflt="",alwyshow='show')
-  ),
-  
-  "ylab"=list("ylab_label"=structure("ylab_label",nme='label',tp="quote",deflt="",alwyshow='show')
-  ),
-  "scale_x_log10"=list(),
-  "scale_y_log10"=list(),
-  "facet_wrap"=list(
+  )),
+  "coord_flip"=structure(list()),
+  "ggtitle"=structure(list("ggtitle_label"=structure("ggtitle_label",nme='label',tp="quote",deflt="",alwyshow='show')
+  )),
+  "xlab"=structure(list("xlab_label"=structure("xlab_label",nme='label',tp="quote",deflt="",alwyshow='show')
+  )),  
+  "ylab"=structure(list("ylab_label"=structure("ylab_label",nme='label',tp="quote",deflt="",alwyshow='show')
+  )),
+  "scale_x_log10"=structure(list()),
+  "scale_y_log10"=structure(list()),
+  "facet_wrap"=structure(list(
     "facet_wrap_facets"=structure("facet_wrap_facets",nme='facets',deflt="")
-  ),
+  )),
   "stat_binline"=structure(list(
     "stat_binline_bins"=structure("ggridges::stat_binline_bins",nme='bins',deflt=50,alwyshow='show'),
     "stat_binline_scale"=structure("ggridges::stat_binline_scale",nme='scale',deflt=0.7,alwyshow='show'),
     "stat_binline_draw_baseline"=structure("ggridges::stat_binline_draw_baseline",nme='draw_baseline',deflt=FALSE,alwyshow='show')
-  ), alt="ggridges::stat_binline"),
-  "theme"=list( "theme_fun"=structure("theme_fun",nme='theme_fun',tp="quote",deflt="theme_bw",fun=TRUE),
+  ), alt="ggridges::stat_binline",ctrl8=c('histogram2')),
+  "theme"=structure(list( "theme_fun"=structure("theme_fun",nme='theme_fun',tp="quote",deflt="theme_bw",fun=TRUE),
                 "theme_base_size"=structure("theme_base_size",nme='base_size',deflt=12)
-  ),
-  "theme_ridges"=structure(list(),alt="ggridges::theme_ridges")
+  ),ctrl8=c('auto','area','bar','bar2','box','box2','grid','histogram','line','scatter')),
+  "theme_ridges"=structure(list(),alt="ggridges::theme_ridges",ctrl8=c('histogram2'))
 )
 
 ctrlJS <- function (...){
@@ -381,30 +380,29 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	
 	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
 	
+	
 	ctrl7 <- function (matchtypes, tocheckbox){
 	  observeEvent(plottype_(),{
-		if( is.element(plottype_(),matchtypes) ){
+		local({
+		if( is.element(plottype_(),c(matchtypes)) ){
 		  updateCheckboxInput(session, tocheckbox, value = TRUE)
 		}else{
 		  updateCheckboxInput(session, tocheckbox, value = FALSE)
 		}
 	  })
+	  })
 	}
+	
+	lapply(
+	  X = names(parameters_list),
+	  FUN = function(region_property){
+		ctrl8=attr(parameters_list[[region_property]], 'ctrl8')
+		if(!is.null(ctrl8)){
+		  ctrl7(ctrl8,region_property)
+		}
+	  }
+	)
 
-	ctrl7(c('auto','area','bar','bar2','box','box2','grid','histogram','histogram2','line','scatter'),"ggplot")
-	ctrl7(c('auto','area','bar','bar2','box','box2','grid','histogram','histogram2','line','scatter'),"aes")
-	ctrl7(c('histogram'),"geom_histogram")
-	ctrl7(c('bar'),"geom_bar")
-	ctrl7(c('box','box2'),"geom_boxplot")
-	ctrl7(c('bar2','scatter'),"geom_point")
-	ctrl7(c('grid'),"stat_bin2d")
-	ctrl7(c('grid'),"scale_fill_gradient2")
-	ctrl7(c('line'),"geom_line")
-	ctrl7(c('area'),"geom_area")
-	ctrl7(c('histogram2'),"stat_binline")
-	ctrl7(c('auto','area','bar','bar2','box','box2','grid','histogram','line','scatter'),"theme")
-	ctrl7(c('histogram2'),"theme_ridges")
-	ctrl7(c('bar2'),"geom_errorbarh")
 	
 	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
 	
