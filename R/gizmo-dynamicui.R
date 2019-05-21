@@ -6,7 +6,10 @@ parameters_list=list(
     "aes_x"=structure("aes_x",nme='x',deflt=""),
     "aes_y"=structure("aes_y",nme='y',deflt=""),
     "aes_color"=structure("aes_color",nme='color',deflt=""),
-    "aes_fill"=structure("aes_fill",nme='fill',deflt="")
+    "aes_fill"=structure("aes_fill",nme='fill',deflt=""),
+	"aes_size"=structure("aes_size",nme='size',deflt=""),
+	"aes_frame"=structure("aes_frame",nme='frame',deflt=""),
+	"aes_ids"=structure("aes_ids",nme='ids',deflt="")
   ),ctrl8=c('auto','area','bar','bar2','box','box2','grid','histogram','histogram2','line','scatter')),
   "geom_errorbarh"=structure(list(
     "geom_errorbarh_mapping"=structure("geom_errorbarh_mapping",nme='mapping',deflt="aes(xmax=count)",alwyshow='show'),
@@ -152,6 +155,10 @@ test_gizmo_dynamic_ui <- function(ns) {
 	ctrlA(ns,"treey"),tags$br(),
 	ctrlA(ns,"treecolor"),tags$br(),
 	ctrlA(ns,"treefacet"),tags$br(),
+	ctrlA(ns,"treefill"),tags$br(),
+    ctrlA(ns,"treesize"),tags$br(),
+	ctrlA(ns,"treeframe"),tags$br(),
+	ctrlA(ns,"treeids"),tags$br(),
     tags$br(),
     fluidRow(
       CtrlK(ns)
@@ -297,7 +304,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		plot_[[MEXICO]] <- reactive(toString(format_local(extract_local(inputdata[[MEXICO]]))))
 		plot__[[MEXICO]] <- reactive(toString(get_col(format_local(extract_local(inputdata[[MEXICO]])))))
 	}
-	for ( MEXICO in c( "treex", "treey", "treecolor", "treefacet") ){
+	for ( MEXICO in c( "treex", "treey", "treecolor", "treefacet", "treefill", "treesize", "treeframe", "treeids") ){
 		CtrlN(MEXICO)
 	}
 	
@@ -332,12 +339,24 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		}	
 	} ,ignoreNULL = FALSE)
 	
-	observeEvent(plottype_(), { 
+	observeEvent(c(plottype_(),plot__[['treefill']]()), { 
 		if(plottype_()=="grid"){
 			updateTextInput(session, "aes_fill", value = "stat(count)" )
 		}else{
-			updateTextInput(session, "aes_fill", value = "" )
+			updateTextInput(session, "aes_fill", value = plot__[['treefill']]() )
 		}
+	} ,ignoreNULL = FALSE)
+	
+	observeEvent(plot__[['treesize']](), { 
+		updateTextInput(session, "aes_size", value = plot__[['treesize']]() )
+	} ,ignoreNULL = FALSE)
+	
+	observeEvent(plot__[['treeframe']](), { 
+		updateTextInput(session, "aes_frame", value = plot__[['treeframe']]() )
+	} ,ignoreNULL = FALSE)
+	
+	observeEvent(plot__[['treeids']](), { 
+		updateTextInput(session, "aes_ids", value = plot__[['treeids']]() )
 	} ,ignoreNULL = FALSE)
 	
     observeEvent(c(plot__[['treex']](),plottype_()), { 
@@ -805,7 +824,7 @@ get_col <- function(resu) {
     result <- c(result, attr(res,"col") )
   }
   result
-}
+} #result=sapply(c(resu), FUN=function(res){attr(res,"col")})
 
 filter_dis <- function(resu, disabled=FALSE, fill=NAlist()) {
   if(disabled){
