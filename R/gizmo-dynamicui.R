@@ -257,8 +257,9 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	ptdisable <- reactiveValues()
 	output_old <- reactiveValues()
 	inputdata <- reactiveValues()
-	plot <- reactiveValues()
-	plot_ <- reactiveValues()
+	plot <- reactiveValues()   #raw format
+	plot_ <- reactiveValues()  #complete string
+	plot__ <- reactiveValues() #col name only
 	
 	CtrlN <- function (MEXICO){
 		ptdisable[[MEXICO]] <- FALSE
@@ -296,6 +297,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		}))
 		plot[[MEXICO]] <- reactive(format_local(extract_local(inputdata[[MEXICO]])))
 		plot_[[MEXICO]] <- reactive(toString(format_local(extract_local(inputdata[[MEXICO]]))))
+		plot__[[MEXICO]] <- reactive(toString(get_col(format_local(extract_local(inputdata[[MEXICO]])))))
 	}
 	for ( MEXICO in c( "treex", "treey", "treecolour", "treefacet") ){
 		CtrlN(MEXICO)
@@ -325,9 +327,9 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	
 	#-------LOGICAL SEPERATION-------------------------------------------------------------------#	
 	
-	observeEvent(c(plotdf_(),plottype_(),plot_[['treey']]()), { 
+	observeEvent(c(plotdf_(),plottype_(),plot__[['treey']]()), { 
 	    if(plottype_()=="bar2"){
-		    updateTextInput(session, "ggplot_data", value = paste0(plotdf_(), " %>% dplyr::group_by(",plot_[['treey']](),") %>% dplyr::summarise(count= dplyr::n())" ) )
+		    updateTextInput(session, "ggplot_data", value = paste0(plotdf_(), " %>% dplyr::group_by(",plot__[['treey']](),") %>% dplyr::summarise(count= dplyr::n())" ) )
 		}else{
 			updateTextInput(session, "ggplot_data", value = plotdf_() ) 
 		}	
@@ -341,23 +343,23 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		}
 	} ,ignoreNULL = FALSE)
 	
-    observeEvent(c(plot_[['treex']](),plottype_()), { 
+    observeEvent(c(plot__[['treex']](),plottype_()), { 
 		if(plottype_()=="box"){
 			updateTextInput(session, "aes_x", value = "\"\"" )
 		}else if(plottype_()=="grid"){
-			updateTextInput(session, "aes_x", value = paste0("seq_along(",plot_[['treex']](),")") )
+			updateTextInput(session, "aes_x", value = paste0("seq_along(",plot__[['treex']](),")") )
 		}else if(plottype_()=="line"){
-			updateTextInput(session, "aes_x", value = paste0("seq_along(",plot_[['treex']](),")") )
+			updateTextInput(session, "aes_x", value = paste0("seq_along(",plot__[['treex']](),")") )
 		}else if(plottype_()=="area"){
-			updateTextInput(session, "aes_x", value = paste0("seq_along(",plot_[['treex']](),")") )
+			updateTextInput(session, "aes_x", value = paste0("seq_along(",plot__[['treex']](),")") )
 		}else if(plottype_()=="bar2"){
 			updateTextInput(session, "aes_x", value = "count" )
 		}else{
-			updateTextInput(session, "aes_x", value = plot_[['treex']]() )
+			updateTextInput(session, "aes_x", value = plot__[['treex']]() )
 		}	
 	} ,ignoreNULL = FALSE)
 	
-	observeEvent(plot_[['treey']](),{ updateTextInput(session, "aes_y", value = plot_[['treey']]() ) } ,ignoreNULL = FALSE)
+	observeEvent(plot__[['treey']](),{ updateTextInput(session, "aes_y", value = plot__[['treey']]() ) } ,ignoreNULL = FALSE)
 	
 	observeEvent(plot_[["treecolour"]](),{ updateTextInput(session, "aes_color", value = plot_[["treecolour"]]() );} ,ignoreNULL = FALSE)	
 	
@@ -497,35 +499,35 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	
 	know_auto_means <- function(){
 	  paste0(
-		if (plottype_()=="histogram" & plot_[['treex']]()!="" ){paste0(
+		if (plottype_()=="histogram" & plot__[['treex']]()!="" ){paste0(
 		 "#(numeric x) \n"
 		)}else{""},
 		
-		if (plottype_()=="bar" & plot_[['treex']]()!="" ){paste0(
+		if (plottype_()=="bar" & plot__[['treex']]()!="" ){paste0(
 		 "#(categorical x) \n"
 		)}else{""},
 		
-		if (plottype_()=="box" & plot_[['treey']]()!="" ){paste0(
+		if (plottype_()=="box" & plot__[['treey']]()!="" ){paste0(
 		 "#(numeric y) \n"
 		)}else{""},
 		
-		if (plottype_()=="bar2" & plot_[['treey']]()!="" ){paste0(
+		if (plottype_()=="bar2" & plot__[['treey']]()!="" ){paste0(
 		 "#(categorical y) \n"
 		)}else{""},
 		
-		if (plottype_()=="scatter" & plot_[['treex']]()!="" & plot_[['treey']]()!="" ){paste0(
+		if (plottype_()=="scatter" & plot__[['treex']]()!="" & plot__[['treey']]()!="" ){paste0(
 		 "#(numeric x and y) \n"
 		)}else{""},
 		
-		if (plottype_()=="box2" & plot_[['treex']]()!="" & plot_[['treey']]()!="" ){paste0(
+		if (plottype_()=="box2" & plot__[['treex']]()!="" & plot__[['treey']]()!="" ){paste0(
 		 "#(categorical x numeric y) \n"
 		)}else{""},	
 		
-		if (plottype_()=="histogram2" & plot_[['treex']]()!="" & plot_[['treey']]()!="" ){paste0(
+		if (plottype_()=="histogram2" & plot__[['treex']]()!="" & plot__[['treey']]()!="" ){paste0(
 		 "#(numeric x categorical y) \n"
 		)}else{""},	
 		
-		if (plottype_()=="grid" & plot_[['treex']]()!="" & plot_[['treey']]()!="" ){paste0(
+		if (plottype_()=="grid" & plot__[['treex']]()!="" & plot__[['treey']]()!="" ){paste0(
 		 "#(categorical x categorical y) \n"
 		)}else{""}		
 	  )
