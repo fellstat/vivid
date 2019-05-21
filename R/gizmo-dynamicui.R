@@ -50,7 +50,7 @@ ctrlA <- function (ns, ctrlname, ...){
     )
 }
 
-ctrlB <- function (ns, ctrlname, ...){
+ctrlKB <- function (ns, ctrlname, ...){
   shiny::column(3,shinyWidgets::dropdown(
 	    ...,
         circle = FALSE,
@@ -68,20 +68,20 @@ ctrlB <- function (ns, ctrlname, ...){
 
 parameters_list=list(
   "ggplot"=list(
-    "ggplot_data"=structure("ggplot_data",nme='data',tp="noquote",deflt="")
+    "ggplot_data"=structure("ggplot_data",nme='data',deflt="")
   ),
   "aes"=list(
-    "aes_x"=structure("aes_x",nme='x',tp="noquote",deflt=""),
-    "aes_y"=structure("aes_y",nme='y',tp="noquote",deflt=""),
-    "aes_color"=structure("aes_color",nme='color',tp="noquote",deflt=""),
-    "aes_fill"=structure("aes_fill",nme='fill',tp="noquote",deflt="")
+    "aes_x"=structure("aes_x",nme='x',deflt=""),
+    "aes_y"=structure("aes_y",nme='y',deflt=""),
+    "aes_color"=structure("aes_color",nme='color',deflt=""),
+    "aes_fill"=structure("aes_fill",nme='fill',deflt="")
   ),
-  "ggtitle"=list( "ggtitle_label"=structure("ggtitle_label",nme='label',tp="yesquote",deflt="",alwyshow=TRUE)
+  "ggtitle"=list( "ggtitle_label"=structure("ggtitle_label",nme='label',tp="quote",deflt="",alwyshow='show')
   ),
-  "xlab"=list( "xlab_label"=structure("xlab_label",nme='label',tp="yesquote",deflt="",alwyshow=TRUE)
+  "xlab"=list( "xlab_label"=structure("xlab_label",nme='label',tp="quote",deflt="",alwyshow='show')
   ),
   "scale_x_log10"=list(),
-  "ylab"=list( "ylab_label"=structure("ylab_label",nme='label',tp="yesquote",deflt="",alwyshow=TRUE)
+  "ylab"=list( "ylab_label"=structure("ylab_label",nme='label',tp="quote",deflt="",alwyshow='show')
   ),
   "scale_y_log10"=list(),
   "coord_flip"=list(),
@@ -91,57 +91,57 @@ parameters_list=list(
   "geom_boxplot"=list(),
   "stat_bin2d"=list(),
   "scale_fill_gradient2"=list(),				  
-  "geom_violin"=list( "geom_violin_color"=structure("geom_violin_color",nme='size',tp="yesquote",deflt="white",alwyshow=TRUE),
-                      "geom_violin_fill"=structure("geom_violin_fill",nme='size',tp="yesquote",deflt="grey90",alwyshow=TRUE)
+  "geom_violin"=list( "geom_violin_color"=structure("geom_violin_color",nme='color',tp="quote",deflt="white",alwyshow='show'),
+                      "geom_violin_fill"=structure("geom_violin_fill",nme='color',tp="quote",deflt="grey90",alwyshow='show')
   ),					  
-  "geom_point"=list( "geom_point_size"=structure("geom_point_size",nme='size',tp="noquote",deflt=2)
+  "geom_point"=list( "geom_point_size"=structure("geom_point_size",nme='size',deflt=2)
   ),
-  "geom_histogram"=list( "geom_histogram_bins"=structure("geom_histogram_bins",nme='bins',tp="noquote",deflt=20,alwyshow=TRUE)
+  "geom_histogram"=list( "geom_histogram_bins"=structure("geom_histogram_bins",nme='bins',deflt=20,alwyshow='show')
   ),
   "stat_binline"=structure(list(
-    "stat_binline_bins"=structure("ggridges::stat_binline_bins",nme='bins',tp="noquote",deflt=50,alwyshow=TRUE),
-	"stat_binline_scale"=structure("ggridges::stat_binline_scale",nme='scale',tp="noquote",deflt=0.7,alwyshow=TRUE),
-    "stat_binline_draw_baseline"=structure("ggridges::stat_binline_draw_baseline",nme='draw_baseline',tp="noquote",deflt=FALSE,alwyshow=TRUE)
+    "stat_binline_bins"=structure("ggridges::stat_binline_bins",nme='bins',deflt=50,alwyshow='show'),
+	"stat_binline_scale"=structure("ggridges::stat_binline_scale",nme='scale',deflt=0.7,alwyshow='show'),
+    "stat_binline_draw_baseline"=structure("ggridges::stat_binline_draw_baseline",nme='draw_baseline',deflt=FALSE,alwyshow='show')
   ), alt="ggridges::stat_binline"),
   "facet_wrap"=list(
-    "facet_wrap_facets"=structure("facet_wrap_facets",nme='facets',tp="noquote",deflt="")
+    "facet_wrap_facets"=structure("facet_wrap_facets",nme='facets',deflt="")
   ),
   "stat_summary"=list(
-    "stat_summary_fun_data"=structure("stat_summary_fun_data",nme='fun.data',tp="noquote",deflt="function(x)\n    data.frame( y=mean(x, na.rm=TRUE),\n    ymin=mean(x, na.rm=TRUE)-sd(x,na.rm=TRUE),\n    ymax=mean(x, na.rm=TRUE)+sd(x,na.rm=TRUE))\n    "),
-    "stat_summary_color"=structure("stat_summary_color",nme='color',tp="yesquote",deflt="red")
+    "stat_summary_fun_data"=structure("stat_summary_fun_data",nme='fun.data',deflt="function(x)\n    data.frame( y=mean(x, na.rm=TRUE),\n    ymin=mean(x, na.rm=TRUE)-sd(x,na.rm=TRUE),\n    ymax=mean(x, na.rm=TRUE)+sd(x,na.rm=TRUE))\n    "),
+    "stat_summary_color"=structure("stat_summary_color",nme='color',tp="quote",deflt="red")
   ),
   "geom_errorbarh"=list(
-    "geom_errorbarh_mapping"=structure("geom_errorbarh_mapping",nme='mapping',tp="noquote",deflt="aes(xmax=count)",alwyshow=TRUE),
-    "geom_errorbarh_xmin"=structure("geom_errorbarh_xmin",nme='xmin',tp="noquote",deflt="0",alwyshow=TRUE),
-    "geom_errorbarh_height"=structure("geom_errorbarh_height",nme='height',tp="noquote",deflt="0",alwyshow=TRUE)
+    "geom_errorbarh_mapping"=structure("geom_errorbarh_mapping",nme='mapping',deflt="aes(xmax=count)",alwyshow='show'),
+    "geom_errorbarh_xmin"=structure("geom_errorbarh_xmin",nme='xmin',deflt="0",alwyshow='show'),
+    "geom_errorbarh_height"=structure("geom_errorbarh_height",nme='height',deflt="0",alwyshow='show')
   ),
   "theme_ridges"=structure(list(), alt="ggridges::theme_ridges"),
-  "theme"=list( "theme_fun"=structure("theme_fun",nme='theme_fun',tp="yesquote",deflt="theme_bw",fun=TRUE),
-                "theme_base_size"=structure("theme_base_size",nme='base_size',tp="noquote",deflt=12)
+  "theme"=list( "theme_fun"=structure("theme_fun",nme='theme_fun',tp="quote",deflt="theme_bw",fun=TRUE),
+                "theme_base_size"=structure("theme_base_size",nme='base_size',deflt=12)
   )
 )
 
 CtrlK <- function(ns){
-	AA=list();
-	for (region_property in names(parameters_list)){
-		BB=tags$div(ctrlB(ns,paste0(region_property,"-panel"), {
-		    CC=list(tags$div(checkboxInput(ns(region_property), toupper(region_property))));
-			for (parameter in names(parameters_list[[region_property]]) ){
-				DD=NULL
-				
-					deflt <- attr(parameters_list[[region_property]][[parameter]], 'deflt')
-					nme <- attr(parameters_list[[region_property]][[parameter]], 'nme')
-					tp <- attr(parameters_list[[region_property]][[parameter]], 'tp')
-					fun <- attr(parameters_list[[region_property]][[parameter]], 'fun')
-					
-				DD=tags$div(textInput(ns(parameter), toupper(parameter), value = deflt))
-				CC=c(CC,list(tags$div(DD)))
-			}
-			tags$div(CC)
-		}))
-		AA=c(AA,list(BB))
-	}
-	AA
+  AA=list();
+  for (region_property in names(parameters_list)){
+    BB=tags$div(ctrlKB(ns,paste0(region_property,"-panel"), {
+      CC=list(tags$div(checkboxInput(ns(region_property), toupper(region_property))));
+      for (parameter in names(parameters_list[[region_property]]) ){
+        DD=NULL        
+        deflt <- attr(parameters_list[[region_property]][[parameter]], 'deflt')
+        nme <- attr(parameters_list[[region_property]][[parameter]], 'nme')
+        tp <- attr(parameters_list[[region_property]][[parameter]], 'tp')
+        fun <- attr(parameters_list[[region_property]][[parameter]], 'fun')
+		alwyshow <- attr(parameters_list[[region_property]][[parameter]], 'alwyshow')
+        DD=tags$div(paste0(nme,' ',tp,' ',deflt,' ',alwyshow), 
+		            textInput(ns(parameter), toupper(parameter), value = deflt))
+        CC=c(CC,list(tags$div(DD)))
+      }
+      tags$div(CC)
+    }))
+    AA=c(AA,list(BB))
+  }
+  AA
 }
 
 test_gizmo_dynamic_ui <- function(ns) {
@@ -157,13 +157,13 @@ test_gizmo_dynamic_ui <- function(ns) {
       column(6,ctrlA(ns,"datatreefacet"))
     ),
     tags$br(),
-	fluidRow(
-		CtrlK(ns)
-	),
+    fluidRow(
+      CtrlK(ns)
+    ),
     tags$br(),
-	fluidRow(
-      ctrlB(ns,"debug-panel",
-	        radioButtons(ns("plotlyoverlay"), label=NULL, choices = c("plotly", "ggplot"), selected = "plotly", inline=TRUE),
+    fluidRow(
+      ctrlKB(ns,"debug-panel",
+            radioButtons(ns("plotlyoverlay"), label=NULL, choices = c("plotly", "ggplot"), selected = "plotly", inline=TRUE),
             textAreaInput(ns("customized_code"), "CUSTOMIZED CODE", width='100%'))			
     ),
     tags$br()
@@ -572,7 +572,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 			if (isTRUE(fun)){
 			  result <- paste0(user_input,"(")
 			  first_parameter <- TRUE	
-			}else if (isTRUE(user_input!=deflt)|isTRUE(alwyshow)){
+			}else if (isTRUE(user_input!=deflt)|isTRUE(alwyshow=='show')){
 			  if (!first_parameter){
 				result <- paste0(result, ", ")
 			  }else{
@@ -580,10 +580,10 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 			  }	
 			  result <- paste0(result, nme)
 			  result <- paste0(result, " = ")
-			  if (tp=='noquote'){
-				result <- paste0(result, user_input)
-			  }else{
+			  if (isTRUE(tp=='quote')){				
 				result <- paste0(result, "\"",user_input, "\"")
+			  }else{
+				result <- paste0(result, user_input)
 			  }	
 			}	
 		  }		  
@@ -688,7 +688,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		  paste0("*    ALSO: coord_flip() \n")
 		}else{""},
 		" \n",			
-		if(nchar(plottype_())>0){paste0(
+		if(nchar(plottype_())>0 & isTRUE(plottype_()!='auto')){paste0(
 			"```{r} \n",
 			know_auto_means(),
 			"library(ggplot2) \n",		
