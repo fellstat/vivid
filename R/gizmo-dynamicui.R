@@ -59,10 +59,10 @@ ctrlKB <- function (ns, ctrlname, ...){
         inputId = ns(paste0("ii",ctrlname)),
 		up = TRUE, 
 		tags$script(paste0("document.getElementById('",ns(paste0("ii",ctrlname)),"').style.width='100%'")),
-        tags$script(paste0("document.getElementById('",paste0("dropdown-menu-",ns(paste0("ii",ctrlname))),"').style.maxHeight='400px'")),
-        tags$script(paste0("document.getElementById('",paste0("dropdown-menu-",ns(paste0("ii",ctrlname))),"').style.minWidth='300px'")),
-        tags$script(paste0("document.getElementById('",paste0("dropdown-menu-",ns(paste0("ii",ctrlname))),"').style.maxWidth='350px'")),
-        tags$script(paste0("document.getElementById('",paste0("dropdown-menu-",ns(paste0("ii",ctrlname))),"').style.overflow='auto'"))
+        tags$script(paste0("document.getElementById('",paste0("sw-content-",ns(paste0("ii",ctrlname))),"').style.maxHeight='400px'")),
+        tags$script(paste0("document.getElementById('",paste0("sw-content-",ns(paste0("ii",ctrlname))),"').style.minWidth='300px'")),
+        tags$script(paste0("document.getElementById('",paste0("sw-content-",ns(paste0("ii",ctrlname))),"').style.maxWidth='350px'")),
+        tags$script(paste0("document.getElementById('",paste0("sw-content-",ns(paste0("ii",ctrlname))),"').style.overflow='auto'"))
       ))
 }
 
