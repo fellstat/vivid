@@ -434,7 +434,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	output$datatreept <- shinyTree::renderTree(NApt(TRUE))
 	outputdatatreept_old <- reactiveVal(NApt(TRUE))
 	observeEvent(input$datatreept,{	
-		T <- get_selected(input$datatreept, format = c("names"))				
+		T <- shinyTree::get_selected(input$datatreept, format = c("names"))				
 		if(length(T)>2){
 			shinyTree::updateTree(session, "datatreept",  outputdatatreept_old() )
 		}else if(length(T)==2){
@@ -462,7 +462,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
     output$lbdatatreept <- renderText(paste("PLOT TYPE: ", {
       toStringB(plottype())
     })) 
-	plottype <- reactive(  filter_pt(get_selected(outputdatatreept_old(), format = c("names")),extract_local(inputdata[['treex']]),extract_local(inputdata[['treey']])))
+	plottype <- reactive(  filter_pt(shinyTree::get_selected(outputdatatreept_old(), format = c("names")),extract_local(inputdata[['treex']]),extract_local(inputdata[['treey']])))
 	plottype_ <- reactive(toString(pt_autofree(plottype())))
 	
 
@@ -634,7 +634,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
 	
 	observeEvent(input$datatreept,{
-	    temp <- get_selected(outputdatatreept_old(), format = c("names"))
+	    temp <- shinyTree::get_selected(outputdatatreept_old(), format = c("names"))
 		if (length(temp)>0){
 			if(!is.element('auto', temp)){
 				disablex=TRUE;disabley=TRUE
