@@ -9,7 +9,9 @@ parameters_list=list(
     "aes_fill"=structure("aes_fill",nme='fill',deflt=""),
 	"aes_size"=structure("aes_size",nme='size',deflt=""),
 	"aes_frame"=structure("aes_frame",nme='frame',deflt=""),
-	"aes_ids"=structure("aes_ids",nme='ids',deflt="")
+	"aes_ids"=structure("aes_ids",nme='ids',deflt=""),
+	"aes_group"=structure("aes_group",nme='group',deflt=""),
+	"aes_xmax"=structure("aes_xmax",nme='xmax',deflt="")
   ),ctrl8=c('auto','area','bar','bar2','box','box2','grid','histogram','histogram2','line','scatter')),
   "geom_errorbarh"=structure(list(
     "geom_errorbarh_mapping"=structure("geom_errorbarh_mapping",nme='mapping',deflt="aes(xmax=count)",alwyshow='show'),
@@ -55,6 +57,7 @@ parameters_list=list(
   ),ctrl8=c('auto','area','bar','bar2','box','box2','grid','histogram','line','scatter')),
   "theme_ridges"=structure(list(),alt="ggridges::theme_ridges",ctrl8=c('histogram2'))
 )
+
 
 ctrlJS <- function (...){
   tags$i(
@@ -164,8 +167,8 @@ extract_local2 <- function(datatreex) {
     for (dd in names(datatreex[[pkg]])) {
         try(if (attr(datatreex[[pkg]][[dd]], "stselected")) {
           resu <- append(resu, list(c(
-            package = pkg,
-            data = dd
+            pkg = pkg,
+            dat = dd
           )))
         }, silent = TRUE)
     }
@@ -180,11 +183,11 @@ format_local <- function(resu) {
 	result <- append(result, list(
 	  structure(
 		paste0(
-			ifelse(res[["package"]]=='.GlobalEnv','.GlobalEnv$',paste0(res[["package"]],"::") ),
-			res[["data"]],"$",res[["col"]]
+			ifelse(res[["pkg"]]=='.GlobalEnv','.GlobalEnv$',paste0(res[["pkg"]],"::") ),
+			res[["dat"]],"$",res[["col"]]
 		)
-	  ,package=ifelse(res[["package"]]=='.GlobalEnv','.GlobalEnv$',paste0(res[["package"]],"::") )
-	  ,data=res[["data"]]
+	  ,pkg=ifelse(res[["pkg"]]=='.GlobalEnv','.GlobalEnv$',paste0(res[["pkg"]],"::") )
+	  ,dat=res[["dat"]]
 	  ,col=res[["col"]]
 	  )
 	))
@@ -197,8 +200,8 @@ format_local2 <- function(resu) {
   for (res in resu) {
 	result <- append(result, list(c(
 		paste0(
-			ifelse(res[["package"]]=='.GlobalEnv','.GlobalEnv$',paste0(res[["package"]],"::") ),
-			res[["data"]]
+			ifelse(res[["pkg"]]=='.GlobalEnv','.GlobalEnv$',paste0(res[["pkg"]],"::") ),
+			res[["dat"]]
 		)
 	)))
   }
@@ -238,7 +241,7 @@ filter_df <- function (original, criterias, reference=NULL){
   for (pkg in names(original)) {
     for (dd in names(original[[pkg]])) {
       for (criteria in criterias){
-        if(pkg==criteria[["package"]] & dd==criteria[["data"]] ){
+        if(pkg==criteria[["pkg"]] & dd==criteria[["dat"]] ){
           Tree0s[[pkg]][[dd]] <- original[[pkg]][[dd]]
           attr(Tree0s[[pkg]][[dd]], "stopened") <- TRUE
           attr(Tree0s[[pkg]], "sttype") <- "pkg-node"
@@ -322,12 +325,12 @@ decide_pt <- function (xx,yy){
 }    #original <- c(original,   list('auto numeric'=structure("auto numeric",implied='numeric')))
 
 judge_numeric <- function (res){
-  #is.element(res['dt'],c('numeric','integer','Date','ts'))
+  #is.element(res["dt"],c('numeric','integer','Date','ts'))
   !judge_categorical(res)
 }
 
 judge_categorical <- function (res){
-  is.element(res['dt'],c('character','factor','orderedfactor'))
+  is.element(res["dt"],c('character','factor','orderedfactor'))
 }
 
 pt_autofree <- function(resu) {
@@ -437,19 +440,19 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		if(length(T)>2){
 			shinyTree::updateTree(session, "datatreedf",  outputdatatreedf_old() )
 		}else if(length(T)==2){
-		    if(isTRUE(attr(outputdatatreedf_old()[[T[[1]][['package']]]][[T[[1]][['data']]]],'stselected'))){
+		    if(isTRUE(attr(outputdatatreedf_old()[[T[[1]][["pkg"]]]][[T[[1]][["dat"]]]],"stselected"))){
 				outputdatatreedf_temp <- datadfs()
-				attr(outputdatatreedf_temp[[T[[2]][['package']]]][[T[[2]][['data']]]],'stselected')=TRUE
+				attr(outputdatatreedf_temp[[T[[2]][["pkg"]]]][[T[[2]][["dat"]]]],"stselected")=TRUE
 				outputdatatreedf_old(outputdatatreedf_temp)
 			}else{
 				outputdatatreedf_temp <- datadfs()
-				attr(outputdatatreedf_temp[[T[[1]][['package']]]][[T[[1]][['data']]]],'stselected')=TRUE
+				attr(outputdatatreedf_temp[[T[[1]][["pkg"]]]][[T[[1]][["dat"]]]],"stselected")=TRUE
 				outputdatatreedf_old(outputdatatreedf_temp)
 			}			
 			shinyTree::updateTree(session, "datatreedf",  outputdatatreedf_old() )
 		}else if(length(T)==1){
 			outputdatatreedf_temp <- datadfs()
-			attr(outputdatatreedf_temp[[T[[1]][['package']]]][[T[[1]][['data']]]],'stselected')=TRUE
+			attr(outputdatatreedf_temp[[T[[1]][["pkg"]]]][[T[[1]][["dat"]]]],"stselected")=TRUE
 			outputdatatreedf_old(outputdatatreedf_temp)
 		}else{
 			outputdatatreedf_old(datadfs())
@@ -471,23 +474,23 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		if(length(T)>2){
 			shinyTree::updateTree(session, "datatreept",  outputdatatreept_old() )
 		}else if(length(T)==2){
-		    if(isTRUE(attr(outputdatatreept_old()[[T[[1]]]],'stselected'))){
+		    if(isTRUE(attr(outputdatatreept_old()[[T[[1]]]],"stselected"))){
 				outputdatatreept_temp <- NApt()
-				attr(outputdatatreept_temp[[T[[2]]]],'stselected')=TRUE
+				attr(outputdatatreept_temp[[T[[2]]]],"stselected")=TRUE
 				outputdatatreept_old(outputdatatreept_temp)
 			}else{
 				outputdatatreept_temp <- NApt()
-				attr(outputdatatreept_temp[[T[[1]]]],'stselected')=TRUE
+				attr(outputdatatreept_temp[[T[[1]]]],"stselected")=TRUE
 				outputdatatreept_old(outputdatatreept_temp)
 			}			
 			shinyTree::updateTree(session, "datatreept",  outputdatatreept_old() )
 		}else if(length(T)==1){
 			outputdatatreept_temp <- NApt()
-			attr(outputdatatreept_temp[[T[[1]]]],'stselected')=TRUE
+			attr(outputdatatreept_temp[[T[[1]]]],"stselected")=TRUE
 			outputdatatreept_old(outputdatatreept_temp)
 		}else{
 			outputdatatreept_temp <- NApt()
-			attr(outputdatatreept_temp[['auto']],'stselected')=TRUE
+			attr(outputdatatreept_temp[['auto']],"stselected")=TRUE
 			outputdatatreept_old(outputdatatreept_temp)
 			shinyTree::updateTree(session, "datatreept", outputdatatreept_old() )
 		}
@@ -519,19 +522,19 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 			if(length(T)>2){
 				shinyTree::updateTree(session, MEXICO, output_old[[MEXICO]] )
 			}else if(length(T)==2){
-				if(isTRUE(attr(output_old[[MEXICO]][[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected'))){
+				if(isTRUE(attr(output_old[[MEXICO]][[T[[1]][["pkg"]]]][[T[[1]][["dat"]]]][[T[[1]][["col"]]]],"stselected"))){
 					temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
-					attr(temp[[T[[2]][['package']]]][[T[[2]][['data']]]][[T[[2]][['col']]]],'stselected')=TRUE
+					attr(temp[[T[[2]][["pkg"]]]][[T[[2]][["dat"]]]][[T[[2]][["col"]]]],"stselected")=TRUE
 					output_old[[MEXICO]]<-(temp)
 				}else{
 					temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
-					attr(temp[[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected')=TRUE
+					attr(temp[[T[[1]][["pkg"]]]][[T[[1]][["dat"]]]][[T[[1]][["col"]]]],"stselected")=TRUE
 					output_old[[MEXICO]]<-(temp)
 				}			
 				shinyTree::updateTree(session, MEXICO, output_old[[MEXICO]] )
 			}else if(length(T)==1){
 				temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
-				attr(temp[[T[[1]][['package']]]][[T[[1]][['data']]]][[T[[1]][['col']]]],'stselected')=TRUE
+				attr(temp[[T[[1]][["pkg"]]]][[T[[1]][["dat"]]]][[T[[1]][["col"]]]],"stselected")=TRUE
 				output_old[[MEXICO]]<-(temp)
 			}else{
 				output_old[[MEXICO]]<-(filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE))
@@ -558,8 +561,8 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		  for (slc in names(datatreez[[pkg]][[dd]])) {
 			try(if (attr(datatreez[[pkg]][[dd]][[slc]], "stselected")) {
 			  resu <- append(resu, list(c(
-				package = pkg,
-				data = dd,
+				pkg = pkg,
+				dat = dd,
 				col = slc,
 				dt = attr(datasets()[[pkg]][[dd]][[slc]], "dt")
 			  )))
