@@ -452,18 +452,22 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	outputdatatreedf_old <- reactiveVal(datadfs())  #single selection ctrl
 	observeEvent(input$datatreedf,{   #single selection
 		T <- extract_local2(input$datatreedf)
-		if(length(T)>2){
+		T2 <- extract_local2(outputdatatreedf_old())
+		if(length(T2)>1){
+			outputdatatreedf_temp <- datadfs()
+			outputdatatreedf_old(outputdatatreedf_temp)
+			shinyTree::updateTree(session, "datatreedf",  outputdatatreedf_old() )
+		}else if(length(T)>2){
 			shinyTree::updateTree(session, "datatreedf",  outputdatatreedf_old() )
 		}else if(length(T)==2){
 		    if(isTRUE(attr(outputdatatreedf_old()[[T[[1]][["pkg"]]]][[T[[1]][["dat"]]]],"stselected"))){
 				outputdatatreedf_temp <- datadfs()
 				attr(outputdatatreedf_temp[[T[[2]][["pkg"]]]][[T[[2]][["dat"]]]],"stselected")=TRUE
-				outputdatatreedf_old(outputdatatreedf_temp)
 			}else{
 				outputdatatreedf_temp <- datadfs()
-				attr(outputdatatreedf_temp[[T[[1]][["pkg"]]]][[T[[1]][["dat"]]]],"stselected")=TRUE
-				outputdatatreedf_old(outputdatatreedf_temp)
-			}			
+				attr(outputdatatreedf_temp[[T[[1]][["pkg"]]]][[T[[1]][["dat"]]]],"stselected")=TRUE				
+			}
+			outputdatatreedf_old(outputdatatreedf_temp)			
 			shinyTree::updateTree(session, "datatreedf",  outputdatatreedf_old() )
 		}else if(length(T)==1){
 			outputdatatreedf_temp <- datadfs()
@@ -486,19 +490,24 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	outputOptions(output, "datatreept", suspendWhenHidden = FALSE)
 	outputdatatreept_old <- reactiveVal(NApt(TRUE))
 	observeEvent(input$datatreept,{	
-		T <- shinyTree::get_selected(input$datatreept, format = c("names"))				
-		if(length(T)>2){
+		T <- shinyTree::get_selected(input$datatreept, format = c("names"))	
+        T2 <- shinyTree::get_selected(outputdatatreept_old(), format = c("names"))		
+		if(length(T2)>1){
+			outputdatatreept_temp <- NApt()
+			attr(outputdatatreept_temp[['auto']],"stselected")=TRUE
+			outputdatatreept_old(outputdatatreept_temp)
+			shinyTree::updateTree(session, "datatreept",  outputdatatreept_old() )
+		}else if(length(T)>2){
 			shinyTree::updateTree(session, "datatreept",  outputdatatreept_old() )
 		}else if(length(T)==2){
 		    if(isTRUE(attr(outputdatatreept_old()[[T[[1]]]],"stselected"))){
 				outputdatatreept_temp <- NApt()
-				attr(outputdatatreept_temp[[T[[2]]]],"stselected")=TRUE
-				outputdatatreept_old(outputdatatreept_temp)
+				attr(outputdatatreept_temp[[T[[2]]]],"stselected")=TRUE				
 			}else{
 				outputdatatreept_temp <- NApt()
 				attr(outputdatatreept_temp[[T[[1]]]],"stselected")=TRUE
-				outputdatatreept_old(outputdatatreept_temp)
-			}			
+			}	
+			outputdatatreept_old(outputdatatreept_temp)
 			shinyTree::updateTree(session, "datatreept",  outputdatatreept_old() )
 		}else if(length(T)==1){
 			outputdatatreept_temp <- NApt()
@@ -533,19 +542,23 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		observeEvent(ptdisable[[MEXICO]],{inputdata[[MEXICO]]<-(filter_dis(output_old[[MEXICO]],ptdisable[[MEXICO]])) } ,ignoreNULL = FALSE)	
 		observeEvent(output_old[[MEXICO]],{inputdata[[MEXICO]]<-(filter_dis(output_old[[MEXICO]],ptdisable[[MEXICO]])) } ,ignoreNULL = FALSE)	
 		observeEvent(input[[MEXICO]],{
-			T <- extract_local(input[[MEXICO]])		
-			if(length(T)>2){
+			T <- extract_local(input[[MEXICO]])
+            T2 <- extract_local(output_old[[MEXICO]])
+			if(length(T2)>1){
+				temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
+				output_old[[MEXICO]]<-(temp)
+				shinyTree::updateTree(session, MEXICO, output_old[[MEXICO]] )
+			}else if(length(T)>2){
 				shinyTree::updateTree(session, MEXICO, output_old[[MEXICO]] )
 			}else if(length(T)==2){
 				if(isTRUE(attr(output_old[[MEXICO]][[T[[1]][["pkg"]]]][[T[[1]][["dat"]]]][[T[[1]][["col"]]]],"stselected"))){
 					temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
-					attr(temp[[T[[2]][["pkg"]]]][[T[[2]][["dat"]]]][[T[[2]][["col"]]]],"stselected")=TRUE
-					output_old[[MEXICO]]<-(temp)
+					attr(temp[[T[[2]][["pkg"]]]][[T[[2]][["dat"]]]][[T[[2]][["col"]]]],"stselected")=TRUE					
 				}else{
 					temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
 					attr(temp[[T[[1]][["pkg"]]]][[T[[1]][["dat"]]]][[T[[1]][["col"]]]],"stselected")=TRUE
-					output_old[[MEXICO]]<-(temp)
-				}			
+				}	
+				output_old[[MEXICO]]<-(temp)
 				shinyTree::updateTree(session, MEXICO, output_old[[MEXICO]] )
 			}else if(length(T)==1){
 				temp <- filter_dis(filter_df(datasets(), extract_local2(outputdatatreedf_old())),FALSE)
