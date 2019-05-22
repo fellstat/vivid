@@ -386,11 +386,25 @@ test_gizmo_dynamic_ui <- function(ns) {
 		shiny::column(3,ctrlA(ns,"treeframe")),
 		shiny::column(3,ctrlA(ns,"treeids"))
 	),tags$br(),
-	tags$br(),
-    fluidRow(
-      CtrlK(ns)
-    ),
+	actionLink(ns("advancedmenu"), 'Advanced', icon = icon('caret-right'),	
+		onclick=paste0("
+							  var dm = document.getElementById('", ns(paste0("advancedmenu", 'div')) ,"');
+							  if (dm.style.display === 'none') {
+							    dm.style.display = 'block';
+							  } else {
+							    dm.style.display = 'none';
+							  }
+		")
+	),
+	tags$div(
+	  fluidRow(
+		CtrlK(ns)
+	  ), 
+	  id=ns(paste0("advancedmenu", 'div')), 
+	  style="display: none;"	  
+	),
     tags$br(),
+	tags$br(),
     fluidRow(
       ctrlKD(ns,"debug-panel",	        
             radioButtons(ns("plotlyoverlay"), label=NULL, choices = c("plotly", "ggplot"), selected = "plotly", inline=TRUE),
@@ -644,8 +658,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
 
 	ctrl3 <- function (tocheckbox){
-		output[[paste0('ic',tocheckbox, '-panel')]]<-renderPrint({
-            #if(tocheckbox=='theme')browser();		
+		output[[paste0('ic',tocheckbox, '-panel')]]<-renderPrint({	
 			apick <- FALSE
 			ctrl8=attr(parameters_list[[tocheckbox]], 'ctrl8')
 			if(!is.null(ctrl8)){
@@ -663,6 +676,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 				tags$i(icon('gear'), style = "color:lightgray")
 			}	
 		})
+		outputOptions(output, paste0('ic',tocheckbox, '-panel'), suspendWhenHidden = FALSE)
 	}
 	
 	lapply(
