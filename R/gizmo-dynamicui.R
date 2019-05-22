@@ -448,6 +448,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 
 	#input DATA FRAME
 	output$datatreedf <- shinyTree::renderTree(datadfs())
+	outputOptions(output, "datatreedf", suspendWhenHidden = FALSE)
 	outputdatatreedf_old <- reactiveVal(datadfs())  #single selection ctrl
 	observeEvent(input$datatreedf,{   #single selection
 		T <- extract_local2(input$datatreedf)
@@ -482,6 +483,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	
    	#input PLOT TYPE
 	output$datatreept <- shinyTree::renderTree(NApt(TRUE))
+	outputOptions(output, "datatreept", suspendWhenHidden = FALSE)
 	outputdatatreept_old <- reactiveVal(NApt(TRUE))
 	observeEvent(input$datatreept,{	
 		T <- shinyTree::get_selected(input$datatreept, format = c("names"))				
@@ -506,7 +508,6 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 			outputdatatreept_temp <- NApt()
 			attr(outputdatatreept_temp[['auto']],"stselected")=TRUE
 			outputdatatreept_old(outputdatatreept_temp)
-			shinyTree::updateTree(session, "datatreept", outputdatatreept_old() )
 		}
 	} ,ignoreNULL = FALSE)   
     output$lbdatatreept <- renderText(paste("PLOT TYPE: ", {
