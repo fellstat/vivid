@@ -97,6 +97,15 @@ ctrlA <- function (ns, ctrlname, ...){
 	    tags$i(class = "fa fa-tag fa-tag-factor", "factor"),
 		tags$i(class = "fa fa-tag fa-tag-orderedfactor", "orderedfactor")
       ),
+	   { #if(is.element(ctrlname, c("datatreedf","datatreept","treex","treey"))){  
+		 #   tags$i(tags$script(paste0("document.getElementById('",ns(paste0("ii",ctrlname)),"').style.width='70%'")),
+		 #   tags$script(paste0("document.getElementById('",ns(paste0("ii",ctrlname)),"').style.position='relative'")),
+		 #   tags$script(paste0("document.getElementById('",ns(paste0("ii",ctrlname)),"').style.left='15%'")) )
+	     #}else{
+		   tags$script(paste0("document.getElementById('",ns(paste0("ii",ctrlname)),"').style.width='100%'"))
+	     #}
+	   },       
+	   tags$script(paste0("document.getElementById('",ns(paste0("ii",ctrlname)),"').style.textAlign='left'")),
       tags$script(paste0("document.getElementById('",paste0("dropdown-menu-",ns(paste0("ii",ctrlname))),"').style.maxHeight='400px'")),
 	  tags$script(paste0("document.getElementById('",paste0("dropdown-menu-",ns(paste0("ii",ctrlname))),"').style.minWidth='300px'")),
       tags$script(paste0("document.getElementById('",paste0("dropdown-menu-",ns(paste0("ii",ctrlname))),"').style.maxWidth='500px'")),
@@ -356,17 +365,25 @@ theme_choices <- function(){
 test_gizmo_dynamic_ui <- function(ns) {
   fluidPage(
     ctrlJS(),
-	ctrlA(ns,"datatreedf"),tags$br(),
-    ctrlA(ns,"datatreept"),tags$br(),    
-	ctrlA(ns,"treex"),tags$br(),
-	ctrlA(ns,"treey"),tags$br(),
-	ctrlA(ns,"treecolor"),tags$br(),
-	ctrlA(ns,"treefacet"),tags$br(),
-	ctrlA(ns,"treefill"),tags$br(),
-    ctrlA(ns,"treesize"),tags$br(),
-	ctrlA(ns,"treeframe"),tags$br(),
-	ctrlA(ns,"treeids"),tags$br(),
-    tags$br(),
+	fluidRow(
+		shiny::column(6,shiny::column(10,ctrlA(ns,"datatreedf"),offset = 1)),
+		shiny::column(6,shiny::column(10,ctrlA(ns,"datatreept"),offset = 1))
+	),tags$br(),
+	fluidRow(
+		shiny::column(6,shiny::column(10,ctrlA(ns,"treex"),offset = 1)),
+		shiny::column(6,shiny::column(10,ctrlA(ns,"treey"),offset = 1))
+	),tags$br(),
+	fluidRow(
+		shiny::column(3,ctrlA(ns,"treecolor")),
+		shiny::column(3,ctrlA(ns,"treefill")),
+		shiny::column(3,ctrlA(ns,"treesize"))		
+	),tags$br(),
+	fluidRow(  
+		shiny::column(3,ctrlA(ns,"treefacet")),
+		shiny::column(3,ctrlA(ns,"treeframe")),
+		shiny::column(3,ctrlA(ns,"treeids"))
+	),tags$br(),
+	tags$br(),
     fluidRow(
       CtrlK(ns)
     ),
@@ -521,7 +538,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 			}
 		} ,ignoreNULL = FALSE)
 		observeEvent(plotdf(),{output_old[[MEXICO]]<-(NAlist())} ,ignoreNULL = FALSE)		
-		output[[paste0('lb',MEXICO)]] <- renderText(paste0(toupper(MEXICO), ": ", {
+		output[[paste0('lb',MEXICO)]] <- renderText(paste0(toupper(if(substr(MEXICO,1,4)=="tree"){substr(MEXICO,5,1000)}else{MEXICO}), ": ", {
 		  toStringB(extract_local(inputdata[[MEXICO]]),ptdisable[[MEXICO]])
 		}))
 		plot[[MEXICO]] <- reactive(format_local(extract_local(inputdata[[MEXICO]])))
