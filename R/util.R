@@ -87,6 +87,7 @@ texasCi <- function(){
         for (kk in 1:length(TreeA)){
 		   Treea=TreeA[kk]
 		   Treeat=TreeAt[kk]
+		   if(isTRUE(nchar(Treea)>0) & isTRUE(nchar(Treeat)>0) )
           eval(parse(text=paste0("Tree2s=c(Tree2s, '",Treea,"'=list(structure(\"",Treea,"\",sticon=' fa fa-tag fa-tag-",checkintype(Treeat),"',dt='",checkintype(Treeat),"')))"))) #,stopened=TRUE
         }
       } else if (substr(envir,1,6)=="tools:"){
@@ -101,6 +102,7 @@ texasCi <- function(){
         for (kk in 1:length(TreeA)){
 		   Treea=TreeA[kk]
 		   Treeat=TreeAt[kk]
+		   if(isTRUE(nchar(Treea)>0) & isTRUE(nchar(Treeat)>0) )
           eval(parse(text=paste0("Tree2s=c(Tree2s, '",Treea,"'=list(structure(\"",Treea,"\",sticon=' fa fa-tag fa-tag-",checkintype(Treeat),"',dt='",checkintype(Treeat),"')))"))) #,stopened=TRUE
         }
       }			

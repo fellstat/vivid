@@ -312,7 +312,6 @@ decide_pt <- function (xx,yy){
   result  
 }    #original <- c(original,   list('auto numeric'=structure("auto numeric",implied='numeric')))
 
-
 judge_numeric <- function (res){
   #is.element(res['dt'],c('numeric','integer','Date','ts'))
   !judge_categorical(res)
@@ -373,9 +372,13 @@ test_gizmo_dynamic_ui <- function(ns) {
     ),
     tags$br(),
     fluidRow(
-      ctrlKD(ns,"debug-panel",
+      ctrlKD(ns,"debug-panel",	        
             radioButtons(ns("plotlyoverlay"), label=NULL, choices = c("plotly", "ggplot"), selected = "plotly", inline=TRUE),
-            textAreaInput(ns("customized_code"), "CUSTOMIZED CODE", width='100%'))			
+            textAreaInput(ns("customized_code"), "CUSTOMIZED CODE", width='100%')
+			),
+      ctrlKD(ns,"reload-panel",	        
+            actionButton(ns("reloaddatasets"), "Reload datasets")
+			)				
     ),
     tags$br()
   )
@@ -392,11 +395,15 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
     datasets <- reactiveVal(NAlist())
 	datadfs  <- reactiveVal(NAlist())
 
-    remote_eval(vivid:::texasCi(), function(obj) {
-	  message("data retrived")
-      datasets(obj$Tree0s)
-	  datadfs (obj$Traa0s)
-    })
+    shinyjs::click("reloaddatasets")
+	
+	observeEvent(input$reloaddatasets, {
+		remote_eval(vivid:::texasCi(), function(obj) {
+		  message("data retrived")
+		  datasets(obj$Tree0s)
+		  datadfs (obj$Traa0s)
+		})
+	})
 
 	#input DATA FRAME
 	output$datatreedf <- shinyTree::renderTree(datadfs())
@@ -424,6 +431,7 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 			outputdatatreedf_old(datadfs())
 		}		
 	})
+	observeEvent(datadfs(),{outputdatatreedf_old(NAlist())} ,ignoreNULL = FALSE)
 	output$lbdatatreedf <- renderText(paste("DATA FRAME: ", {
       toStringB(extract_local2(outputdatatreedf_old()))
     }))
