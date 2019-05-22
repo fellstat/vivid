@@ -848,28 +848,28 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	what_auto_means <- function(){
 	  paste0(
 		if (plottype_()=="histogram" & plot__[['treex']]()!="" ){paste0(
-		 "#(numeric x) \n"
+		 "# hint: (numeric x) \n"
 		)}else{""},		
 		if (plottype_()=="bar" & plot__[['treex']]()!="" ){paste0(
-		 "#(categorical x) \n"
+		 "# hint: (categorical x) \n"
 		)}else{""},		
 		if (plottype_()=="box" & plot__[['treey']]()!="" ){paste0(
-		 "#(numeric y) \n"
+		 "# hint: (numeric y) \n"
 		)}else{""},		
 		if (plottype_()=="bar2" & plot__[['treey']]()!="" ){paste0(
-		 "#(categorical y) \n"
+		 "# hint: (categorical y) \n"
 		)}else{""},		
 		if (plottype_()=="scatter" & plot__[['treex']]()!="" & plot__[['treey']]()!="" ){paste0(
-		 "#(numeric x and y) \n"
+		 "# hint: (numeric x and y) \n"
 		)}else{""},		
 		if (plottype_()=="box2" & plot__[['treex']]()!="" & plot__[['treey']]()!="" ){paste0(
-		 "#(categorical x numeric y) \n"
+		 "# hint: (categorical x numeric y) \n"
 		)}else{""},			
 		if (plottype_()=="histogram2" & plot__[['treex']]()!="" & plot__[['treey']]()!="" ){paste0(
-		 "#(numeric x categorical y) \n"
+		 "# hint: (numeric x categorical y) \n"
 		)}else{""},			
 		if (plottype_()=="grid" & plot__[['treex']]()!="" & plot__[['treey']]()!="" ){paste0(
-		 "#(categorical x categorical y) \n"
+		 "# hint: (categorical x categorical y) \n"
 		)}else{""}		
 	  )
 	}
