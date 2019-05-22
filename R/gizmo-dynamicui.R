@@ -112,11 +112,12 @@ ctrlKD <- function (ns, ctrlname, ...){
   shiny::column(3,shinyWidgets::dropdown(
     ...,
     circle = FALSE,
-    icon = icon("gear"),
-    label = toupper(stringr::str_remove(ctrlname, "-panel")),
+    icon = uiOutput(ns(paste0("ic",ctrlname)), inline =TRUE), #icon("gear"),
+    label = tags$i(toupper(stringr::str_remove(ctrlname, "-panel")), style='font-size: 9pt;'),
     inputId = ns(paste0("ii",ctrlname)),
     up = TRUE, 
     tags$script(paste0("document.getElementById('",ns(paste0("ii",ctrlname)),"').style.width='100%'")),
+	tags$script(paste0("document.getElementById('",ns(paste0("ii",ctrlname)),"').style.textAlign='left'")),
     tags$script(paste0("document.getElementById('",paste0("sw-content-",ns(paste0("ii",ctrlname))),"').style.maxHeight='300px'")),
     tags$script(paste0("document.getElementById('",paste0("sw-content-",ns(paste0("ii",ctrlname))),"').style.minWidth='300px'")),
     tags$script(paste0("document.getElementById('",paste0("sw-content-",ns(paste0("ii",ctrlname))),"').style.maxWidth='350px'")),
@@ -606,7 +607,35 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	},ignoreNULL = FALSE)
 	
 	#-------LOGICAL SEPERATION-------------------------------------------------------------------#
+
+	ctrl3 <- function (tocheckbox){
+		output[[paste0('ic',tocheckbox, '-panel')]]<-renderPrint({
+            #if(tocheckbox=='theme')browser();		
+			apick <- FALSE
+			ctrl8=attr(parameters_list[[tocheckbox]], 'ctrl8')
+			if(!is.null(ctrl8)){
+			  if(isTRUE(nchar(plottype_())>0)){
+				  if( is.element(plottype_(),c(ctrl8)) ){
+					apick<-TRUE
+				  }
+			  }
+			}
+			if (isTRUE(input[[tocheckbox]]) & apick){
+				tags$i(icon('check'), style = "color:red")
+			}else if (isTRUE(input[[tocheckbox]])){
+				tags$i(icon('check'), style = "color:orange")
+			}else{
+				tags$i(icon('gear'), style = "color:lightgray")
+			}	
+		})
+	}
 	
+	lapply(
+	  X = names(parameters_list),
+	  FUN = function(region_property){
+		  ctrl3(region_property)
+	  }
+	)
 	
 	ctrl7 <- function (matchtypes, tocheckbox){
 	  observeEvent(plottype_(),{
