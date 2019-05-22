@@ -377,7 +377,8 @@ test_gizmo_dynamic_ui <- function(ns) {
             textAreaInput(ns("customized_code"), "CUSTOMIZED CODE", width='100%')
 			),
       ctrlKD(ns,"reload-panel",	        
-            actionButton(ns("reloaddatasets"), "Reload datasets")
+            actionButton(ns("reloaddatasets"), "Reload datasets"),
+			uiOutput(ns(paste0("ic","reloaddatasets")), inline =TRUE) #icon("gear"),
 			)				
     ),
     tags$br()
@@ -394,16 +395,22 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 
     datasets <- reactiveVal(NAlist())
 	datadfs  <- reactiveVal(NAlist())
+	
+	iccreloaddatasets  <- reactiveVal('time')
 
     shinyjs::click("reloaddatasets")
 	
 	observeEvent(input$reloaddatasets, {
+	    iccreloaddatasets('time')
 		remote_eval(vivid:::texasCi(), function(obj) {
 		  message("data retrived")
 		  datasets(obj$Tree0s)
 		  datadfs (obj$Traa0s)
+		  iccreloaddatasets('check')
 		})
 	})
+	
+	output[[paste0('ic','reloaddatasets')]]<-renderPrint(tags$i(icon(iccreloaddatasets()), style = "color:black"))
 
 	#input DATA FRAME
 	output$datatreedf <- shinyTree::renderTree(datadfs())
