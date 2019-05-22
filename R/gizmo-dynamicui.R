@@ -404,18 +404,33 @@ test_gizmo_dynamic_ui <- function(ns) {
 	  style="display: none;"	  
 	),
     tags$br(),
+	actionLink(ns("miscmenu"), 'Misc', icon = icon('caret-right'),	
+		onclick=paste0("
+							  var dm = document.getElementById('", ns(paste0("miscmenu", 'div')) ,"');
+							  if (dm.style.display === 'none') {
+							    dm.style.display = 'block';
+							  } else {
+							    dm.style.display = 'none';
+							  }
+		")
+	),
+	tags$div(
+	  fluidRow(
+		  ctrlKD(ns,"debug-panel",	        
+				radioButtons(ns("plotlyoverlay"), label=NULL, choices = c("plotly", "ggplot"), selected = "plotly", inline=TRUE),
+				textAreaInput(ns("customized_code"), "CUSTOMIZED CODE", width='100%')
+				),
+		  ctrlKD(ns,"reload-panel",	        
+				actionButton(ns("reloaddatasets"), "Reload datasets"),
+				uiOutput(ns(paste0("ic","reloaddatasets")), inline =TRUE) #icon("gear"),
+				)				
+	  ), 
+	  id=ns(paste0("miscmenu", 'div')), 
+	  style="display: none;"	  
+	),
 	tags$br(),
-    fluidRow(
-      ctrlKD(ns,"debug-panel",	        
-            radioButtons(ns("plotlyoverlay"), label=NULL, choices = c("plotly", "ggplot"), selected = "plotly", inline=TRUE),
-            textAreaInput(ns("customized_code"), "CUSTOMIZED CODE", width='100%')
-			),
-      ctrlKD(ns,"reload-panel",	        
-            actionButton(ns("reloaddatasets"), "Reload datasets"),
-			uiOutput(ns(paste0("ic","reloaddatasets")), inline =TRUE) #icon("gear"),
-			)				
-    ),
     tags$br()
+	
   )
 }
 
