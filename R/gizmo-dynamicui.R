@@ -14,7 +14,7 @@ parameters_list=list(
 	"aes_xmax"=structure("aes_xmax",nme='xmax',deflt="")
   ),ctrl8=c('auto','area','bar','bar2','box','box2','grid','histogram','histogram2','line','scatter')),
   "geom_errorbarh"=structure(list(
-    #"geom_errorbarh_mapping"=structure("geom_errorbarh_mapping",nme='mapping',deflt="aes(xmax=count)",alwyshow='show'),
+    "geom_errorbarh_mapping"=structure("geom_errorbarh_mapping",nme='mapping',deflt="aes(xmax=count)",alwyshow='show'),
     "geom_errorbarh_xmin"=structure("geom_errorbarh_xmin",nme='xmin',deflt="0",alwyshow='show'),
     "geom_errorbarh_height"=structure("geom_errorbarh_height",nme='height',deflt="0",alwyshow='show')
   ),ctrl8=c('bar2')),
@@ -585,34 +585,14 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 	  original
 	}	
 	
-	CANADA <- c()
-	CANADA[['color']]<- list(
-		"."=structure(list(
-			".."=structure(list(
-				"'red'"=structure(list(),sticon="circle", dt="character" ),
-				"'yellow'"=structure(list(),sticon="circle", dt="character" ),
-				"'green'"=structure(list(),sticon="circle", dt="character" ),
-				"'blue'"=structure(list(),sticon="circle", dt="character" )
-			),sttype="pkg-node", sticon="circle", stopened=TRUE )
-		),sttype="pkg-node", sticon="circle", stopened=TRUE )
-	)
-	
-	
 	CtrlN <- function (MEXICO){
 		dataseh[[MEXICO]] <- reactive( datasets() )
 		datatreedf_oh[[MEXICO]] <- reactive( outputdatatreedf_old() )	
-		inputdft[[MEXICO]] <- reactive({		
-		    AA <- filter_bd(dataseh[[MEXICO]](), extract_local2(datatreedf_oh[[MEXICO]]()))
-			if (isTRUE(AA[['NA']]=='NA')){
-			    AA
-			}else{
-			    c(CANADA[[(if(substr(MEXICO,1,4)=="tree"){substr(MEXICO,5,1000)}else{MEXICO})]],AA)
-			}			
-		})
 		
 		ptdisable[[MEXICO]] <- FALSE
 		output_old[[MEXICO]] <- NAlist()
-		inputdata[[MEXICO]] <- reactive(filter_dis(output_old[[MEXICO]],ptdisable[[MEXICO]]))		
+		inputdata[[MEXICO]] <- reactive(filter_dis(output_old[[MEXICO]],ptdisable[[MEXICO]]))
+		inputdft[[MEXICO]] <- reactive({filter_bd(dataseh[[MEXICO]](), extract_local2(datatreedf_oh[[MEXICO]]()))})
 		output[[MEXICO]] <- shinyTree::renderTree({
 		  output_old[[MEXICO]] <- filter_dis(
 		          constrct_kk( inputdft[[MEXICO]](), output_old[[MEXICO]] )
@@ -620,8 +600,8 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		  output_old[[MEXICO]]
 		})
 		observeEvent(input[[MEXICO]],{
-			T <- extract_local(input[[MEXICO]], inputdft[[MEXICO]]() )
-            T2 <- extract_local(output_old[[MEXICO]], inputdft[[MEXICO]]() )
+			T <- extract_local(input[[MEXICO]], dataseh[[MEXICO]]() )
+            T2 <- extract_local(output_old[[MEXICO]], dataseh[[MEXICO]]() )
 			if(length(T2)>1){
 				temp <- filter_dis(inputdft[[MEXICO]](),FALSE)
 				output_old[[MEXICO]]<-(temp)
@@ -649,12 +629,12 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		observeEvent(plotdf(),{output_old[[MEXICO]]<-(NAlist())} ,ignoreNULL = FALSE)		
 		output[[paste0('lb',MEXICO)]] <- renderText({
 		  paste0(toupper(if(substr(MEXICO,1,4)=="tree"){substr(MEXICO,5,1000)}else{MEXICO}), ": ", {
-		      toStringB(extract_local(inputdata[[MEXICO]](), inputdft[[MEXICO]]() ),ptdisable[[MEXICO]])
+		      toStringB(extract_local(inputdata[[MEXICO]](), dataseh[[MEXICO]]() ),ptdisable[[MEXICO]])
 		  })
 		})
-		plot[[MEXICO]] <- reactive(format_local(extract_local(inputdata[[MEXICO]](), inputdft[[MEXICO]]() )))
-		plot_[[MEXICO]] <- reactive(stringr::str_remove(toString(format_local(extract_local(inputdata[[MEXICO]](), inputdft[[MEXICO]]() ))), ".::..\\$"))
-		plot__[[MEXICO]] <- reactive(toString(get_col(format_local(extract_local(inputdata[[MEXICO]](), inputdft[[MEXICO]]() )))))
+		plot[[MEXICO]] <- reactive(format_local(extract_local(inputdata[[MEXICO]](), dataseh[[MEXICO]]() )))
+		plot_[[MEXICO]] <- reactive(toString(format_local(extract_local(inputdata[[MEXICO]](), dataseh[[MEXICO]]() ))))
+		plot__[[MEXICO]] <- reactive(toString(get_col(format_local(extract_local(inputdata[[MEXICO]](), dataseh[[MEXICO]]() )))))
 	}
 	
 	lapply(
@@ -679,14 +659,6 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 			updateTextInput(session, "aes_fill", value = "stat(count)" )
 		}else{
 			updateTextInput(session, "aes_fill", value = plot__[['treefill']]() )
-		}
-	} ,ignoreNULL = FALSE)
-	
-	observeEvent(plottype_(), { 
-		if(plottype_()=="bar2"){
-			updateTextInput(session, "aes_xmax", value = "count" )
-		}else{
-			updateTextInput(session, "aes_xmax", value = "" )
 		}
 	} ,ignoreNULL = FALSE)
 	
@@ -939,16 +911,16 @@ test_gizmo_dynamic_server <- function(input, output, session, state = NULL) {
 		"* PLOT: ",plottype_()," \n",
 		"* DATA: ",plotdf_()," \n",
 		if(!ptdisable[['treex']]){
-		  paste0("* X: ",plot_[['treex']]()," \n")
+		  paste0("* X: ",toString(plot[['treex']]())," \n")
 		}else{""},
 		if(!ptdisable[['treey']]){
-		  paste0("* Y: ",plot_[['treey']]()," \n")
+		  paste0("* Y: ",toString(plot[['treey']]())," \n")
 		}else{""},  		
-		if(isTRUE(nchar(plot_[["treecolor"]]())>0) & !ptdisable[["treecolor"]]){
-		  paste0("* COLOR: ",plot_[["treecolor"]]()," \n")
+		if(isTRUE(nchar(plot[["treecolor"]]())>0) & !ptdisable[["treecolor"]]){
+		  paste0("* COLOR: ",toString(plot[["treecolor"]]())," \n")
 		}else{""},  
-		if(isTRUE(nchar(plot_[['treefacet']]())>0) & !ptdisable[['treefacet']]){
-		  paste0("* FACET: ",plot_[['treefacet']]()," \n")
+		if(isTRUE(nchar(plot[['treefacet']]())>0) & !ptdisable[['treefacet']]){
+		  paste0("* FACET: ",toString(plot[['treefacet']]())," \n")
 		}else{""}, 
 		if(isTRUE(nchar(input$ggtitle_label)>0)){
 		  paste0("* TITLE: ",toString(input$ggtitle_label)," \n")
